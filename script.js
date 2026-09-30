@@ -603,7 +603,58 @@ function confirmarEliminarAlumno(index) {
   }
 }
 
-// PERSISTENCIA ARCHIVO
+// -------------------------------------------------------------
+// PERSISTENCIA Y MANEJO DE ARCHIVOS
+// -------------------------------------------------------------
+
+async function abrirDocumento() {
+  if ('showOpenFilePicker' in window) {
+    try {
+      const [handle] = await window.showOpenFilePicker({
+        types: [{
+          description: 'Archivo JSON',
+          accept: { 'application/json': ['.json'] }
+        }],
+        multiple: false
+      });
+
+      const file = await handle.getFile();
+      const contenido = await file.text();
+
+      estadoApp = JSON.parse(contenido);
+      archivoHandle = handle; // Guardamos el enlace al archivo para que sobreescriba directo
+      
+      marcarComoGuardado();
+      iniciarVistaHoja();
+    } catch (err) {
+      if (err.name !== 'AbortError') {
+        alert("Error al abrir el archivo seleccionado.");
+      }
+    }
+  } else {
+    // Fallback para navegadores antiguos que no soportan File System Access API
+    document.getElementById('inputCargar').click();
+  }
+}
+
+function cargarDocumento(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      estadoApp = JSON.parse(e.target.result);
+      archivoHandle = null; 
+      marcarComoGuardado();
+      iniciarVistaHoja();
+    } catch (err) {
+      alert("Error al cargar el archivo seleccionado.");
+    }
+  };
+  reader.readAsText(file);
+}
+
 async function guardarDocumento() {
   const contenido = JSON.stringify(estadoApp, null, 2);
   const nombreSugerido = `${estadoApp.nombreDocumento || "cuaderno"}.json`;
@@ -611,17 +662,29 @@ async function guardarDocumento() {
   try {
     if ('showSaveFilePicker' in window) {
       if (!archivoHandle) {
+        // Primera vez guardando un nuevo documento
         archivoHandle = await window.showSaveFilePicker({
           suggestedName: nombreSugerido,
           types: [{ description: 'Archivo JSON', accept: { 'application/json': ['.json'] } }]
         });
+      } else {
+        // Verificar/solicitar permiso de escritura si el navegador lo requiere tras reabrir
+        const options = { mode: 'readwrite' };
+        if ((await archivoHandle.queryPermission(options)) !== 'granted') {
+          if ((await archivoHandle.requestPermission(options)) !== 'granted') {
+            alert("Se requieren permisos para guardar en el archivo.");
+            return;
+          }
+        }
       }
+
       const writable = await archivoHandle.createWritable();
       await writable.write(contenido);
       await writable.close();
 
       marcarComoGuardado();
     } else {
+      // Descarga por defecto para navegadores sin API moderna
       const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(contenido);
       const link = document.createElement('a');
       link.setAttribute("href", dataStr);
@@ -634,22 +697,6 @@ async function guardarDocumento() {
     }
   } catch (err) {
     if (err.name !== 'AbortError') console.error(err);
-  }
-}
-
-function cargarDocumento(event) {
-  const reader = new FileReader();
-  reader.onload = function(e) {
-    try {
-      estadoApp = JSON.parse(e.target.result);
-      marcarComoGuardado();
-      iniciarVistaHoja();
-    } catch (err) {
-      alert("Error al cargar el archivo seleccionado.");
-    }
-  };
-  if (event.target.files[0]) {
-    reader.readAsText(event.target.files[0]);
   }
 }
 

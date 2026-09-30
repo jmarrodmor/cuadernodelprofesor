@@ -18,7 +18,7 @@
       <p>Selecciona una opción para comenzar:</p>
       <div class="modal-buttons">
         <button id="btnNuevo" onclick="mostrarFormNuevoDoc()">➕ Crear nuevo documento</button>
-        <button id="btnCargar" onclick="document.getElementById('inputCargar').click()">📂 Cargar desde carpeta</button>
+        <button id="btnCargar" onclick="abrirDocumento()">📂 Cargar desde carpeta</button>
         <input type="file" id="inputCargar" accept=".json" style="display:none" onchange="cargarDocumento(event)">
       </div>
 
