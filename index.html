@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cuaderno de Evaluación LOMLOE</title>
+  <!-- Favicon para la barra del navegador -->
+  <link rel="icon" type="image/png" href="logo.png">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- Modal Inicial -->
+  <div id="modalInicio" class="modal">
+    <div class="modal-content">
+      <img src="logo.png" alt="Logo Cuaderno" class="logo-modal">
+      <h2>Cuaderno de Evaluación</h2>
+      <p>Selecciona una opción para comenzar:</p>
+      <div class="modal-buttons">
+        <button id="btnNuevo" onclick="mostrarFormNuevoDoc()">➕ Crear nuevo documento</button>
+        <button id="btnCargar" onclick="document.getElementById('inputCargar').click()">📂 Cargar desde carpeta</button>
+        <input type="file" id="inputCargar" accept=".json" style="display:none" onchange="cargarDocumento(event)">
+      </div>
+
+      <!-- Formulario para Nuevo Documento -->
+      <div id="formNuevoDoc" class="hidden">
+        <hr>
+        <h3>Nuevo Documento</h3>
+        <label for="nombreDoc">Nombre del grupo/curso:</label>
+        <input type="text" id="nombreDoc" placeholder="Ej: 1º ESO TECNOLOGÍA">
+        <button onclick="crearNuevoDocumento()">Crear Documento</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Añadir / Editar Unidad Didáctica -->
+  <div id="modalAgregarUD" class="modal hidden">
+    <div class="modal-content">
+      <h3 id="tituloModalUD">Añadir Unidad Didáctica</h3>
+      
+      <div style="text-align: left; margin-top: 10px;">
+        <label for="inputNombreUD"><strong>Nombre de la Unidad Didáctica:</strong></label>
+        <input type="text" id="inputNombreUD" placeholder="Ej: 3. ESTRUCTURAS Y MECANISMOS" style="margin-bottom: 15px;">
+        
+        <label for="inputCriteriosUD"><strong>Criterios de Evaluación asociados:</strong></label>
+        <p style="margin: 3px 0 8px 0;"><small>Escribe los criterios separados por espacios o comas:</small></p>
+        <input type="text" id="inputCriteriosUD" placeholder="Ej: 1.1 2.2 3.1" style="margin-bottom: 15px;">
+      </div>
+
+      <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 10px;">
+        <button onclick="cerrarModalAgregarUD()" style="background-color: #7f8c8d;">Cancelar</button>
+        <button onclick="procesarGuardarUnidad()">Guardar Unidad</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Seleccionar UUDD a Modificar -->
+  <div id="modalModificarUUDD" class="modal hidden">
+    <div class="modal-content">
+      <h3>Selecciona la Unidad a Modificar</h3>
+      <div id="listaUUDDModificar" class="lista-items"></div>
+      <button onclick="cerrarModalModificarUUDD()" style="background-color: #7f8c8d; margin-top: 15px;">Cancelar</button>
+    </div>
+  </div>
+
+  <!-- Modal Modificar Alumno -->
+  <div id="modalModificarAlumno" class="modal hidden">
+    <div class="modal-content">
+      <h3>Selecciona el Alumno a Modificar</h3>
+      <div id="listaAlumnosModificar" class="lista-items"></div>
+      <button onclick="cerrarModalModificarAlumno()" style="background-color: #7f8c8d; margin-top: 15px;">Cancelar</button>
+    </div>
+  </div>
+
+  <!-- Modal Eliminar Alumno -->
+  <div id="modalEliminarAlumno" class="modal hidden">
+    <div class="modal-content">
+      <h3>Selecciona el Alumno a Eliminar</h3>
+      <div id="listaAlumnosEliminar" class="lista-items"></div>
+      <button onclick="cerrarModalEliminarAlumno()" style="background-color: #7f8c8d; margin-top: 15px;">Cancelar</button>
+    </div>
+  </div>
+
+  <!-- Modal Añadir Lista Masiva de Alumnos -->
+  <div id="modalAgregarMasivo" class="modal hidden">
+    <div class="modal-content">
+      <h3>Añadir lista de alumnos</h3>
+      <p>Pega aquí la lista de alumnos (un alumno por línea):</p>
+      <p><small>Formatos admitidos: <strong>Apellidos, Nombre</strong> o <strong>Nombre Apellidos</strong></small></p>
+      
+      <textarea id="textoListaAlumnos" rows="10" style="width: 100%; margin: 10px 0; padding: 8px; font-family: inherit; box-sizing: border-box;" placeholder="García López, Ana&#10;Álvarez Martínez, Carlos&#10;Pérez Gómez, María"></textarea>
+
+      <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 10px;">
+        <button onclick="cerrarModalAgregarMasivo()" style="background-color: #7f8c8d;">Cancelar</button>
+        <button onclick="procesarListaAlumnosMasiva()">Añadir Alumnos</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- VISTA 1: TABLA PRINCIPAL DE RESUMEN -->
+  <div id="app" class="app-container hidden">
+    <header class="top-bar">
+      <div class="header-brand">
+        <img src="logo.png" alt="Logo" class="logo-header">
+        <h1 id="tituloDocumento">1º ESO TECNOLOGÍA</h1>
+      </div>
+      <div class="actions">
+        <span id="estadoGuardado" class="estado-guardado ok">✓ Guardado</span>
+        <button onclick="guardarDocumento()">💾 Guardar en MEMORIA</button>
+        <button onclick="reiniciarApp()">🏠 Inicio</button>
+      </div>
+    </header>
+
+    <div class="toolbar">
+      <button onclick="abrirModalAgregarUD()">➕ Añadir Unidad Didáctica</button>
+      <button onclick="abrirModalModificarUUDD()">✏️ Modificar Unidad Didáctica</button>
+      <button onclick="abrirModalAgregarMasivo()">➕ Añadir Alumnos</button>
+      <button onclick="abrirModalModificarAlumno()">✏ Modificar Alumno</button>
+      <button onclick="abrirModalEliminarAlumno()" class="btn-danger">🗑️ Eliminar Alumno</button>
+    </div>
+
+    <main class="table-container">
+      <table id="tablaResumen">
+        <thead>
+          <tr id="filaCabecera">
+            <th class="col-alumno">ALUMNOS</th>
+            <!-- Dinámico: UUDD + Columna 'INFORMACIÓN' -->
+          </tr>
+        </thead>
+        <tbody id="cuerpoAlumnos"></tbody>
+      </table>
+    </main>
+  </div>
+
+  <!-- VISTA 2: MÁS INFORMACIÓN (DETALLE DEL ALUMNO LOMLOE) -->
+  <div id="vistaDetalle" class="app-container hidden">
+    <header class="top-bar">
+      <div class="header-brand">
+        <button onclick="volverAContactoPrincipal()">⬅️ Volver a la Lista Principal</button>
+        <img src="logo.png" alt="Logo" class="logo-header" style="margin-left: 15px;">
+        <h2 id="tituloAlumnoDetalle" style="display:inline-block; margin-left:10px; color:var(--header-blue);">Alumno</h2>
+      </div>
+      <div class="actions">
+        <span id="estadoGuardadoDetalle" class="estado-guardado ok">✓ Guardado</span>
+        <button onclick="guardarDocumento()">💾 Guardar en MEMORIA</button>
+      </div>
+    </header>
+
+    <main class="grid-layout">
+      <!-- Tabla 1: Unidades Didácticas -->
+      <div class="table-card">
+        <table>
+          <thead>
+            <tr>
+              <th>UNIDADES DIDÁCTICAS</th>
+              <th class="col-nota">NOTA</th>
+            </tr>
+          </thead>
+          <tbody id="tablaDetalleUD"></tbody>
+        </table>
+      </div>
+
+      <!-- Tabla 2: Criterios de Evaluación -->
+      <div class="table-card">
+        <table>
+          <thead>
+            <tr>
+              <th>CRITERIOS</th>
+              <th class="col-nota">NOTA</th>
+            </tr>
+          </thead>
+          <tbody id="tablaDetalleCriterios"></tbody>
+        </table>
+      </div>
+
+      <!-- Tabla 3: Competencias Específicas -->
+      <div class="table-card">
+        <table>
+          <thead>
+            <tr>
+              <th>COMPETENCIA ESPECÍFICA</th>
+              <th class="col-nota">NOTA</th>
+            </tr>
+          </thead>
+          <tbody id="tablaDetalleCompetencias"></tbody>
+        </table>
+      </div>
+
+      <!-- Tabla 4: Descriptores Operativos -->
+      <div class="table-card">
+        <table>
+          <thead>
+            <tr>
+              <th>DESCRIPTOR OPERATIVO</th>
+              <th class="col-nota">NOTA</th>
+            </tr>
+          </thead>
+          <tbody id="tablaDetalleDescriptores"></tbody>
+        </table>
+      </div>
+
+      <!-- Tabla 5: Competencias Clave -->
+      <div class="table-card">
+        <table>
+          <thead>
+            <tr>
+              <th>COMPETENCIA CLAVE</th>
+              <th class="col-nota">NOTA</th>
+            </tr>
+          </thead>
+          <tbody id="tablaDetalleCompClave"></tbody>
+        </table>
+      </div>
+    </main>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
