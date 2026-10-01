@@ -1,3 +1,79 @@
+// DICCIONARIOS DE DESCRIPCIÓN PARA TOOLTIPS LOMLOE
+const DESCRIPCIONES_COMPETENCIAS = {
+  "1": "1. Buscar, seleccionar y organizar información en entornos digitales con actitud crítica y segura.",
+  "2": "2. Abordar problemas mediante el diseño y construcción de soluciones tecnológicas sostenibles.",
+  "3": "3. Utilizar herramientas informáticas y de diseño para la creación de contenido digital.",
+  "4": "4. Representar e comunicar ideas técnicas utilizando simbología y normalización adecuada.",
+  "5": "5. Desarrollar un proyecto técnico trabajando de forma cooperativa e inclusiva.",
+  "6": "6. Comprender el funcionamiento de los sistemas tecnológicos y su impacto en la sociedad.",
+  "7": "7. Hacer uso responsable de los recursos tecnológicos promoviendo el desarrollo sostenible."
+};
+
+const DESCRIPCIONES_CRITERIOS = {
+  "1.1": "1.1. Buscar y seleccionar información relevante en la red con sentido crítico.",
+  "1.2": "1.2. Organizar y almacenar la información digital de forma segura.",
+  "1.3": "1.3. Aplicar medidas básicas de seguridad y protección de datos.",
+  "2.1": "2.1. Diseñar soluciones tecnológicas creativas a problemas planteados.",
+  "2.2": "2.2. Construir prototipos aplicando normas de seguridad e higiene.",
+  "3.1": "3.1. Elaborar documentos y presentaciones utilizando aplicaciones informáticas.",
+  "4.1": "4.1. Interpretar y realizar bocetos y croquis técnicos utilizando acotación.",
+  "5.1": "5.1. Trabajar en equipo repartiendo tareas con empatía y equidad.",
+  "5.2": "5.2. Planificar las fases de un proyecto técnico respetando tiempos.",
+  "5.3": "5.3. Evaluar el proceso de trabajo en grupo proponiendo mejoras.",
+  "6.1": "6.1. Identificar los componentes principales de un sistema informático o tecnológico.",
+  "6.2": "6.2. Analizar las repercusiones del avance tecnológico en el entorno social y ambiental.",
+  "6.3": "6.3. Valorar la importancia de la ciberseguridad y la identidad digital.",
+  "7.1": "7.1. Evaluar el consumo energético e impacto medioambiental de la tecnología.",
+  "7.2": "7.2. Aplicar criterios de economía circular en la reutilización de materiales."
+};
+
+const DESCRIPCIONES_DESCRIPTORES = {
+  "CCL1": "Competencia lingüística: Expresa hechos y opiniones de forma oral y escrita.",
+  "CCL3": "Competencia lingüística: Localiza, selecciona y contrasta información de diversas fuentes.",
+  "CP2": "Competencia plurilingüe: Interactúa en otras lenguas en situaciones cotidianas.",
+  "STEM1": "STEM: Utiliza métodos deductivos e inductivos propios de las ciencias.",
+  "STEM2": "STEM: Utiliza el pensamiento científico para plantear hipótesis y resolver problemas.",
+  "STEM3": "STEM: Plantea y resuelve problemas analizando críticamente los resultados.",
+  "STEM4": "STEM: Interpreta y transmite información con lenguaje científico y técnico.",
+  "STEM5": "STEM: Emprende acciones para preservar el medio ambiente y la salud.",
+  "CD1": "Competencia digital: Realiza búsquedas avanzadas e interacciona en entornos virtuales.",
+  "CD2": "Competencia digital: Crea y modifica contenidos digitales en diversos formatos.",
+  "CD3": "Competencia digital: Participa en actividades cooperativas con herramientas digitales.",
+  "CD4": "Competencia digital: Protege la identidad digital, datos y privacidad.",
+  "CD5": "Competencia digital: Desarrolla soluciones algorítmicas mediante programación.",
+  "CPSAA1": "Personal, social y aprender a aprender: Reflexiona sobre sí mismo y sus metas.",
+  "CPSAA3": "Personal, social y aprender a aprender: Evalúa sus propios aprendizajes y procesos.",
+  "CPSAA4": "Personal, social y aprender a aprender: Favorece la convivencia democrática e inclusiva.",
+  "CPSAA5": "Personal, social y aprender a aprender: Mantiene una actitud resiliente y de superación.",
+  "CC4": "Competencia ciudadana: Analiza el impacto ecológico y promueve el desarrollo sostenible.",
+  "CE1": "Competencia emprendedora: Diseña y gestiona ideas originales generando valor.",
+  "CE3": "Competencia emprendedora: Desarrolla proyectos de forma cooperativa liderando tareas.",
+  "CCEC3": "Conciencia cultural: Expresa ideas e impresiones utilizando diversos soportes artísticos.",
+  "CCEC4": "Conciencia cultural: Diseña productos culturales teniendo en cuenta la estética."
+};
+
+const DESCRIPCIONES_COMPETENCIAS_CLAVE = {
+  "CCL": "Competencia en Comunicación Lingüística: Comprender y expresar pensamientos, emociones y conceptos de forma oral y escrita.",
+  "CP": "Competencia Plurilingüe: Utilizar distintas lenguas de forma eficaz para el aprendizaje y la comunicación.",
+  "STEM": "Competencia Matemática y en Ciencia, Tecnología e Ingeniería (STEM): Comprender el mundo utilizando modelos y métodos científicos.",
+  "CD": "Competencia Digital: Uso seguro, crítico y responsable de las tecnologías digitales para el aprendizaje y la sociedad.",
+  "CPSAA": "Competencia Personal, Social y de Aprender a Aprender: Reflexionar sobre uno mismo, gestionar el tiempo y trabajar colaborativamente.",
+  "CC": "Competencia Ciudadana: Actuar como ciudadanos responsables y participar plenamente en la vida social y cívica.",
+  "CE": "Competencia Emprendedora: Desarrollar la creatividad y capacidad de transformar ideas en actos que generen valor.",
+  "CCEC": "Competencia en Conciencia y Expresión Culturales: Comprender y respetar cómo las ideas son expresadas en distintas culturas."
+};
+
+const CONFIG_COMPETENCIAS_CLAVE = {
+  "CCL":   { nombre: "CCL - Comunicación Lingüística", colorClass: "comp-ccl" },
+  "CP":    { nombre: "CP - Plurilingüe", colorClass: "comp-cp" },
+  "STEM":  { nombre: "STEM - Ciencia, Tec. y Mates", colorClass: "comp-stem" },
+  "CD":    { nombre: "CD - Digital", colorClass: "comp-cd" },
+  "CPSAA": { nombre: "CPSAA - Aprender a Aprender", colorClass: "comp-cpsaa" },
+  "CC":    { nombre: "CC - Ciudadana", colorClass: "comp-cc" },
+  "CE":    { nombre: "CE - Emprendedora", colorClass: "comp-ce" },
+  "CCEC":  { nombre: "CCEC - Expresión Cultural", colorClass: "comp-ccec" }
+};
+
 const MAPA_CURRICULAR = [
   { compNum: "1", compNombre: "1. Buscar...", descriptores: ["CCL3", "STEM2", "CD1", "CD4", "CPSAA4", "CE1"], criterios: ["1.1", "1.2", "1.3"] },
   { compNum: "2", compNombre: "2. Abordar...", descriptores: ["CCL1", "STEM1", "STEM3", "CD3", "CPSAA3", "CPSAA5", "CE1", "CE3"], criterios: ["2.1", "2.2"] },
@@ -14,7 +90,10 @@ let estadoApp = {
     { 
       id: "ud_1", 
       nombre: "1. PRESENTACIONES GOOGLE", 
-      criterios: ["1.1", "1.2"],
+      criterios: [
+        { codigo: "1.1", peso: 2 },
+        { codigo: "1.2", peso: 1 }
+      ],
       apartados: [
         { 
           id: "ap_1", nombre: "EXÁMENES", peso: 60,
@@ -26,7 +105,14 @@ let estadoApp = {
         { id: "ap_2", nombre: "PRÁCTICAS", peso: 40, subapartados: [] }
       ]
     },
-    { id: "ud_2", nombre: "2. PROCESADOR DE TEXTO", criterios: ["2.1"], apartados: [] }
+    { 
+      id: "ud_2", 
+      nombre: "2. PROCESADOR DE TEXTO", 
+      criterios: [
+        { codigo: "2.1", peso: 3 }
+      ], 
+      apartados: [] 
+    }
   ],
   alumnos: [
     { 
@@ -41,9 +127,7 @@ let alumnoSeleccionadoIdx = null;
 let udEdicionIdx = null; 
 let udActivaIdx = null;
 
-// Contexto para el menú del engranaje (⚙️️)
 let contextoEngranaje = { idItem: null, idPadre: null, nombre: '', esPadre: true };
-
 let padreApartadoEdicionId = null;
 let apartadoEdicionId = null; 
 let archivoHandle = null;
@@ -86,6 +170,18 @@ function migrarEstructuraUD() {
     ud.apartados.forEach(ap => {
       if (!ap.subapartados) ap.subapartados = [];
     });
+
+    // Migración de criterios a objetos { codigo, peso } si eran Strings
+    if (ud.criterios && ud.criterios.length > 0) {
+      ud.criterios = ud.criterios.map(crit => {
+        if (typeof crit === 'string') {
+          return { codigo: crit, peso: 2 }; // Nivel medio por defecto
+        }
+        return crit;
+      });
+    } else {
+      ud.criterios = [];
+    }
   });
 
   estadoApp.alumnos.forEach((al) => {
@@ -113,6 +209,7 @@ function crearNuevoDocumento() {
 
 function iniciarVistaHoja() {
   migrarEstructuraUD();
+  construirFormularioCriterios15();
   document.getElementById('modalInicio').classList.add('hidden');
   document.getElementById('vistaDetalle').classList.add('hidden');
   document.getElementById('vistaUD').classList.add('hidden');
@@ -131,7 +228,32 @@ function ordenarAlumnos() {
 }
 
 // -------------------------------------------------------------
-// CÁLCULOS
+// FORMULARIO DE 15 CRITERIOS Y PESOS
+// -------------------------------------------------------------
+
+function construirFormularioCriterios15() {
+  const cont = document.getElementById('contenedorCriteriosUD');
+  if (!cont) return;
+  cont.innerHTML = '';
+
+  for (let i = 0; i < 15; i++) {
+    const row = document.createElement('div');
+    row.className = 'fila-criterio-ud';
+    row.innerHTML = `
+      <span class="num-criterio">${i + 1}.</span>
+      <input type="text" id="crit_cod_${i}" placeholder="Ej: 1.1" class="input-crit-cod">
+      <select id="crit_peso_${i}" class="select-crit-peso">
+        <option value="1">Bajo (x1)</option>
+        <option value="2" selected>Medio (x2)</option>
+        <option value="3">Alto (x3)</option>
+      </select>
+    `;
+    cont.appendChild(row);
+  }
+}
+
+// -------------------------------------------------------------
+// CÁLCULOS LOMLOE PONDERADOS POR PESO DE CRITERIOS
 // -------------------------------------------------------------
 
 function calcularNotaApartadoPadre(alumno, apPadre) {
@@ -186,15 +308,26 @@ function calcularNotaUD(alumno, ud) {
   return pesoEfectivoTotal === 100 ? sumaPonderada : (sumaPonderada * (100 / pesoEfectivoTotal));
 }
 
+// Cálculo Ponderado de Criterios (Bajo: x1, Medio: x2, Alto: x3)
 function calcularNotaCriterio(alumno, codCriterio) {
-  let suma = 0, recuento = 0;
+  let sumaPonderada = 0;
+  let sumaPesos = 0;
+
   estadoApp.unidades.forEach(ud => {
-    if (ud.criterios && ud.criterios.includes(codCriterio)) {
-      const notaUD = calcularNotaUD(alumno, ud);
-      if (notaUD !== null) { suma += notaUD; recuento++; }
+    if (ud.criterios) {
+      const critObj = ud.criterios.find(c => (typeof c === 'string' ? c : c.codigo) === codCriterio);
+      if (critObj) {
+        const peso = typeof critObj === 'object' ? parseInt(critObj.peso || 2, 10) : 2;
+        const notaUD = calcularNotaUD(alumno, ud);
+        if (notaUD !== null) {
+          sumaPonderada += notaUD * peso;
+          sumaPesos += peso;
+        }
+      }
     }
   });
-  return recuento > 0 ? (suma / recuento) : null;
+
+  return sumaPesos > 0 ? (sumaPonderada / sumaPesos) : null;
 }
 
 function calcularNotaCompetencia(alumno, compObj) {
@@ -233,6 +366,14 @@ function calcularNotaCompetenciaClave(alumno, prefijoCompClave) {
     if (notaDesc !== null) { suma += notaDesc; recuento++; }
   });
   return recuento > 0 ? (suma / recuento) : null;
+}
+
+function obtenerGradoAdquisicion(nota) {
+  if (nota === null) return { texto: "-", clase: "" };
+  if (nota < 5.0) return { texto: "No Adquirido", clase: "grado-no" };
+  if (nota < 6.5) return { texto: "En Proceso", clase: "grado-proceso" };
+  if (nota < 8.5) return { texto: "Adquirido", clase: "grado-adquirido" };
+  return { texto: "Avanzado", clase: "grado-avanzado" };
 }
 
 // -------------------------------------------------------------
@@ -322,7 +463,7 @@ function actualizarNotaUDManual(idxAlumno, idUD, valor) {
 }
 
 // -------------------------------------------------------------
-// VISTA 3: DESGLOSE UD CON CABECERA DE 2 FILAS
+// VISTA 3: DESGLOSE UD
 // -------------------------------------------------------------
 
 function abrirVistaUD(idxUnidad) {
@@ -349,7 +490,6 @@ function renderizarTablaUD() {
   let sumaPesosPadre = 0;
   let columnasRenderizadas = []; 
 
-  // Columna fija 1: ALUMNOS (ocupa 2 filas de alto)
   const thAlumno = document.createElement('th');
   thAlumno.className = 'col-alumno';
   thAlumno.rowSpan = 2;
@@ -360,7 +500,6 @@ function renderizarTablaUD() {
     sumaPesosPadre += parseFloat(ap.peso) || 0;
 
     if (!ap.subapartados || ap.subapartados.length === 0) {
-      // APARTADO SIMPLE (Sin subapartados): Ocupa 2 filas de alto
       columnasRenderizadas.push({ tipo: 'apartado_simple', id: ap.id, apPadre: ap });
 
       const th = document.createElement('th');
@@ -373,8 +512,6 @@ function renderizarTablaUD() {
       `;
       fila1.appendChild(th);
     } else {
-      // APARTADO PADRE CON SUBAPARTADOS: 
-      // Fila 1: Ocupa colspan = N (subapartados) + 1 (columna TOTAL)
       const numSub = ap.subapartados.length;
       const thPadre = document.createElement('th');
       thPadre.colSpan = numSub + 1;
@@ -382,12 +519,11 @@ function renderizarTablaUD() {
       thPadre.innerHTML = `
         <div class="header-content">
           <span class="header-title">${ap.nombre} (${ap.peso}%)</span>
-          <button class="btn-gear" onclick="abrirOpcionesApartado('${ap.id}', null, '${ap.nombre}', true)">⚙️</button>
+          <button class="btn-gear" onclick="abrirOpcionesApartado('${ap.id}', null, '${ap.nombre}', true)">⚙️️</button>
         </div>
       `;
       fila1.appendChild(thPadre);
 
-      // Fila 2: Subapartados + Columna TOTAL
       ap.subapartados.forEach((sub) => {
         columnasRenderizadas.push({ tipo: 'subapartado', id: sub.id, apPadre: ap, sub: sub });
 
@@ -396,13 +532,12 @@ function renderizarTablaUD() {
         thSub.innerHTML = `
           <div class="header-content">
             <span>${sub.nombre} <small>(${sub.peso}%)</small></span>
-            <button class="btn-gear" onclick="abrirOpcionesApartado('${sub.id}', '${ap.id}', '${sub.nombre}', false)">⚙️</button>
+            <button class="btn-gear" onclick="abrirOpcionesApartado('${sub.id}', '${ap.id}', '${sub.nombre}', false)">⚙️️</button>
           </div>
         `;
         fila2.appendChild(thSub);
       });
 
-      // Columna TOTAL del bloque
       columnasRenderizadas.push({ tipo: 'total_bloque', apPadre: ap });
       const thTotalSub = document.createElement('th');
       thTotalSub.className = 'header-total-sub';
@@ -411,19 +546,16 @@ function renderizarTablaUD() {
     }
   });
 
-  // Columna final: NOTA UD (ocupa 2 filas)
   const thNotaUD = document.createElement('th');
   thNotaUD.rowSpan = 2;
   thNotaUD.style.backgroundColor = '#083663';
   thNotaUD.textContent = 'NOTA UD';
   fila1.appendChild(thNotaUD);
 
-  // Badge del porcentaje
   const badge = document.getElementById('infoSumaPorcentajes');
   badge.textContent = `Suma pesos principales: ${sumaPesosPadre}%`;
   badge.className = (sumaPesosPadre === 100) ? 'badge-porcentaje ok' : 'badge-porcentaje warn';
 
-  // Cargar Filas de Alumnos
   cuerpoAlumnos.innerHTML = '';
   estadoApp.alumnos.forEach((alumno, idx) => {
     const tr = document.createElement('tr');
@@ -487,7 +619,7 @@ function actualizarNotaApartado(idxAlumno, idTarget, valor) {
 }
 
 // -------------------------------------------------------------
-// MENÚ DE OPCIONES (ENGRANAJE ⚙️)
+// MENÚ DE OPCIONES
 // -------------------------------------------------------------
 
 function abrirOpcionesApartado(idItem, idPadre, nombre, esPadre) {
@@ -527,10 +659,6 @@ function menuAccionEliminarApartado() {
   cerrarModalOpcionesApartado();
   eliminarApartado(idItem, idPadre);
 }
-
-// -------------------------------------------------------------
-// CREACIÓN / EDICIÓN DE FORMULARIO DE APARTADOS
-// -------------------------------------------------------------
 
 function abrirModalAgregarApartado(idPadre = null) {
   padreApartadoEdicionId = idPadre;
@@ -655,14 +783,129 @@ function eliminarApartado(idItem, idPadre = null) {
 }
 
 // -------------------------------------------------------------
-// GESTIÓN DE MÓDULOS DE UNIDADES Y ALUMNOS Y PERSISTENCIA
+// VISTA DETALLE Y TOOLTIPS
+// -------------------------------------------------------------
+
+function verMasInformacion(idxAlumno) {
+  alumnoSeleccionadoIdx = idxAlumno;
+  const alumno = estadoApp.alumnos[idxAlumno];
+
+  document.getElementById('app').classList.add('hidden');
+  document.getElementById('vistaUD').classList.add('hidden');
+  document.getElementById('vistaDetalle').classList.remove('hidden');
+  document.getElementById('tituloAlumnoDetalle').textContent = `${alumno.apellidos}, ${alumno.nombre}`;
+
+  renderizarDetalleAlumno();
+}
+
+function volverAContactoPrincipal() {
+  document.getElementById('vistaDetalle').classList.add('hidden');
+  document.getElementById('vistaUD').classList.add('hidden');
+  document.getElementById('app').classList.remove('hidden');
+  renderizarTablaPrincipal();
+}
+
+function renderizarDetalleAlumno() {
+  const alumno = estadoApp.alumnos[alumnoSeleccionadoIdx];
+
+  // 1. UNIDADES DIDÁCTICAS
+  const tbodyUD = document.getElementById('tablaDetalleUD');
+  tbodyUD.innerHTML = estadoApp.unidades.map(ud => {
+    const notaUD = calcularNotaUD(alumno, ud);
+    return `<tr><td>${ud.nombre}</td><td class="col-nota">${notaUD !== null ? notaUD.toFixed(1) : '-'}</td></tr>`;
+  }).join('');
+
+  // 2. CRITERIOS
+  const tbodyCrit = document.getElementById('tablaDetalleCriterios');
+  let htmlCriterios = '';
+  MAPA_CURRICULAR.forEach(comp => {
+    comp.criterios.forEach(crit => {
+      const notaCrit = calcularNotaCriterio(alumno, crit);
+      const descCrit = DESCRIPCIONES_CRITERIOS[crit] || `Criterio ${crit}`;
+      htmlCriterios += `
+        <tr>
+          <td style="text-align:center;" title="${descCrit}">
+            <span class="has-tooltip">${crit}</span>
+          </td>
+          <td class="col-nota">${notaCrit !== null ? notaCrit.toFixed(1) : '-'}</td>
+        </tr>`;
+    });
+  });
+  tbodyCrit.innerHTML = htmlCriterios;
+
+  // 3. COMPETENCIAS ESPECÍFICAS
+  const tbodyComp = document.getElementById('tablaDetalleCompetencias');
+  tbodyComp.innerHTML = MAPA_CURRICULAR.map(compObj => {
+    const notaComp = calcularNotaCompetencia(alumno, compObj);
+    const descComp = DESCRIPCIONES_COMPETENCIAS[compObj.compNum] || compObj.compNombre;
+    return `
+      <tr>
+        <td style="text-align:center;" title="${descComp}">
+          <span class="has-tooltip">${compObj.compNum}</span>
+        </td>
+        <td class="col-nota">${notaComp !== null ? notaComp.toFixed(1) : '-'}</td>
+      </tr>`;
+  }).join('');
+
+  // 4. DESCRIPTORES OPERATIVOS
+  const tbodyDesc = document.getElementById('tablaDetalleDescriptores');
+  let listaDescriptores = [];
+  MAPA_CURRICULAR.forEach(c => {
+    c.descriptores.forEach(d => { if (!listaDescriptores.includes(d)) listaDescriptores.push(d); });
+  });
+  listaDescriptores.sort();
+
+  tbodyDesc.innerHTML = listaDescriptores.map(desc => {
+    const notaDesc = calcularNotaDescriptor(alumno, desc);
+    const descInfo = DESCRIPCIONES_DESCRIPTORES[desc] || `Descriptor ${desc}`;
+    return `
+      <tr>
+        <td style="text-align:center;" title="${descInfo}">
+          <span class="has-tooltip">${desc}</span>
+        </td>
+        <td class="col-nota">${notaDesc !== null ? notaDesc.toFixed(1) : '-'}</td>
+      </tr>`;
+  }).join('');
+
+  // 5. COMPETENCIAS CLAVE
+  const tbodyCompClave = document.getElementById('tablaDetalleCompClave');
+  let conjuntoCompClave = new Set();
+  listaDescriptores.forEach(d => { conjuntoCompClave.add(d.replace(/[0-9]/g, '')); });
+  const listaCompClave = Array.from(conjuntoCompClave).sort();
+
+  tbodyCompClave.innerHTML = listaCompClave.map(clave => {
+    const notaClave = calcularNotaCompetenciaClave(alumno, clave);
+    const config = CONFIG_COMPETENCIAS_CLAVE[clave] || { nombre: clave, colorClass: '' };
+    const descClave = DESCRIPCIONES_COMPETENCIAS_CLAVE[clave] || config.nombre;
+    const grado = obtenerGradoAdquisicion(notaClave);
+
+    return `
+      <tr class="${config.colorClass}">
+        <td title="${descClave}">
+          <span class="has-tooltip">${config.nombre}</span>
+        </td>
+        <td class="col-nota">${notaClave !== null ? notaClave.toFixed(1) : '-'}</td>
+        <td style="text-align:center;">
+          ${notaClave !== null ? `<span class="badge-grado ${grado.clase}">${grado.texto}</span>` : '-'}
+        </td>
+      </tr>`;
+  }).join('');
+}
+
+// -------------------------------------------------------------
+// GESTIÓN DE UNIDADES DIDÁCTICAS (15 CRITERIOS Y PESOS)
 // -------------------------------------------------------------
 
 function abrirModalAgregarUD() {
   udEdicionIdx = null;
   document.getElementById('tituloModalUD').innerText = 'Añadir Unidad Didáctica';
   document.getElementById('inputNombreUD').value = '';
-  document.getElementById('inputCriteriosUD').value = '';
+  
+  for (let i = 0; i < 15; i++) {
+    document.getElementById(`crit_cod_${i}`).value = '';
+    document.getElementById(`crit_peso_${i}`).value = '2'; // Medio
+  }
+
   document.getElementById('btnEliminarUD').classList.add('hidden');
   document.getElementById('modalAgregarUD').classList.remove('hidden');
 }
@@ -673,13 +916,16 @@ function cerrarModalAgregarUD() {
 
 function procesarGuardarUnidad() {
   const nombreUD = document.getElementById('inputNombreUD').value.trim();
-  const textoCriterios = document.getElementById('inputCriteriosUD').value.trim();
-
   if (!nombreUD) return alert("Por favor, introduce el nombre de la Unidad Didáctica.");
 
-  const listaCriterios = textoCriterios
-    ? textoCriterios.split(/[\s,]+/).map(c => c.trim()).filter(c => c !== "")
-    : [];
+  let listaCriterios = [];
+  for (let i = 0; i < 15; i++) {
+    const cod = document.getElementById(`crit_cod_${i}`).value.trim();
+    const peso = parseInt(document.getElementById(`crit_peso_${i}`).value, 10);
+    if (cod) {
+      listaCriterios.push({ codigo: cod, peso: peso });
+    }
+  }
 
   if (udEdicionIdx === null) {
     estadoApp.unidades.push({
@@ -706,7 +952,8 @@ function abrirModalModificarUUDD() {
   estadoApp.unidades.forEach((ud, index) => {
     const item = document.createElement('div');
     item.className = 'item-uudd';
-    item.textContent = `${index + 1}. ${ud.nombre} (${ud.criterios ? ud.criterios.join(' ') : 'Sin criterios'})`;
+    const listaCodigos = ud.criterios ? ud.criterios.map(c => typeof c === 'string' ? c : c.codigo).join(' ') : '';
+    item.textContent = `${index + 1}. ${ud.nombre} (${listaCodigos || 'Sin criterios'})`;
     item.onclick = () => editarUnidadSeleccionada(index);
     contenedor.appendChild(item);
   });
@@ -725,7 +972,18 @@ function editarUnidadSeleccionada(index) {
 
   document.getElementById('tituloModalUD').innerText = 'Modificar Unidad Didáctica';
   document.getElementById('inputNombreUD').value = ud.nombre;
-  document.getElementById('inputCriteriosUD').value = ud.criterios ? ud.criterios.join(' ') : '';
+
+  for (let i = 0; i < 15; i++) {
+    const critObj = (ud.criterios && ud.criterios[i]) ? ud.criterios[i] : null;
+    if (critObj) {
+      document.getElementById(`crit_cod_${i}`).value = typeof critObj === 'string' ? critObj : critObj.codigo;
+      document.getElementById(`crit_peso_${i}`).value = typeof critObj === 'object' ? critObj.peso : 2;
+    } else {
+      document.getElementById(`crit_cod_${i}`).value = '';
+      document.getElementById(`crit_peso_${i}`).value = '2';
+    }
+  }
+
   document.getElementById('btnEliminarUD').classList.remove('hidden');
   document.getElementById('modalAgregarUD').classList.remove('hidden');
 }
@@ -742,72 +1000,9 @@ function confirmarEliminarUnidad() {
   }
 }
 
-function verMasInformacion(idxAlumno) {
-  alumnoSeleccionadoIdx = idxAlumno;
-  const alumno = estadoApp.alumnos[idxAlumno];
-
-  document.getElementById('app').classList.add('hidden');
-  document.getElementById('vistaUD').classList.add('hidden');
-  document.getElementById('vistaDetalle').classList.remove('hidden');
-  document.getElementById('tituloAlumnoDetalle').textContent = `${alumno.apellidos}, ${alumno.nombre}`;
-
-  renderizarDetalleAlumno();
-}
-
-function volverAContactoPrincipal() {
-  document.getElementById('vistaDetalle').classList.add('hidden');
-  document.getElementById('vistaUD').classList.add('hidden');
-  document.getElementById('app').classList.remove('hidden');
-  renderizarTablaPrincipal();
-}
-
-function renderizarDetalleAlumno() {
-  const alumno = estadoApp.alumnos[alumnoSeleccionadoIdx];
-
-  const tbodyUD = document.getElementById('tablaDetalleUD');
-  tbodyUD.innerHTML = estadoApp.unidades.map(ud => {
-    const notaUD = calcularNotaUD(alumno, ud);
-    return `<tr><td>${ud.nombre}</td><td class="col-nota">${notaUD !== null ? notaUD.toFixed(1) : '-'}</td></tr>`;
-  }).join('');
-
-  const tbodyCrit = document.getElementById('tablaDetalleCriterios');
-  let htmlCriterios = '';
-  MAPA_CURRICULAR.forEach(comp => {
-    comp.criterios.forEach(crit => {
-      const notaCrit = calcularNotaCriterio(alumno, crit);
-      htmlCriterios += `<tr><td style="text-align:center;">${crit}</td><td class="col-nota">${notaCrit !== null ? notaCrit.toFixed(1) : '-'}</td></tr>`;
-    });
-  });
-  tbodyCrit.innerHTML = htmlCriterios;
-
-  const tbodyComp = document.getElementById('tablaDetalleCompetencias');
-  tbodyComp.innerHTML = MAPA_CURRICULAR.map(compObj => {
-    const notaComp = calcularNotaCompetencia(alumno, compObj);
-    return `<tr><td style="text-align:center;">${compObj.compNum}</td><td class="col-nota">${notaComp !== null ? notaComp.toFixed(1) : '-'}</td></tr>`;
-  }).join('');
-
-  const tbodyDesc = document.getElementById('tablaDetalleDescriptores');
-  let listaDescriptores = [];
-  MAPA_CURRICULAR.forEach(c => {
-    c.descriptores.forEach(d => { if (!listaDescriptores.includes(d)) listaDescriptores.push(d); });
-  });
-  listaDescriptores.sort();
-
-  tbodyDesc.innerHTML = listaDescriptores.map(desc => {
-    const notaDesc = calcularNotaDescriptor(alumno, desc);
-    return `<tr><td style="text-align:center;">${desc}</td><td class="col-nota">${notaDesc !== null ? notaDesc.toFixed(1) : '-'}</td></tr>`;
-  }).join('');
-
-  const tbodyCompClave = document.getElementById('tablaDetalleCompClave');
-  let conjuntoCompClave = new Set();
-  listaDescriptores.forEach(d => { conjuntoCompClave.add(d.replace(/[0-9]/g, '')); });
-  const listaCompClave = Array.from(conjuntoCompClave).sort();
-
-  tbodyCompClave.innerHTML = listaCompClave.map(clave => {
-    const notaClave = calcularNotaCompetenciaClave(alumno, clave);
-    return `<tr><td style="text-align:center;">${clave}</td><td class="col-nota">${notaClave !== null ? notaClave.toFixed(1) : '-'}</td></tr>`;
-  }).join('');
-}
+// -------------------------------------------------------------
+// ALUMNOS Y PERSISTENCIA
+// -------------------------------------------------------------
 
 function abrirModalAgregarMasivo() {
   document.getElementById('textoListaAlumnos').value = '';

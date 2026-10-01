@@ -80,8 +80,55 @@ body {
   padding: 25px;
   border-radius: 8px;
   width: 420px;
+  max-height: 90vh;
+  overflow-y: auto;
   box-shadow: 0 4px 15px rgba(0,0,0,0.2);
   text-align: center;
+}
+
+.modal-content-large {
+  width: 550px;
+}
+
+/* Grid para 15 Criterios en Modal UD */
+.grid-criterios-ud {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 320px;
+  overflow-y: auto;
+  border: 1px solid #ccc;
+  padding: 10px;
+  border-radius: 4px;
+  background-color: #fafafa;
+}
+
+.fila-criterio-ud {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.num-criterio {
+  width: 25px;
+  font-weight: bold;
+  font-size: 0.85rem;
+  color: #555;
+  text-align: right;
+}
+
+.input-crit-cod {
+  flex: 1;
+  margin: 0 !important;
+  padding: 5px 8px !important;
+}
+
+.select-crit-peso {
+  padding: 5px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  font-weight: bold;
+  background-color: white;
 }
 
 .modal-buttons {
@@ -187,7 +234,6 @@ th.th-ud-link {
 
 th.th-ud-link:hover { background-color: #083663; }
 
-/* Estilos para la cabecera multinivel */
 .header-content {
   display: flex;
   align-items: center;
@@ -258,8 +304,13 @@ th.th-ud-link:hover { background-color: #083663; }
   background: white;
   border-radius: 4px;
   box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-  flex: 1 0 220px;
-  min-width: 180px;
+  flex: 1 0 180px;
+  min-width: 150px;
+}
+
+.table-card-compclave {
+  flex: 2 0 320px;
+  min-width: 280px;
 }
 
 table {
@@ -345,3 +396,32 @@ td input.nota-input:focus {
   outline: 2px solid var(--header-blue);
   background: #ffffff;
 }
+
+.has-tooltip {
+  border-bottom: 1px dashed #555;
+  cursor: help;
+}
+
+tr.comp-ccl td   { background-color: #fde8e8 !important; }
+tr.comp-cp td    { background-color: #fef3c7 !important; }
+tr.comp-stem td  { background-color: #e6f4ea !important; }
+tr.comp-cd td    { background-color: #e0f2fe !important; }
+tr.comp-cpsaa td { background-color: #ffedd5 !important; }
+tr.comp-cc td    { background-color: #f3e8ff !important; }
+tr.comp-ce td    { background-color: #fae8ff !important; }
+tr.comp-ccec td  { background-color: #e0e7ff !important; }
+
+.badge-grado {
+  display: inline-block;
+  padding: 3px 6px;
+  border-radius: 4px;
+  font-size: 0.72rem;
+  font-weight: bold;
+  text-align: center;
+  width: 85px;
+}
+
+.grado-no { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+.grado-proceso { background-color: #fff3cd; color: #856404; border: 1px solid #ffeeba; }
+.grado-adquirido { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+.grado-avanzado { background-color: #27ae60; color: #ffffff; }

@@ -46,21 +46,24 @@
     </div>
   </div>
 
-  <!-- Modal Añadir / Editar Unidad Didáctica -->
+  <!-- Modal Añadir / Editar Unidad Didáctica (Con 15 filas de criterios y pesos) -->
   <div id="modalAgregarUD" class="modal hidden">
-    <div class="modal-content">
+    <div class="modal-content modal-content-large">
       <h3 id="tituloModalUD">Añadir Unidad Didáctica</h3>
       
       <div style="text-align: left; margin-top: 10px;">
         <label for="inputNombreUD"><strong>Nombre de la Unidad Didáctica:</strong></label>
         <input type="text" id="inputNombreUD" placeholder="Ej: 3. ESTRUCTURAS Y MECANISMOS" style="margin-bottom: 15px;">
         
-        <label for="inputCriteriosUD"><strong>Criterios de Evaluación asociados:</strong></label>
-        <p style="margin: 3px 0 8px 0;"><small>Escribe los criterios separados por espacios o comas:</small></p>
-        <input type="text" id="inputCriteriosUD" placeholder="Ej: 1.1 2.2 3.1" style="margin-bottom: 15px;">
+        <label><strong>Criterios de Evaluación asociados e Importancia:</strong></label>
+        <p style="margin: 3px 0 10px 0;"><small>Introduce los criterios y selecciona su nivel de importancia:</small></p>
+        
+        <div id="contenedorCriteriosUD" class="grid-criterios-ud">
+          <!-- Se generan dinámicamente 15 filas desde script.js -->
+        </div>
       </div>
 
-      <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 10px;">
+      <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 15px;">
         <button id="btnEliminarUD" class="btn-danger hidden" onclick="confirmarEliminarUnidad()">🗑️ Eliminar Unidad</button>
         <button onclick="cerrarModalAgregarUD()" style="background-color: #7f8c8d;">Cancelar</button>
         <button onclick="procesarGuardarUnidad()">Guardar Unidad</button>
@@ -198,9 +201,15 @@
           <tbody id="tablaDetalleDescriptores"></tbody>
         </table>
       </div>
-      <div class="table-card">
+      <div class="table-card table-card-compclave">
         <table>
-          <thead><tr><th>COMPETENCIA CLAVE</th><th class="col-nota">NOTA</th></tr></thead>
+          <thead>
+            <tr>
+              <th>COMPETENCIA CLAVE</th>
+              <th class="col-nota">NOTA</th>
+              <th style="min-width: 110px;">GRADO DE ADQUISICIÓN</th>
+            </tr>
+          </thead>
           <tbody id="tablaDetalleCompClave"></tbody>
         </table>
       </div>
