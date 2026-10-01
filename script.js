@@ -143,7 +143,7 @@ window.addEventListener('beforeunload', (event) => {
 function marcarCambiosPendientes() {
   cambiosSinGuardar = true;
   document.querySelectorAll('.estado-guardado').forEach(el => {
-    el.innerText = '• Cambios sin guardar';
+    el.innerText = '• Sin guardar';
     el.className = 'estado-guardado pendiente';
   });
 }
@@ -171,11 +171,10 @@ function migrarEstructuraUD() {
       if (!ap.subapartados) ap.subapartados = [];
     });
 
-    // Migración de criterios a objetos { codigo, peso } si eran Strings
     if (ud.criterios && ud.criterios.length > 0) {
       ud.criterios = ud.criterios.map(crit => {
         if (typeof crit === 'string') {
-          return { codigo: crit, peso: 2 }; // Nivel medio por defecto
+          return { codigo: crit, peso: 2 };
         }
         return crit;
       });
@@ -227,21 +226,24 @@ function ordenarAlumnos() {
   });
 }
 
-// -------------------------------------------------------------
-// FORMULARIO DE 15 CRITERIOS Y PESOS
-// -------------------------------------------------------------
-
 function construirFormularioCriterios15() {
   const cont = document.getElementById('contenedorCriteriosUD');
   if (!cont) return;
   cont.innerHTML = '';
+
+  const opcionesCriterios = Object.keys(DESCRIPCIONES_CRITERIOS).map(cod => {
+    return `<option value="${cod}">${cod} - ${DESCRIPCIONES_CRITERIOS[cod]}</option>`;
+  }).join('');
 
   for (let i = 0; i < 15; i++) {
     const row = document.createElement('div');
     row.className = 'fila-criterio-ud';
     row.innerHTML = `
       <span class="num-criterio">${i + 1}.</span>
-      <input type="text" id="crit_cod_${i}" placeholder="Ej: 1.1" class="input-crit-cod">
+      <select id="crit_cod_${i}" class="input-crit-cod" style="padding:5px; border-radius:4px; border:1px solid #ccc;">
+        <option value="">-- Sin seleccionar --</option>
+        ${opcionesCriterios}
+      </select>
       <select id="crit_peso_${i}" class="select-crit-peso">
         <option value="1">Bajo (x1)</option>
         <option value="2" selected>Medio (x2)</option>
@@ -253,7 +255,7 @@ function construirFormularioCriterios15() {
 }
 
 // -------------------------------------------------------------
-// CÁLCULOS LOMLOE PONDERADOS POR PESO DE CRITERIOS
+// CÁLCULOS LOMLOE
 // -------------------------------------------------------------
 
 function calcularNotaApartadoPadre(alumno, apPadre) {
@@ -262,6 +264,11 @@ function calcularNotaApartadoPadre(alumno, apPadre) {
       const val = parseFloat(alumno.notasApartados[apPadre.id]);
       return isNaN(val) ? null : val;
     }
+    return null;
+  }
+
+  const sumaSubPesos = apPadre.subapartados.reduce((acc, sub) => acc + (parseFloat(sub.peso) || 0), 0);
+  if (Math.abs(sumaSubPesos - 100) > 0.01) {
     return null;
   }
 
@@ -292,23 +299,33 @@ function calcularNotaUD(alumno, ud) {
     return null;
   }
 
+  const sumaPesos = ud.apartados.reduce((acc, ap) => acc + (parseFloat(ap.peso) || 0), 0);
+  if (Math.abs(sumaPesos - 100) > 0.01) {
+    return null;
+  }
+
   let sumaPonderada = 0;
   let pesoEfectivoTotal = 0;
 
-  ud.apartados.forEach(ap => {
+  for (let ap of ud.apartados) {
     const notaAp = calcularNotaApartadoPadre(alumno, ap);
+    
+    if (ap.subapartados && ap.subapartados.length > 0) {
+      const sumaSub = ap.subapartados.reduce((acc, s) => acc + (parseFloat(s.peso) || 0), 0);
+      if (Math.abs(sumaSub - 100) > 0.01) return null;
+    }
+
     if (notaAp !== null) {
       const peso = parseFloat(ap.peso) || 0;
       sumaPonderada += notaAp * (peso / 100);
       pesoEfectivoTotal += peso;
     }
-  });
+  }
 
   if (pesoEfectivoTotal === 0) return null;
   return pesoEfectivoTotal === 100 ? sumaPonderada : (sumaPonderada * (100 / pesoEfectivoTotal));
 }
 
-// Cálculo Ponderado de Criterios (Bajo: x1, Medio: x2, Alto: x3)
 function calcularNotaCriterio(alumno, codCriterio) {
   let sumaPonderada = 0;
   let sumaPesos = 0;
@@ -370,10 +387,10 @@ function calcularNotaCompetenciaClave(alumno, prefijoCompClave) {
 
 function obtenerGradoAdquisicion(nota) {
   if (nota === null) return { texto: "-", clase: "" };
-  if (nota < 5.0) return { texto: "No Adquirido", clase: "grado-no" };
-  if (nota < 6.5) return { texto: "En Proceso", clase: "grado-proceso" };
-  if (nota < 8.5) return { texto: "Adquirido", clase: "grado-adquirido" };
-  return { texto: "Avanzado", clase: "grado-avanzado" };
+  if (nota < 5.0) return { texto: "1. No conseguida", clase: "grado-no" };
+  if (nota < 7.0) return { texto: "2. En proceso", clase: "grado-proceso" };
+  if (nota < 9.0) return { texto: "3. Avanzado", clase: "grado-adquirido" };
+  return { texto: "4. Consolidado", clase: "grado-avanzado" };
 }
 
 // -------------------------------------------------------------
@@ -428,8 +445,23 @@ function renderizarTablaPrincipal() {
         tdNota.appendChild(input);
       } else {
         tdNota.className = 'nota-celda-lectura';
-        const notaUD = calcularNotaUD(alumno, ud);
-        tdNota.textContent = notaUD !== null ? notaUD.toFixed(1) : '-';
+        const sumaPesos = ud.apartados.reduce((acc, ap) => acc + (parseFloat(ap.peso) || 0), 0);
+        
+        let subError = false;
+        ud.apartados.forEach(ap => {
+          if (ap.subapartados && ap.subapartados.length > 0) {
+            const sumS = ap.subapartados.reduce((a, s) => a + (parseFloat(s.peso) || 0), 0);
+            if (Math.abs(sumS - 100) > 0.01) subError = true;
+          }
+        });
+
+        if (Math.abs(sumaPesos - 100) > 0.01 || subError) {
+          tdNota.textContent = '⚠️️';
+          tdNota.title = 'Configuración de pesos incompleta en apartados o subapartados (Debe ser 100%)';
+        } else {
+          const notaUD = calcularNotaUD(alumno, ud);
+          tdNota.textContent = notaUD !== null ? notaUD.toFixed(1) : '-';
+        }
       }
 
       tr.appendChild(tdNota);
@@ -488,6 +520,7 @@ function renderizarTablaUD() {
   fila2.innerHTML = '';
 
   let sumaPesosPadre = 0;
+  let hayErrorSubapartados = false;
   let columnasRenderizadas = []; 
 
   const thAlumno = document.createElement('th');
@@ -512,14 +545,17 @@ function renderizarTablaUD() {
       `;
       fila1.appendChild(th);
     } else {
+      const sumaSub = ap.subapartados.reduce((acc, s) => acc + (parseFloat(s.peso) || 0), 0);
+      if (Math.abs(sumaSub - 100) > 0.01) hayErrorSubapartados = true;
+
       const numSub = ap.subapartados.length;
       const thPadre = document.createElement('th');
       thPadre.colSpan = numSub + 1;
       thPadre.className = 'header-bloque-padre';
       thPadre.innerHTML = `
         <div class="header-content">
-          <span class="header-title">${ap.nombre} (${ap.peso}%)</span>
-          <button class="btn-gear" onclick="abrirOpcionesApartado('${ap.id}', null, '${ap.nombre}', true)">⚙️️</button>
+          <span class="header-title">${ap.nombre} (${ap.peso}%) ${Math.abs(sumaSub - 100) > 0.01 ? '⚠️' : ''}</span>
+          <button class="btn-gear" onclick="abrirOpcionesApartado('${ap.id}', null, '${ap.nombre}', true)">⚙️</button>
         </div>
       `;
       fila1.appendChild(thPadre);
@@ -532,7 +568,7 @@ function renderizarTablaUD() {
         thSub.innerHTML = `
           <div class="header-content">
             <span>${sub.nombre} <small>(${sub.peso}%)</small></span>
-            <button class="btn-gear" onclick="abrirOpcionesApartado('${sub.id}', '${ap.id}', '${sub.nombre}', false)">⚙️️</button>
+            <button class="btn-gear" onclick="abrirOpcionesApartado('${sub.id}', '${ap.id}', '${sub.nombre}', false)">⚙️</button>
           </div>
         `;
         fila2.appendChild(thSub);
@@ -554,7 +590,20 @@ function renderizarTablaUD() {
 
   const badge = document.getElementById('infoSumaPorcentajes');
   badge.textContent = `Suma pesos principales: ${sumaPesosPadre}%`;
-  badge.className = (sumaPesosPadre === 100) ? 'badge-porcentaje ok' : 'badge-porcentaje warn';
+  
+  const leyenda = document.getElementById('leyendaSumaUD');
+  if (Math.abs(sumaPesosPadre - 100) < 0.01 && !hayErrorSubapartados) {
+    badge.className = 'badge-porcentaje ok';
+    if (leyenda) leyenda.classList.add('hidden');
+  } else {
+    badge.className = 'badge-porcentaje warn';
+    if (leyenda) {
+      leyenda.textContent = hayErrorSubapartados 
+        ? "⚠️ La suma de subapartados en algún bloque no alcanza el 100%" 
+        : "⚠ La suma de pesos principales debe ser 100% para calcular la nota";
+      leyenda.classList.remove('hidden');
+    }
+  }
 
   cuerpoAlumnos.innerHTML = '';
   estadoApp.alumnos.forEach((alumno, idx) => {
@@ -569,8 +618,15 @@ function renderizarTablaUD() {
       if (col.tipo === 'total_bloque') {
         const tdTotalBloque = document.createElement('td');
         tdTotalBloque.className = 'nota-celda-lectura total-bloque';
-        const notaPadre = calcularNotaApartadoPadre(alumno, col.apPadre);
-        tdTotalBloque.textContent = notaPadre !== null ? notaPadre.toFixed(1) : '-';
+        
+        const sumaSub = col.apPadre.subapartados.reduce((acc, s) => acc + (parseFloat(s.peso) || 0), 0);
+        if (Math.abs(sumaSub - 100) > 0.01) {
+          tdTotalBloque.textContent = '⚠️';
+          tdTotalBloque.title = `Los subapartados suman un ${sumaSub}% (Debe ser el 100%)`;
+        } else {
+          const notaPadre = calcularNotaApartadoPadre(alumno, col.apPadre);
+          tdTotalBloque.textContent = notaPadre !== null ? notaPadre.toFixed(1) : '-';
+        }
         tr.appendChild(tdTotalBloque);
       } else {
         const tdNota = document.createElement('td');
@@ -595,10 +651,16 @@ function renderizarTablaUD() {
 
     const tdNotaUD = document.createElement('td');
     tdNotaUD.className = 'nota-celda-lectura total-ud';
-    const notaUDCalculada = calcularNotaUD(alumno, ud);
-    tdNotaUD.textContent = notaUDCalculada !== null ? notaUDCalculada.toFixed(1) : '-';
+    
+    if (Math.abs(sumaPesosPadre - 100) > 0.01 || hayErrorSubapartados) {
+      tdNotaUD.textContent = '⚠️';
+      tdNotaUD.title = 'Revisa los porcentajes de apartados o subapartados (deben sumar 100%).';
+    } else {
+      const notaUDCalculada = calcularNotaUD(alumno, ud);
+      tdNotaUD.textContent = notaUDCalculada !== null ? notaUDCalculada.toFixed(1) : '-';
+    }
+    
     tr.appendChild(tdNotaUD);
-
     cuerpoAlumnos.appendChild(tr);
   });
 }
@@ -619,7 +681,7 @@ function actualizarNotaApartado(idxAlumno, idTarget, valor) {
 }
 
 // -------------------------------------------------------------
-// MENÚ DE OPCIONES
+// MENÚ DE OPCIONES DE APARTADO
 // -------------------------------------------------------------
 
 function abrirOpcionesApartado(idItem, idPadre, nombre, esPadre) {
@@ -724,6 +786,16 @@ function procesarGuardarApartado() {
     if (!padre) return;
     if (!padre.subapartados) padre.subapartados = [];
 
+    let sumaActualSub = padre.subapartados.reduce((acc, sub) => {
+      if (apartadoEdicionId !== null && sub.id === apartadoEdicionId) return acc;
+      return acc + (parseFloat(sub.peso) || 0);
+    }, 0);
+
+    if (sumaActualSub + peso > 100) {
+      const disponible = 100 - sumaActualSub;
+      return alert(`No se puede guardar. La suma de subapartados superaría el 100% (Suma actual: ${sumaActualSub}%, Máximo disponible: ${disponible.toFixed(1)}%).`);
+    }
+
     if (apartadoEdicionId === null) {
       padre.subapartados.push({ id: generarIdUnico('sub'), nombre: nombre, peso: peso });
     } else {
@@ -731,6 +803,16 @@ function procesarGuardarApartado() {
       if (sub) { sub.nombre = nombre; sub.peso = peso; }
     }
   } else {
+    let sumaActualPadre = ud.apartados.reduce((acc, ap) => {
+      if (apartadoEdicionId !== null && ap.id === apartadoEdicionId) return acc;
+      return acc + (parseFloat(ap.peso) || 0);
+    }, 0);
+
+    if (sumaActualPadre + peso > 100) {
+      const disponible = 100 - sumaActualPadre;
+      return alert(`No se puede guardar. La suma de apartados principales superaría el 100% (Suma actual: ${sumaActualPadre}%, Máximo disponible: ${disponible.toFixed(1)}%).`);
+    }
+
     if (apartadoEdicionId === null) {
       ud.apartados.push({ id: generarIdUnico('ap'), nombre: nombre, peso: peso, subapartados: [] });
     } else {
@@ -783,7 +865,7 @@ function eliminarApartado(idItem, idPadre = null) {
 }
 
 // -------------------------------------------------------------
-// VISTA DETALLE Y TOOLTIPS
+// VISTA DETALLE
 // -------------------------------------------------------------
 
 function verMasInformacion(idxAlumno) {
@@ -824,8 +906,8 @@ function renderizarDetalleAlumno() {
       const descCrit = DESCRIPCIONES_CRITERIOS[crit] || `Criterio ${crit}`;
       htmlCriterios += `
         <tr>
-          <td style="text-align:center;" title="${descCrit}">
-            <span class="has-tooltip">${crit}</span>
+          <td title="${descCrit}">
+            <span class="has-tooltip"><strong>${crit}</strong></span>
           </td>
           <td class="col-nota">${notaCrit !== null ? notaCrit.toFixed(1) : '-'}</td>
         </tr>`;
@@ -840,8 +922,8 @@ function renderizarDetalleAlumno() {
     const descComp = DESCRIPCIONES_COMPETENCIAS[compObj.compNum] || compObj.compNombre;
     return `
       <tr>
-        <td style="text-align:center;" title="${descComp}">
-          <span class="has-tooltip">${compObj.compNum}</span>
+        <td title="${descComp}">
+          <span class="has-tooltip"><strong>${compObj.compNum}</strong></span>
         </td>
         <td class="col-nota">${notaComp !== null ? notaComp.toFixed(1) : '-'}</td>
       </tr>`;
@@ -860,8 +942,8 @@ function renderizarDetalleAlumno() {
     const descInfo = DESCRIPCIONES_DESCRIPTORES[desc] || `Descriptor ${desc}`;
     return `
       <tr>
-        <td style="text-align:center;" title="${descInfo}">
-          <span class="has-tooltip">${desc}</span>
+        <td title="${descInfo}">
+          <span class="has-tooltip"><strong>${desc}</strong></span>
         </td>
         <td class="col-nota">${notaDesc !== null ? notaDesc.toFixed(1) : '-'}</td>
       </tr>`;
@@ -893,7 +975,7 @@ function renderizarDetalleAlumno() {
 }
 
 // -------------------------------------------------------------
-// GESTIÓN DE UNIDADES DIDÁCTICAS (15 CRITERIOS Y PESOS)
+// GESTIÓN DE UNIDADES DIDÁCTICAS
 // -------------------------------------------------------------
 
 function abrirModalAgregarUD() {
@@ -903,7 +985,7 @@ function abrirModalAgregarUD() {
   
   for (let i = 0; i < 15; i++) {
     document.getElementById(`crit_cod_${i}`).value = '';
-    document.getElementById(`crit_peso_${i}`).value = '2'; // Medio
+    document.getElementById(`crit_peso_${i}`).value = '2';
   }
 
   document.getElementById('btnEliminarUD').classList.add('hidden');
@@ -951,10 +1033,14 @@ function abrirModalModificarUUDD() {
 
   estadoApp.unidades.forEach((ud, index) => {
     const item = document.createElement('div');
-    item.className = 'item-uudd';
-    const listaCodigos = ud.criterios ? ud.criterios.map(c => typeof c === 'string' ? c : c.codigo).join(' ') : '';
-    item.textContent = `${index + 1}. ${ud.nombre} (${listaCodigos || 'Sin criterios'})`;
-    item.onclick = () => editarUnidadSeleccionada(index);
+    item.className = 'item-uudd-gestion';
+    item.innerHTML = `
+      <span>${index + 1}. ${ud.nombre}</span>
+      <div style="display:flex; gap:6px;">
+        <button class="btn-info" onclick="event.stopPropagation(); editarUnidadSeleccionada(${index})">✏️ Modificar</button>
+        <button class="btn-danger" style="font-size:0.75rem; padding:6px 10px;" onclick="event.stopPropagation(); eliminarUnidadDirecto(${index})">🗑️️ Eliminar</button>
+      </div>
+    `;
     contenedor.appendChild(item);
   });
 
@@ -988,20 +1074,47 @@ function editarUnidadSeleccionada(index) {
   document.getElementById('modalAgregarUD').classList.remove('hidden');
 }
 
-function confirmarEliminarUnidad() {
-  if (udEdicionIdx === null) return;
-  const ud = estadoApp.unidades[udEdicionIdx];
-
+function eliminarUnidadDirecto(index) {
+  const ud = estadoApp.unidades[index];
   if (confirm(`¿Estás seguro de que deseas eliminar la unidad "${ud.nombre}"?`)) {
-    estadoApp.unidades.splice(udEdicionIdx, 1);
+    let idsApartadosAEliminar = [];
+    if (ud.apartados) {
+      ud.apartados.forEach(ap => {
+        idsApartadosAEliminar.push(ap.id);
+        if (ap.subapartados) {
+          ap.subapartados.forEach(sub => idsApartadosAEliminar.push(sub.id));
+        }
+      });
+    }
+
+    estadoApp.alumnos.forEach(alumno => {
+      if (alumno.notasUDManuales && alumno.notasUDManuales[ud.id] !== undefined) {
+        delete alumno.notasUDManuales[ud.id];
+      }
+      if (alumno.notasApartados) {
+        idsApartadosAEliminar.forEach(idAp => {
+          if (alumno.notasApartados[idAp] !== undefined) {
+            delete alumno.notasApartados[idAp];
+          }
+        });
+      }
+    });
+
+    estadoApp.unidades.splice(index, 1);
     marcarCambiosPendientes();
-    cerrarModalAgregarUD();
+    cerrarModalModificarUUDD();
     renderizarTablaPrincipal();
   }
 }
 
+function confirmarEliminarUnidad() {
+  if (udEdicionIdx === null) return;
+  eliminarUnidadDirecto(udEdicionIdx);
+  cerrarModalAgregarUD();
+}
+
 // -------------------------------------------------------------
-// ALUMNOS Y PERSISTENCIA
+// GESTIÓN UNIFICADA DE ALUMNOS Y PERSISTENCIA
 // -------------------------------------------------------------
 
 function abrirModalAgregarMasivo() {
@@ -1049,22 +1162,29 @@ function procesarListaAlumnosMasiva() {
   }
 }
 
-function abrirModalModificarAlumno() {
+function abrirModalGestionAlumno() {
   if (estadoApp.alumnos.length === 0) return alert("No hay alumnos.");
-  const contenedor = document.getElementById('listaAlumnosModificar');
+  const contenedor = document.getElementById('listaGestionAlumnos');
   contenedor.innerHTML = '';
+
   estadoApp.alumnos.forEach((alumno, index) => {
     const item = document.createElement('div');
-    item.className = 'item-alumno';
-    item.textContent = `${index + 1}. ${alumno.apellidos}, ${alumno.nombre}`;
-    item.onclick = () => renombrarAlumno(index);
+    item.className = 'item-alumno item-alumno-gestion';
+    item.innerHTML = `
+      <span>${index + 1}. ${alumno.apellidos}, ${alumno.nombre}</span>
+      <div style="display:flex; gap:6px;">
+        <button class="btn-info" onclick="event.stopPropagation(); renombrarAlumno(${index})">✏️️ Modificar</button>
+        <button class="btn-danger" style="font-size:0.75rem; padding:6px 10px;" onclick="event.stopPropagation(); confirmarEliminarAlumno(${index})">🗑️ Eliminar</button>
+      </div>
+    `;
     contenedor.appendChild(item);
   });
-  document.getElementById('modalModificarAlumno').classList.remove('hidden');
+
+  document.getElementById('modalGestionAlumno').classList.remove('hidden');
 }
 
-function cerrarModalModificarAlumno() {
-  document.getElementById('modalModificarAlumno').classList.add('hidden');
+function cerrarModalGestionAlumno() {
+  document.getElementById('modalGestionAlumno').classList.add('hidden');
 }
 
 function renombrarAlumno(index) {
@@ -1078,27 +1198,9 @@ function renombrarAlumno(index) {
   alumno.nombre = nuevoNombre.trim();
 
   marcarCambiosPendientes();
-  cerrarModalModificarAlumno();
+  cerrarModalGestionAlumno();
   ordenarAlumnos();
   renderizarTablaPrincipal();
-}
-
-function abrirModalEliminarAlumno() {
-  if (estadoApp.alumnos.length === 0) return alert("No hay alumnos.");
-  const contenedor = document.getElementById('listaAlumnosEliminar');
-  contenedor.innerHTML = '';
-  estadoApp.alumnos.forEach((alumno, index) => {
-    const item = document.createElement('div');
-    item.className = 'item-alumno item-alumno-danger';
-    item.textContent = `🗑 ${index + 1}. ${alumno.apellidos}, ${alumno.nombre}`;
-    item.onclick = () => confirmarEliminarAlumno(index);
-    contenedor.appendChild(item);
-  });
-  document.getElementById('modalEliminarAlumno').classList.remove('hidden');
-}
-
-function cerrarModalEliminarAlumno() {
-  document.getElementById('modalEliminarAlumno').classList.add('hidden');
 }
 
 function confirmarEliminarAlumno(index) {
@@ -1106,7 +1208,7 @@ function confirmarEliminarAlumno(index) {
   if (confirm(`¿Estás seguro de que deseas eliminar a "${alumno.apellidos}, ${alumno.nombre}"?`)) {
     estadoApp.alumnos.splice(index, 1);
     marcarCambiosPendientes();
-    cerrarModalEliminarAlumno();
+    cerrarModalGestionAlumno();
     renderizarTablaPrincipal();
   }
 }
