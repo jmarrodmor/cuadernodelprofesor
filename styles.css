@@ -261,6 +261,36 @@ th {
   font-weight: 600;
 }
 
+/* AJUSTE TABLA UD ADAPTABLE AL ANCHO DE PANTALLA */
+#tablaUD {
+  width: 100%;
+  table-layout: auto;
+}
+
+#tablaUD th, #tablaUD td {
+  white-space: normal;
+  word-wrap: break-word;
+  padding: 4px 6px;
+  font-size: 0.8rem;
+}
+
+#tablaUD .col-alumno, 
+#tablaUD td.nombre-alumno {
+  width: 20%;
+  min-width: 150px;
+}
+
+#tablaUD .nota-celda {
+  width: auto;
+  min-width: 45px;
+}
+
+#tablaUD .nota-input {
+  width: 100%;
+  max-width: 50px;
+  padding: 2px 4px;
+}
+
 /* ENCABEZADOS ESTÁTICOS PARA LA TABLA DE DESGLOSE UD (MULTINIVEL STICKY) */
 #tablaUD thead th {
   position: sticky;
@@ -273,11 +303,10 @@ th {
 }
 
 #filaCabeceraUD_2 th {
-  top: 33px; /* Altura correspondiente a la primera fila */
+  top: 33px;
   z-index: 11;
 }
 
-/* Mantiene fija la esquina de la columna Alumnos al desplazarse */
 #tablaUD thead th.col-alumno {
   z-index: 25;
 }
@@ -353,7 +382,7 @@ tr:nth-child(even) {
 }
 
 .bloque-comp-clave {
-  flex: 1 1 360px; /* Asegura un ancho preferente para evitar cortes */
+  flex: 1 1 360px;
   min-width: 320px;
 }
 
@@ -367,7 +396,7 @@ tr:nth-child(even) {
 }
 
 .tabla-comp-clave {
-  table-layout: fixed; /* Mantiene proporciones sin salirse */
+  table-layout: fixed;
 }
 
 .tabla-informe th {
@@ -390,7 +419,7 @@ tr:nth-child(even) {
 }
 
 .tabla-comp-clave td {
-  white-space: normal; /* Permite salto de línea si fuera necesario */
+  white-space: normal;
 }
 
 .tabla-informe td:first-child {
@@ -478,11 +507,12 @@ tr:nth-child(even) {
   font-size: 0.9rem;
 }
 
+/* GRID DE CRITERIOS A 1 SOLA COLUMNA */
 .grid-criterios-ud {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  display: flex;
+  flex-direction: column;
   gap: 8px;
-  max-height: 300px;
+  max-height: 350px;
   overflow-y: auto;
   border: 1px solid #e2e8f0;
   padding: 10px;

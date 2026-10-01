@@ -61,8 +61,8 @@
     <div class="toolbar">
       <button onclick="abrirModalAgregarUD()">➕ Añadir UD</button>
       <button onclick="abrirModalModificarUUDD()">⚙️ Gestionar UUDD</button>
-      <button onclick="abrirModalAgregarMasivo()">👥 Añadir Lista Alumnos</button>
-      <button onclick="abrirModalGestionAlumno()">⚙ Gestionar Alumnos</button>
+      <button onclick="abrirModalAgregarMasivo()">➕ Añadir Lista Alumnos</button>
+      <button onclick="abrirModalGestionAlumno()">⚙️ Gestionar Alumnos</button>
     </div>
 
     <!-- TABLA PRINCIPAL (VISTA HOJA) -->
@@ -213,7 +213,7 @@
         <input type="text" id="inputNombreUD" placeholder="Ej: UD 1. PROGRAMACIÓN CON SCRATCH">
       </div>
 
-      <h4>Criterios de Evaluación y Pesos (Máximo 15):</h4>
+      <h4>Criterios de Evaluación y Pesos:</h4>
       <div id="contenedorCriteriosUD" class="grid-criterios-ud">
         <!-- Generado dinámicamente -->
       </div>
@@ -276,8 +276,21 @@
         </button>
       </div>
 
-      <div class="modal-acciones" style="margin-top:20px;">
-        <button class="btn-secundario" onclick="cerrarModalOpcionesApartado()">Cancelar</button>
+      <!-- SECCIÓN AÑADIDA: PEGAR NOTAS MASIVAS -->
+      <hr style="margin: 15px 0; border: 0; border-top: 1px solid #ddd;">
+      <div class="form-grupo">
+        <label for="textoNotasMasivas"><strong>📋 Pegar notas masivas para este apartado:</strong></label>
+        <p style="font-size:0.75rem; color:#666; margin-bottom:6px;">
+          Pega una nota por línea (en el mismo orden de la lista de alumnos):
+        </p>
+        <textarea id="textoNotasMasivas" rows="6" placeholder="8.5&#10;6&#10;7.25&#10;..."></textarea>
+        <button class="btn-info" style="margin-top:6px; width:100%; padding:8px;" onclick="menuAccionPegarNotasMasivas()">
+          📥 Asignar Notas a Alumnos
+        </button>
+      </div>
+
+      <div class="modal-acciones" style="margin-top:15px;">
+        <button class="btn-secundario" onclick="cerrarModalOpcionesApartado()">Cerrar</button>
       </div>
     </div>
   </div>

@@ -226,13 +226,14 @@ function ordenarAlumnos() {
   });
 }
 
+// MODIFICACIÓN: Los criterios ya no duplican su código (ej: "1.1. Buscar..." en vez de "1.1 - 1.1...")
 function construirFormularioCriterios15() {
   const cont = document.getElementById('contenedorCriteriosUD');
   if (!cont) return;
   cont.innerHTML = '';
 
   const opcionesCriterios = Object.keys(DESCRIPCIONES_CRITERIOS).map(cod => {
-    return `<option value="${cod}">${cod} - ${DESCRIPCIONES_CRITERIOS[cod]}</option>`;
+    return `<option value="${cod}">${DESCRIPCIONES_CRITERIOS[cod]}</option>`;
   }).join('');
 
   for (let i = 0; i < 15; i++) {
@@ -456,7 +457,7 @@ function renderizarTablaPrincipal() {
         });
 
         if (Math.abs(sumaPesos - 100) > 0.01 || subError) {
-          tdNota.textContent = '⚠️️';
+          tdNota.textContent = '⚠';
           tdNota.title = 'Configuración de pesos incompleta en apartados o subapartados (Debe ser 100%)';
         } else {
           const notaUD = calcularNotaUD(alumno, ud);
@@ -554,7 +555,7 @@ function renderizarTablaUD() {
       thPadre.className = 'header-bloque-padre';
       thPadre.innerHTML = `
         <div class="header-content">
-          <span class="header-title">${ap.nombre} (${ap.peso}%) ${Math.abs(sumaSub - 100) > 0.01 ? '⚠️' : ''}</span>
+          <span class="header-title">${ap.nombre} (${ap.peso}%) ${Math.abs(sumaSub - 100) > 0.01 ? '⚠️️' : ''}</span>
           <button class="btn-gear" onclick="abrirOpcionesApartado('${ap.id}', null, '${ap.nombre}', true)">⚙️</button>
         </div>
       `;
@@ -697,6 +698,10 @@ function abrirOpcionesApartado(idItem, idPadre, nombre, esPadre) {
     btnSub.classList.add('hidden');
   }
 
+  // Limpiar el campo de texto de notas masivas
+  const campoNotas = document.getElementById('textoNotasMasivas');
+  if (campoNotas) campoNotas.value = '';
+
   document.getElementById('modalOpcionesApartado').classList.remove('hidden');
 }
 
@@ -720,6 +725,38 @@ function menuAccionEliminarApartado() {
   const { idItem, idPadre } = contextoEngranaje;
   cerrarModalOpcionesApartado();
   eliminarApartado(idItem, idPadre);
+}
+
+// NUEVA FUNCIÓN: PROCESAR PEGAR NOTAS MASIVAS ALUMNO POR ALUMNO
+function menuAccionPegarNotasMasivas() {
+  const texto = document.getElementById('textoNotasMasivas').value.trim();
+  if (!texto) return alert("Por favor, introduce o pega la lista de notas.");
+
+  const lineas = texto.split(/\r?\n/);
+  const idTarget = contextoEngranaje.idItem;
+  let asignadas = 0;
+
+  lineas.forEach((linea, index) => {
+    if (index < estadoApp.alumnos.length) {
+      const valStr = linea.trim().replace(',', '.'); // Permite coma como separador decimal
+      const num = parseFloat(valStr);
+
+      const alumno = estadoApp.alumnos[index];
+      if (!alumno.notasApartados) alumno.notasApartados = {};
+
+      if (!isNaN(num) && num >= 0 && num <= 10) {
+        alumno.notasApartados[idTarget] = num;
+        asignadas++;
+      } else if (valStr === "" || valStr === "-") {
+        delete alumno.notasApartados[idTarget];
+      }
+    }
+  });
+
+  marcarCambiosPendientes();
+  cerrarModalOpcionesApartado();
+  renderizarTablaUD();
+  alert(`Se han asignado ${asignadas} notas correctamente a la lista de alumnos.`);
 }
 
 function abrirModalAgregarApartado(idPadre = null) {
@@ -1038,7 +1075,7 @@ function abrirModalModificarUUDD() {
       <span>${index + 1}. ${ud.nombre}</span>
       <div style="display:flex; gap:6px;">
         <button class="btn-info" onclick="event.stopPropagation(); editarUnidadSeleccionada(${index})">✏️ Modificar</button>
-        <button class="btn-danger" style="font-size:0.75rem; padding:6px 10px;" onclick="event.stopPropagation(); eliminarUnidadDirecto(${index})">🗑️️ Eliminar</button>
+        <button class="btn-danger" style="font-size:0.75rem; padding:6px 10px;" onclick="event.stopPropagation(); eliminarUnidadDirecto(${index})">🗑 Eliminar</button>
       </div>
     `;
     contenedor.appendChild(item);
@@ -1173,7 +1210,7 @@ function abrirModalGestionAlumno() {
     item.innerHTML = `
       <span>${index + 1}. ${alumno.apellidos}, ${alumno.nombre}</span>
       <div style="display:flex; gap:6px;">
-        <button class="btn-info" onclick="event.stopPropagation(); renombrarAlumno(${index})">✏️️ Modificar</button>
+        <button class="btn-info" onclick="event.stopPropagation(); renombrarAlumno(${index})">✏ Modificar</button>
         <button class="btn-danger" style="font-size:0.75rem; padding:6px 10px;" onclick="event.stopPropagation(); confirmarEliminarAlumno(${index})">🗑️ Eliminar</button>
       </div>
     `;
