@@ -1,75 +1,54 @@
-// MAPA CURRICULAR OFICIAL LOMLOE
 const MAPA_CURRICULAR = [
-  {
-    compNum: "1",
-    compNombre: "1. Buscar y seleccionar información...",
-    descriptores: ["CCL3", "STEM2", "CD1", "CD4", "CPSAA4", "CE1"],
-    criterios: ["1.1", "1.2", "1.3"]
-  },
-  {
-    compNum: "2",
-    compNombre: "2. Abordar problemas tecnológicos...",
-    descriptores: ["CCL1", "STEM1", "STEM3", "CD3", "CPSAA3", "CPSAA5", "CE1", "CE3"],
-    criterios: ["2.1", "2.2"]
-  },
-  {
-    compNum: "3",
-    compNombre: "3. Utilizar operadores y sistemas...",
-    descriptores: ["STEM2", "STEM3", "STEM5", "CD5", "CPSAA1", "CE3", "CCEC3"],
-    criterios: ["3.1"]
-  },
-  {
-    compNum: "4",
-    compNombre: "4. Representar e intercambiar ideas...",
-    descriptores: ["CCL1", "STEM4", "CD3", "CCEC3", "CCEC4"],
-    criterios: ["4.1"]
-  },
-  {
-    compNum: "5",
-    compNombre: "5. Desarrollar algoritmos y aplicaciones...",
-    descriptores: ["CP2", "STEM1", "STEM3", "CD5", "CPSAA5", "CE3"],
-    criterios: ["5.1", "5.2", "5.3"]
-  },
-  {
-    compNum: "6",
-    compNombre: "6. Comprender funcionamiento de dispositivos...",
-    descriptores: ["CP2", "CD2", "CD4", "CD5", "CPSAA4", "CPSAA5"],
-    criterios: ["6.1", "6.2", "6.3"]
-  },
-  {
-    compNum: "7",
-    compNombre: "7. Hacer uso responsable y ético...",
-    descriptores: ["STEM2", "STEM5", "CD4", "CC4"],
-    criterios: ["7.1", "7.2"]
-  }
+  { compNum: "1", compNombre: "1. Buscar...", descriptores: ["CCL3", "STEM2", "CD1", "CD4", "CPSAA4", "CE1"], criterios: ["1.1", "1.2", "1.3"] },
+  { compNum: "2", compNombre: "2. Abordar...", descriptores: ["CCL1", "STEM1", "STEM3", "CD3", "CPSAA3", "CPSAA5", "CE1", "CE3"], criterios: ["2.1", "2.2"] },
+  { compNum: "3", compNombre: "3. Utilizar...", descriptores: ["STEM2", "STEM3", "STEM5", "CD5", "CPSAA1", "CE3", "CCEC3"], criterios: ["3.1"] },
+  { compNum: "4", compNombre: "4. Representar...", descriptores: ["CCL1", "STEM4", "CD3", "CCEC3", "CCEC4"], criterios: ["4.1"] },
+  { compNum: "5", compNombre: "5. Desarrollar...", descriptores: ["CP2", "STEM1", "STEM3", "CD5", "CPSAA5", "CE3"], criterios: ["5.1", "5.2", "5.3"] },
+  { compNum: "6", compNombre: "6. Comprender...", descriptores: ["CP2", "CD2", "CD4", "CD5", "CPSAA4", "CPSAA5"], criterios: ["6.1", "6.2", "6.3"] },
+  { compNum: "7", compNombre: "7. Hacer uso...", descriptores: ["STEM2", "STEM5", "CD4", "CC4"], criterios: ["7.1", "7.2"] }
 ];
 
 let estadoApp = {
   nombreDocumento: "",
   unidades: [
-    { nombre: "1. PRESENTACIONES GOOGLE", criterios: ["1.1", "1.2", "1.3"] },
-    { nombre: "2. PROCESADOR DE TEXTO", criterios: ["1.1", "2.1", "2.2"] }
+    { 
+      id: "ud_1", 
+      nombre: "1. PRESENTACIONES GOOGLE", 
+      criterios: ["1.1", "1.2"],
+      apartados: [
+        { 
+          id: "ap_1", nombre: "EXÁMENES", peso: 60,
+          subapartados: [
+            { id: "sub_1", nombre: "TEMA 1", peso: 50 },
+            { id: "sub_2", nombre: "TEMA 2", peso: 50 }
+          ]
+        },
+        { id: "ap_2", nombre: "PRÁCTICAS", peso: 40, subapartados: [] }
+      ]
+    },
+    { id: "ud_2", nombre: "2. PROCESADOR DE TEXTO", criterios: ["2.1"], apartados: [] }
   ],
   alumnos: [
     { 
-      nombre: "Ana", 
-      apellidos: "García López", 
-      notasUUDD: { "1. PRESENTACIONES GOOGLE": 6.3, "2. PROCESADOR DE TEXTO": 5.7 }
-    },
-    { 
-      nombre: "Carlos", 
-      apellidos: "Álvarez Martínez", 
-      notasUUDD: { "1. PRESENTACIONES GOOGLE": 8.0 }
+      nombre: "Ana", apellidos: "García López", 
+      notasUDManuales: {}, 
+      notasApartados: { "sub_1": 8, "sub_2": 6, "ap_2": 9 }
     }
   ]
 };
 
 let alumnoSeleccionadoIdx = null;
-let udEdicionIdx = null; // null -> Crear nueva | número -> Editar existente
+let udEdicionIdx = null; 
+let udActivaIdx = null;
+
+// Contexto para el menú del engranaje (⚙️️)
+let contextoEngranaje = { idItem: null, idPadre: null, nombre: '', esPadre: true };
+
+let padreApartadoEdicionId = null;
+let apartadoEdicionId = null; 
 let archivoHandle = null;
 let cambiosSinGuardar = false;
 
-// PROTEGER CIERRE DE PESTAÑA
 window.addEventListener('beforeunload', (event) => {
   if (cambiosSinGuardar) {
     event.preventDefault();
@@ -93,9 +72,26 @@ function marcarComoGuardado() {
   });
 }
 
-function obtenerNombreUD(ud) {
-  if (!ud) return "";
-  return typeof ud === 'string' ? ud : (ud.nombre || "");
+function generarIdUnico(prefix = 'id') {
+  return prefix + '_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5);
+}
+
+function migrarEstructuraUD() {
+  if (!estadoApp.alumnos) estadoApp.alumnos = [];
+  if (!estadoApp.unidades) estadoApp.unidades = [];
+
+  estadoApp.unidades.forEach((ud) => {
+    if (!ud.id) ud.id = generarIdUnico('ud');
+    if (!ud.apartados) ud.apartados = [];
+    ud.apartados.forEach(ap => {
+      if (!ap.subapartados) ap.subapartados = [];
+    });
+  });
+
+  estadoApp.alumnos.forEach((al) => {
+    if (!al.notasApartados) al.notasApartados = {};
+    if (!al.notasUDManuales) al.notasUDManuales = {};
+  });
 }
 
 function mostrarFormNuevoDoc() {
@@ -116,8 +112,10 @@ function crearNuevoDocumento() {
 }
 
 function iniciarVistaHoja() {
+  migrarEstructuraUD();
   document.getElementById('modalInicio').classList.add('hidden');
   document.getElementById('vistaDetalle').classList.add('hidden');
+  document.getElementById('vistaUD').classList.add('hidden');
   document.getElementById('app').classList.remove('hidden');
   document.getElementById('tituloDocumento').innerText = estadoApp.nombreDocumento;
   ordenarAlumnos();
@@ -133,86 +131,112 @@ function ordenarAlumnos() {
 }
 
 // -------------------------------------------------------------
-// MOTOR DE CÁLCULO EN CASCADA (LOMLOE)
+// CÁLCULOS
 // -------------------------------------------------------------
 
-function calcularNotaCriterio(alumno, codCriterio) {
-  let suma = 0;
-  let recuento = 0;
+function calcularNotaApartadoPadre(alumno, apPadre) {
+  if (!apPadre.subapartados || apPadre.subapartados.length === 0) {
+    if (alumno.notasApartados && alumno.notasApartados[apPadre.id] !== undefined && alumno.notasApartados[apPadre.id] !== "") {
+      const val = parseFloat(alumno.notasApartados[apPadre.id]);
+      return isNaN(val) ? null : val;
+    }
+    return null;
+  }
 
-  estadoApp.unidades.forEach(ud => {
-    const nombreUD = obtenerNombreUD(ud);
-    if (ud.criterios && ud.criterios.includes(codCriterio)) {
-      if (alumno.notasUUDD && alumno.notasUUDD[nombreUD] !== undefined && alumno.notasUUDD[nombreUD] !== "") {
-        suma += parseFloat(alumno.notasUUDD[nombreUD]);
-        recuento++;
+  let suma = 0;
+  let pesoEfectivo = 0;
+
+  apPadre.subapartados.forEach(sub => {
+    if (alumno.notasApartados && alumno.notasApartados[sub.id] !== undefined && alumno.notasApartados[sub.id] !== "") {
+      const val = parseFloat(alumno.notasApartados[sub.id]);
+      const peso = parseFloat(sub.peso) || 0;
+      if (!isNaN(val)) {
+        suma += val * (peso / 100);
+        pesoEfectivo += peso;
       }
     }
   });
 
+  if (pesoEfectivo === 0) return null;
+  return pesoEfectivo === 100 ? suma : (suma * (100 / pesoEfectivo));
+}
+
+function calcularNotaUD(alumno, ud) {
+  if (!ud.apartados || ud.apartados.length === 0) {
+    if (alumno.notasUDManuales && alumno.notasUDManuales[ud.id] !== undefined && alumno.notasUDManuales[ud.id] !== "") {
+      const val = parseFloat(alumno.notasUDManuales[ud.id]);
+      return isNaN(val) ? null : val;
+    }
+    return null;
+  }
+
+  let sumaPonderada = 0;
+  let pesoEfectivoTotal = 0;
+
+  ud.apartados.forEach(ap => {
+    const notaAp = calcularNotaApartadoPadre(alumno, ap);
+    if (notaAp !== null) {
+      const peso = parseFloat(ap.peso) || 0;
+      sumaPonderada += notaAp * (peso / 100);
+      pesoEfectivoTotal += peso;
+    }
+  });
+
+  if (pesoEfectivoTotal === 0) return null;
+  return pesoEfectivoTotal === 100 ? sumaPonderada : (sumaPonderada * (100 / pesoEfectivoTotal));
+}
+
+function calcularNotaCriterio(alumno, codCriterio) {
+  let suma = 0, recuento = 0;
+  estadoApp.unidades.forEach(ud => {
+    if (ud.criterios && ud.criterios.includes(codCriterio)) {
+      const notaUD = calcularNotaUD(alumno, ud);
+      if (notaUD !== null) { suma += notaUD; recuento++; }
+    }
+  });
   return recuento > 0 ? (suma / recuento) : null;
 }
 
 function calcularNotaCompetencia(alumno, compObj) {
-  let suma = 0;
-  let recuento = 0;
-
+  let suma = 0, recuento = 0;
   compObj.criterios.forEach(crit => {
     const notaCrit = calcularNotaCriterio(alumno, crit);
-    if (notaCrit !== null) {
-      suma += notaCrit;
-      recuento++;
-    }
+    if (notaCrit !== null) { suma += notaCrit; recuento++; }
   });
-
   return recuento > 0 ? (suma / recuento) : null;
 }
 
 function calcularNotaDescriptor(alumno, codDescriptor) {
-  let suma = 0;
-  let recuento = 0;
-
+  let suma = 0, recuento = 0;
   MAPA_CURRICULAR.forEach(compObj => {
     if (compObj.descriptores.includes(codDescriptor)) {
       const notaComp = calcularNotaCompetencia(alumno, compObj);
-      if (notaComp !== null) {
-        suma += notaComp;
-        recuento++;
-      }
+      if (notaComp !== null) { suma += notaComp; recuento++; }
     }
   });
-
   return recuento > 0 ? (suma / recuento) : null;
 }
 
 function calcularNotaCompetenciaClave(alumno, prefijoCompClave) {
   let descriptoresAsociados = [];
-
   MAPA_CURRICULAR.forEach(compObj => {
     compObj.descriptores.forEach(desc => {
-      const prefijo = desc.replace(/[0-9]/g, '');
-      if (prefijo === prefijoCompClave && !descriptoresAsociados.includes(desc)) {
+      if (desc.replace(/[0-9]/g, '') === prefijoCompClave && !descriptoresAsociados.includes(desc)) {
         descriptoresAsociados.push(desc);
       }
     });
   });
 
-  let suma = 0;
-  let recuento = 0;
-
+  let suma = 0, recuento = 0;
   descriptoresAsociados.forEach(desc => {
     const notaDesc = calcularNotaDescriptor(alumno, desc);
-    if (notaDesc !== null) {
-      suma += notaDesc;
-      recuento++;
-    }
+    if (notaDesc !== null) { suma += notaDesc; recuento++; }
   });
-
   return recuento > 0 ? (suma / recuento) : null;
 }
 
 // -------------------------------------------------------------
-// RENDERIZADO Y INTERFAZ
+// RENDERIZADO: VISTA PRINCIPAL
 // -------------------------------------------------------------
 
 function renderizarTablaPrincipal() {
@@ -220,67 +244,426 @@ function renderizarTablaPrincipal() {
   const cuerpoAlumnos = document.getElementById('cuerpoAlumnos');
 
   filaCabecera.innerHTML = `<th class="col-alumno">ALUMNOS</th>`;
-  estadoApp.unidades.forEach(ud => {
+  estadoApp.unidades.forEach((ud, index) => {
     const th = document.createElement('th');
-    th.innerText = obtenerNombreUD(ud);
+    th.className = 'th-ud-link';
+    th.textContent = ud.nombre || "";
+    th.title = "Haz clic para abrir el desglose de esta Unidad";
+    th.onclick = () => abrirVistaUD(index);
     filaCabecera.appendChild(th);
   });
-  filaCabecera.innerHTML += `<th style="text-align:center;">INFORMACIÓN</th>`;
+  
+  const thInfo = document.createElement('th');
+  thInfo.style.textAlign = 'center';
+  thInfo.textContent = 'INFORMACIÓN';
+  filaCabecera.appendChild(thInfo);
 
   cuerpoAlumnos.innerHTML = '';
   estadoApp.alumnos.forEach((alumno, idx) => {
     const tr = document.createElement('tr');
-    const nombreCompleto = `${alumno.apellidos}, ${alumno.nombre}`;
     
-    let htmlFila = `<td class="nombre-alumno">${nombreCompleto}</td>`;
+    const tdNombre = document.createElement('td');
+    tdNombre.className = 'nombre-alumno';
+    tdNombre.textContent = `${alumno.apellidos}, ${alumno.nombre}`;
+    tr.appendChild(tdNombre);
 
     estadoApp.unidades.forEach(ud => {
-      const nombreUD = obtenerNombreUD(ud);
-      const val = (alumno.notasUUDD && alumno.notasUUDD[nombreUD] !== undefined) ? alumno.notasUUDD[nombreUD] : "";
+      const tdNota = document.createElement('td');
 
-      htmlFila += `
-        <td class="nota-celda">
-          <input type="number" class="nota-input" step="0.1" min="0" max="10"
-                 value="${val}" placeholder="-"
-                 onchange="actualizarNotaUDDirecta(${idx}, '${nombreUD}', this.value)">
-        </td>
-      `;
+      if (!ud.apartados || ud.apartados.length === 0) {
+        tdNota.className = 'nota-celda';
+        const val = (alumno.notasUDManuales && alumno.notasUDManuales[ud.id] !== undefined) ? alumno.notasUDManuales[ud.id] : "";
+        
+        const input = document.createElement('input');
+        input.type = 'number';
+        input.className = 'nota-input';
+        input.step = '0.1';
+        input.min = '0';
+        input.max = '10';
+        input.value = val;
+        input.placeholder = 'Manual';
+        input.onchange = (e) => actualizarNotaUDManual(idx, ud.id, e.target.value);
+
+        tdNota.appendChild(input);
+      } else {
+        tdNota.className = 'nota-celda-lectura';
+        const notaUD = calcularNotaUD(alumno, ud);
+        tdNota.textContent = notaUD !== null ? notaUD.toFixed(1) : '-';
+      }
+
+      tr.appendChild(tdNota);
     });
 
-    htmlFila += `
-      <td style="text-align:center;">
-        <button class="btn-info" onclick="verMasInformacion(${idx})">MÁS INFORMACIÓN</button>
-      </td>
-    `;
+    const tdBtn = document.createElement('td');
+    tdBtn.style.textAlign = 'center';
+    const btnInfo = document.createElement('button');
+    btnInfo.className = 'btn-info';
+    btnInfo.textContent = 'MÁS INFORMACIÓN';
+    btnInfo.onclick = () => verMasInformacion(idx);
+    tdBtn.appendChild(btnInfo);
+    tr.appendChild(tdBtn);
 
-    tr.innerHTML = htmlFila;
     cuerpoAlumnos.appendChild(tr);
   });
 }
 
-function actualizarNotaUDDirecta(idxAlumno, nombreUD, valor) {
+function actualizarNotaUDManual(idxAlumno, idUD, valor) {
   const alumno = estadoApp.alumnos[idxAlumno];
-  if (!alumno.notasUUDD) alumno.notasUUDD = {};
+  if (!alumno.notasUDManuales) alumno.notasUDManuales = {};
 
   const num = parseFloat(valor);
-  if (!isNaN(num)) {
-    alumno.notasUUDD[nombreUD] = num;
+  if (!isNaN(num) && num >= 0 && num <= 10) {
+    alumno.notasUDManuales[idUD] = num;
   } else {
-    delete alumno.notasUUDD[nombreUD];
+    delete alumno.notasUDManuales[idUD];
   }
 
   marcarCambiosPendientes();
 }
 
 // -------------------------------------------------------------
-// GESTIÓN Y MODAL DE UNIDADES DIDÁCTICAS (CREAR / EDITAR)
+// VISTA 3: DESGLOSE UD CON CABECERA DE 2 FILAS
+// -------------------------------------------------------------
+
+function abrirVistaUD(idxUnidad) {
+  udActivaIdx = idxUnidad;
+  const ud = estadoApp.unidades[idxUnidad];
+
+  document.getElementById('app').classList.add('hidden');
+  document.getElementById('vistaDetalle').classList.add('hidden');
+  document.getElementById('vistaUD').classList.remove('hidden');
+
+  document.getElementById('tituloUDDetalle').textContent = ud.nombre;
+  renderizarTablaUD();
+}
+
+function renderizarTablaUD() {
+  const ud = estadoApp.unidades[udActivaIdx];
+  const fila1 = document.getElementById('filaCabeceraUD_1');
+  const fila2 = document.getElementById('filaCabeceraUD_2');
+  const cuerpoAlumnos = document.getElementById('cuerpoAlumnosUD');
+
+  fila1.innerHTML = '';
+  fila2.innerHTML = '';
+
+  let sumaPesosPadre = 0;
+  let columnasRenderizadas = []; 
+
+  // Columna fija 1: ALUMNOS (ocupa 2 filas de alto)
+  const thAlumno = document.createElement('th');
+  thAlumno.className = 'col-alumno';
+  thAlumno.rowSpan = 2;
+  thAlumno.textContent = 'ALUMNOS';
+  fila1.appendChild(thAlumno);
+
+  (ud.apartados || []).forEach((ap) => {
+    sumaPesosPadre += parseFloat(ap.peso) || 0;
+
+    if (!ap.subapartados || ap.subapartados.length === 0) {
+      // APARTADO SIMPLE (Sin subapartados): Ocupa 2 filas de alto
+      columnasRenderizadas.push({ tipo: 'apartado_simple', id: ap.id, apPadre: ap });
+
+      const th = document.createElement('th');
+      th.rowSpan = 2;
+      th.innerHTML = `
+        <div class="header-content">
+          <span class="header-title">${ap.nombre} (${ap.peso}%)</span>
+          <button class="btn-gear" onclick="abrirOpcionesApartado('${ap.id}', null, '${ap.nombre}', true)">⚙️</button>
+        </div>
+      `;
+      fila1.appendChild(th);
+    } else {
+      // APARTADO PADRE CON SUBAPARTADOS: 
+      // Fila 1: Ocupa colspan = N (subapartados) + 1 (columna TOTAL)
+      const numSub = ap.subapartados.length;
+      const thPadre = document.createElement('th');
+      thPadre.colSpan = numSub + 1;
+      thPadre.className = 'header-bloque-padre';
+      thPadre.innerHTML = `
+        <div class="header-content">
+          <span class="header-title">${ap.nombre} (${ap.peso}%)</span>
+          <button class="btn-gear" onclick="abrirOpcionesApartado('${ap.id}', null, '${ap.nombre}', true)">⚙️</button>
+        </div>
+      `;
+      fila1.appendChild(thPadre);
+
+      // Fila 2: Subapartados + Columna TOTAL
+      ap.subapartados.forEach((sub) => {
+        columnasRenderizadas.push({ tipo: 'subapartado', id: sub.id, apPadre: ap, sub: sub });
+
+        const thSub = document.createElement('th');
+        thSub.className = 'header-subapartado';
+        thSub.innerHTML = `
+          <div class="header-content">
+            <span>${sub.nombre} <small>(${sub.peso}%)</small></span>
+            <button class="btn-gear" onclick="abrirOpcionesApartado('${sub.id}', '${ap.id}', '${sub.nombre}', false)">⚙️</button>
+          </div>
+        `;
+        fila2.appendChild(thSub);
+      });
+
+      // Columna TOTAL del bloque
+      columnasRenderizadas.push({ tipo: 'total_bloque', apPadre: ap });
+      const thTotalSub = document.createElement('th');
+      thTotalSub.className = 'header-total-sub';
+      thTotalSub.textContent = 'TOTAL';
+      fila2.appendChild(thTotalSub);
+    }
+  });
+
+  // Columna final: NOTA UD (ocupa 2 filas)
+  const thNotaUD = document.createElement('th');
+  thNotaUD.rowSpan = 2;
+  thNotaUD.style.backgroundColor = '#083663';
+  thNotaUD.textContent = 'NOTA UD';
+  fila1.appendChild(thNotaUD);
+
+  // Badge del porcentaje
+  const badge = document.getElementById('infoSumaPorcentajes');
+  badge.textContent = `Suma pesos principales: ${sumaPesosPadre}%`;
+  badge.className = (sumaPesosPadre === 100) ? 'badge-porcentaje ok' : 'badge-porcentaje warn';
+
+  // Cargar Filas de Alumnos
+  cuerpoAlumnos.innerHTML = '';
+  estadoApp.alumnos.forEach((alumno, idx) => {
+    const tr = document.createElement('tr');
+
+    const tdNombre = document.createElement('td');
+    tdNombre.className = 'nombre-alumno';
+    tdNombre.textContent = `${alumno.apellidos}, ${alumno.nombre}`;
+    tr.appendChild(tdNombre);
+
+    columnasRenderizadas.forEach(col => {
+      if (col.tipo === 'total_bloque') {
+        const tdTotalBloque = document.createElement('td');
+        tdTotalBloque.className = 'nota-celda-lectura total-bloque';
+        const notaPadre = calcularNotaApartadoPadre(alumno, col.apPadre);
+        tdTotalBloque.textContent = notaPadre !== null ? notaPadre.toFixed(1) : '-';
+        tr.appendChild(tdTotalBloque);
+      } else {
+        const tdNota = document.createElement('td');
+        tdNota.className = 'nota-celda';
+
+        const val = (alumno.notasApartados && alumno.notasApartados[col.id] !== undefined) ? alumno.notasApartados[col.id] : "";
+
+        const input = document.createElement('input');
+        input.type = 'number';
+        input.className = 'nota-input';
+        input.step = '0.1';
+        input.min = '0';
+        input.max = '10';
+        input.value = val;
+        input.placeholder = '-';
+        input.onchange = (e) => actualizarNotaApartado(idx, col.id, e.target.value);
+
+        tdNota.appendChild(input);
+        tr.appendChild(tdNota);
+      }
+    });
+
+    const tdNotaUD = document.createElement('td');
+    tdNotaUD.className = 'nota-celda-lectura total-ud';
+    const notaUDCalculada = calcularNotaUD(alumno, ud);
+    tdNotaUD.textContent = notaUDCalculada !== null ? notaUDCalculada.toFixed(1) : '-';
+    tr.appendChild(tdNotaUD);
+
+    cuerpoAlumnos.appendChild(tr);
+  });
+}
+
+function actualizarNotaApartado(idxAlumno, idTarget, valor) {
+  const alumno = estadoApp.alumnos[idxAlumno];
+  if (!alumno.notasApartados) alumno.notasApartados = {};
+
+  const num = parseFloat(valor);
+  if (!isNaN(num) && num >= 0 && num <= 10) {
+    alumno.notasApartados[idTarget] = num;
+  } else {
+    delete alumno.notasApartados[idTarget];
+  }
+
+  marcarCambiosPendientes();
+  renderizarTablaUD();
+}
+
+// -------------------------------------------------------------
+// MENÚ DE OPCIONES (ENGRANAJE ⚙️)
+// -------------------------------------------------------------
+
+function abrirOpcionesApartado(idItem, idPadre, nombre, esPadre) {
+  contextoEngranaje = { idItem, idPadre, nombre, esPadre };
+
+  document.getElementById('tituloOpcionesApartado').textContent = `Opciones: ${nombre}`;
+  document.getElementById('subtituloOpcionesApartado').textContent = esPadre ? 'Apartado Principal' : 'Subapartado';
+
+  const btnSub = document.getElementById('btnOpcionSubapartado');
+  if (esPadre) {
+    btnSub.classList.remove('hidden');
+  } else {
+    btnSub.classList.add('hidden');
+  }
+
+  document.getElementById('modalOpcionesApartado').classList.remove('hidden');
+}
+
+function cerrarModalOpcionesApartado() {
+  document.getElementById('modalOpcionesApartado').classList.add('hidden');
+}
+
+function menuAccionAñadirSubapartado() {
+  const idPadre = contextoEngranaje.idItem;
+  cerrarModalOpcionesApartado();
+  abrirModalAgregarApartado(idPadre);
+}
+
+function menuAccionEditarApartado() {
+  const { idItem, idPadre } = contextoEngranaje;
+  cerrarModalOpcionesApartado();
+  editarApartado(idItem, idPadre);
+}
+
+function menuAccionEliminarApartado() {
+  const { idItem, idPadre } = contextoEngranaje;
+  cerrarModalOpcionesApartado();
+  eliminarApartado(idItem, idPadre);
+}
+
+// -------------------------------------------------------------
+// CREACIÓN / EDICIÓN DE FORMULARIO DE APARTADOS
+// -------------------------------------------------------------
+
+function abrirModalAgregarApartado(idPadre = null) {
+  padreApartadoEdicionId = idPadre;
+  apartadoEdicionId = null;
+
+  const modalTitulo = document.getElementById('tituloModalApartado');
+  const labelPeso = document.getElementById('labelPesoApartado');
+
+  if (idPadre === null) {
+    modalTitulo.textContent = 'Añadir Apartado Principal';
+    labelPeso.textContent = 'Porcentaje sobre la UD (%):';
+  } else {
+    modalTitulo.textContent = 'Añadir Subapartado';
+    labelPeso.textContent = 'Porcentaje dentro de este bloque (%):';
+  }
+
+  document.getElementById('inputNombreApartado').value = '';
+  document.getElementById('inputPesoApartado').value = '';
+  document.getElementById('modalAgregarApartado').classList.remove('hidden');
+}
+
+function editarApartado(idItem, idPadre = null) {
+  padreApartadoEdicionId = idPadre;
+  apartadoEdicionId = idItem;
+
+  const ud = estadoApp.unidades[udActivaIdx];
+  let itemTarget = null;
+
+  if (idPadre === null) {
+    itemTarget = ud.apartados.find(a => a.id === idItem);
+    document.getElementById('tituloModalApartado').textContent = 'Modificar Apartado Principal';
+    document.getElementById('labelPesoApartado').textContent = 'Porcentaje sobre la UD (%):';
+  } else {
+    const padre = ud.apartados.find(a => a.id === idPadre);
+    if (padre) itemTarget = padre.subapartados.find(s => s.id === idItem);
+    document.getElementById('tituloModalApartado').textContent = 'Modificar Subapartado';
+    document.getElementById('labelPesoApartado').textContent = 'Porcentaje dentro del bloque (%):';
+  }
+
+  if (itemTarget) {
+    document.getElementById('inputNombreApartado').value = itemTarget.nombre;
+    document.getElementById('inputPesoApartado').value = itemTarget.peso;
+    document.getElementById('modalAgregarApartado').classList.remove('hidden');
+  }
+}
+
+function cerrarModalAgregarApartado() {
+  document.getElementById('modalAgregarApartado').classList.add('hidden');
+}
+
+function procesarGuardarApartado() {
+  const nombre = document.getElementById('inputNombreApartado').value.trim();
+  const pesoVal = document.getElementById('inputPesoApartado').value;
+  const peso = parseFloat(pesoVal);
+
+  if (!nombre) return alert("Introduce un nombre.");
+  if (isNaN(peso) || peso <= 0 || peso > 100) return alert("Introduce un porcentaje válido de 1 a 100.");
+
+  const ud = estadoApp.unidades[udActivaIdx];
+
+  if (padreApartadoEdicionId !== null) {
+    const padre = ud.apartados.find(a => a.id === padreApartadoEdicionId);
+    if (!padre) return;
+    if (!padre.subapartados) padre.subapartados = [];
+
+    if (apartadoEdicionId === null) {
+      padre.subapartados.push({ id: generarIdUnico('sub'), nombre: nombre, peso: peso });
+    } else {
+      const sub = padre.subapartados.find(s => s.id === apartadoEdicionId);
+      if (sub) { sub.nombre = nombre; sub.peso = peso; }
+    }
+  } else {
+    if (apartadoEdicionId === null) {
+      ud.apartados.push({ id: generarIdUnico('ap'), nombre: nombre, peso: peso, subapartados: [] });
+    } else {
+      const ap = ud.apartados.find(a => a.id === apartadoEdicionId);
+      if (ap) { ap.nombre = nombre; ap.peso = peso; }
+    }
+  }
+
+  marcarCambiosPendientes();
+  cerrarModalAgregarApartado();
+  renderizarTablaUD();
+}
+
+function eliminarApartado(idItem, idPadre = null) {
+  const ud = estadoApp.unidades[udActivaIdx];
+
+  if (idPadre === null) {
+    const apIdx = ud.apartados.findIndex(a => a.id === idItem);
+    const ap = ud.apartados[apIdx];
+
+    if (confirm(`¿Eliminar el apartado "${ap.nombre}"? Se perderán sus subapartados y notas.`)) {
+      let idsBorrar = [ap.id];
+      (ap.subapartados || []).forEach(s => idsBorrar.push(s.id));
+
+      ud.apartados.splice(apIdx, 1);
+      estadoApp.alumnos.forEach(al => {
+        if (al.notasApartados) idsBorrar.forEach(id => delete al.notasApartados[id]);
+      });
+
+      marcarCambiosPendientes();
+      renderizarTablaUD();
+    }
+  } else {
+    const padre = ud.apartados.find(a => a.id === idPadre);
+    if (!padre) return;
+
+    const subIdx = padre.subapartados.findIndex(s => s.id === idItem);
+    const sub = padre.subapartados[subIdx];
+
+    if (confirm(`¿Eliminar el subapartado "${sub.nombre}"?`)) {
+      padre.subapartados.splice(subIdx, 1);
+      estadoApp.alumnos.forEach(al => {
+        if (al.notasApartados) delete al.notasApartados[idItem];
+      });
+
+      marcarCambiosPendientes();
+      renderizarTablaUD();
+    }
+  }
+}
+
+// -------------------------------------------------------------
+// GESTIÓN DE MÓDULOS DE UNIDADES Y ALUMNOS Y PERSISTENCIA
 // -------------------------------------------------------------
 
 function abrirModalAgregarUD() {
-  udEdicionIdx = null; // Modo creación
+  udEdicionIdx = null;
   document.getElementById('tituloModalUD').innerText = 'Añadir Unidad Didáctica';
   document.getElementById('inputNombreUD').value = '';
   document.getElementById('inputCriteriosUD').value = '';
+  document.getElementById('btnEliminarUD').classList.add('hidden');
   document.getElementById('modalAgregarUD').classList.remove('hidden');
 }
 
@@ -292,38 +675,22 @@ function procesarGuardarUnidad() {
   const nombreUD = document.getElementById('inputNombreUD').value.trim();
   const textoCriterios = document.getElementById('inputCriteriosUD').value.trim();
 
-  if (!nombreUD) {
-    return alert("Por favor, introduce el nombre de la Unidad Didáctica.");
-  }
+  if (!nombreUD) return alert("Por favor, introduce el nombre de la Unidad Didáctica.");
 
   const listaCriterios = textoCriterios
     ? textoCriterios.split(/[\s,]+/).map(c => c.trim()).filter(c => c !== "")
     : [];
 
   if (udEdicionIdx === null) {
-    // AÑADIR NUEVA UNIDAD
     estadoApp.unidades.push({
+      id: generarIdUnico('ud'),
       nombre: nombreUD,
-      criterios: listaCriterios
+      criterios: listaCriterios,
+      apartados: []
     });
   } else {
-    // EDITAR UNIDAD EXISTENTE
-    const nombreAnterior = obtenerNombreUD(estadoApp.unidades[udEdicionIdx]);
-
-    estadoApp.unidades[udEdicionIdx] = {
-      nombre: nombreUD,
-      criterios: listaCriterios
-    };
-
-    // Si cambió el nombre de la UD, reasignar las notas guardadas de los alumnos a la nueva clave
-    if (nombreAnterior !== nombreUD) {
-      estadoApp.alumnos.forEach(alumno => {
-        if (alumno.notasUUDD && alumno.notasUUDD[nombreAnterior] !== undefined) {
-          alumno.notasUUDD[nombreUD] = alumno.notasUUDD[nombreAnterior];
-          delete alumno.notasUUDD[nombreAnterior];
-        }
-      });
-    }
+    estadoApp.unidades[udEdicionIdx].nombre = nombreUD;
+    estadoApp.unidades[udEdicionIdx].criterios = listaCriterios;
   }
 
   marcarCambiosPendientes();
@@ -332,17 +699,14 @@ function procesarGuardarUnidad() {
 }
 
 function abrirModalModificarUUDD() {
-  if (estadoApp.unidades.length === 0) return alert("No hay Unidades Didácticas para modificar.");
-
+  if (estadoApp.unidades.length === 0) return alert("No hay Unidades Didácticas.");
   const contenedor = document.getElementById('listaUUDDModificar');
   contenedor.innerHTML = '';
 
   estadoApp.unidades.forEach((ud, index) => {
     const item = document.createElement('div');
     item.className = 'item-uudd';
-    const nombre = obtenerNombreUD(ud);
-    const critTexto = ud.criterios ? ud.criterios.join(' ') : 'Sin criterios';
-    item.innerText = `${index + 1}. ${nombre} (${critTexto})`;
+    item.textContent = `${index + 1}. ${ud.nombre} (${ud.criterios ? ud.criterios.join(' ') : 'Sin criterios'})`;
     item.onclick = () => editarUnidadSeleccionada(index);
     contenedor.appendChild(item);
   });
@@ -356,34 +720,43 @@ function cerrarModalModificarUUDD() {
 
 function editarUnidadSeleccionada(index) {
   cerrarModalModificarUUDD();
-
-  udEdicionIdx = index; // Guardar índice para guardar cambios
+  udEdicionIdx = index;
   const ud = estadoApp.unidades[index];
 
   document.getElementById('tituloModalUD').innerText = 'Modificar Unidad Didáctica';
-  document.getElementById('inputNombreUD').value = obtenerNombreUD(ud);
+  document.getElementById('inputNombreUD').value = ud.nombre;
   document.getElementById('inputCriteriosUD').value = ud.criterios ? ud.criterios.join(' ') : '';
-  
+  document.getElementById('btnEliminarUD').classList.remove('hidden');
   document.getElementById('modalAgregarUD').classList.remove('hidden');
 }
 
-// -------------------------------------------------------------
-// VISTA "MÁS INFORMACIÓN" (DETALLE DEL ALUMNO)
-// -------------------------------------------------------------
+function confirmarEliminarUnidad() {
+  if (udEdicionIdx === null) return;
+  const ud = estadoApp.unidades[udEdicionIdx];
+
+  if (confirm(`¿Estás seguro de que deseas eliminar la unidad "${ud.nombre}"?`)) {
+    estadoApp.unidades.splice(udEdicionIdx, 1);
+    marcarCambiosPendientes();
+    cerrarModalAgregarUD();
+    renderizarTablaPrincipal();
+  }
+}
 
 function verMasInformacion(idxAlumno) {
   alumnoSeleccionadoIdx = idxAlumno;
   const alumno = estadoApp.alumnos[idxAlumno];
 
   document.getElementById('app').classList.add('hidden');
+  document.getElementById('vistaUD').classList.add('hidden');
   document.getElementById('vistaDetalle').classList.remove('hidden');
-  document.getElementById('tituloAlumnoDetalle').innerText = `${alumno.apellidos}, ${alumno.nombre}`;
+  document.getElementById('tituloAlumnoDetalle').textContent = `${alumno.apellidos}, ${alumno.nombre}`;
 
   renderizarDetalleAlumno();
 }
 
 function volverAContactoPrincipal() {
   document.getElementById('vistaDetalle').classList.add('hidden');
+  document.getElementById('vistaUD').classList.add('hidden');
   document.getElementById('app').classList.remove('hidden');
   renderizarTablaPrincipal();
 }
@@ -391,89 +764,50 @@ function volverAContactoPrincipal() {
 function renderizarDetalleAlumno() {
   const alumno = estadoApp.alumnos[alumnoSeleccionadoIdx];
 
-  // 1. TABLA UNIDADES DIDÁCTICAS
   const tbodyUD = document.getElementById('tablaDetalleUD');
   tbodyUD.innerHTML = estadoApp.unidades.map(ud => {
-    const nombreUD = obtenerNombreUD(ud);
-    const nota = (alumno.notasUUDD && alumno.notasUUDD[nombreUD] !== undefined) ? parseFloat(alumno.notasUUDD[nombreUD]) : null;
-    return `
-      <tr>
-        <td>${nombreUD}</td>
-        <td class="col-nota">${nota !== null ? nota.toFixed(1) : '-'}</td>
-      </tr>
-    `;
+    const notaUD = calcularNotaUD(alumno, ud);
+    return `<tr><td>${ud.nombre}</td><td class="col-nota">${notaUD !== null ? notaUD.toFixed(1) : '-'}</td></tr>`;
   }).join('');
 
-  // 2. TABLA CRITERIOS DE EVALUACIÓN
   const tbodyCrit = document.getElementById('tablaDetalleCriterios');
   let htmlCriterios = '';
   MAPA_CURRICULAR.forEach(comp => {
     comp.criterios.forEach(crit => {
       const notaCrit = calcularNotaCriterio(alumno, crit);
-      htmlCriterios += `
-        <tr>
-          <td style="text-align:center;">${crit}</td>
-          <td class="col-nota">${notaCrit !== null ? notaCrit.toFixed(1) : '-'}</td>
-        </tr>
-      `;
+      htmlCriterios += `<tr><td style="text-align:center;">${crit}</td><td class="col-nota">${notaCrit !== null ? notaCrit.toFixed(1) : '-'}</td></tr>`;
     });
   });
   tbodyCrit.innerHTML = htmlCriterios;
 
-  // 3. TABLA COMPETENCIAS ESPECÍFICAS
   const tbodyComp = document.getElementById('tablaDetalleCompetencias');
   tbodyComp.innerHTML = MAPA_CURRICULAR.map(compObj => {
     const notaComp = calcularNotaCompetencia(alumno, compObj);
-    return `
-      <tr>
-        <td style="text-align:center;">${compObj.compNum}</td>
-        <td class="col-nota">${notaComp !== null ? notaComp.toFixed(1) : '-'}</td>
-      </tr>
-    `;
+    return `<tr><td style="text-align:center;">${compObj.compNum}</td><td class="col-nota">${notaComp !== null ? notaComp.toFixed(1) : '-'}</td></tr>`;
   }).join('');
 
-  // 4. TABLA DESCRIPTORES OPERATIVOS
   const tbodyDesc = document.getElementById('tablaDetalleDescriptores');
   let listaDescriptores = [];
   MAPA_CURRICULAR.forEach(c => {
-    c.descriptores.forEach(d => {
-      if (!listaDescriptores.includes(d)) listaDescriptores.push(d);
-    });
+    c.descriptores.forEach(d => { if (!listaDescriptores.includes(d)) listaDescriptores.push(d); });
   });
   listaDescriptores.sort();
 
   tbodyDesc.innerHTML = listaDescriptores.map(desc => {
     const notaDesc = calcularNotaDescriptor(alumno, desc);
-    return `
-      <tr>
-        <td style="text-align:center;">${desc}</td>
-        <td class="col-nota">${notaDesc !== null ? notaDesc.toFixed(1) : '-'}</td>
-      </tr>
-    `;
+    return `<tr><td style="text-align:center;">${desc}</td><td class="col-nota">${notaDesc !== null ? notaDesc.toFixed(1) : '-'}</td></tr>`;
   }).join('');
 
-  // 5. TABLA COMPETENCIAS CLAVE
   const tbodyCompClave = document.getElementById('tablaDetalleCompClave');
   let conjuntoCompClave = new Set();
-  listaDescriptores.forEach(d => {
-    conjuntoCompClave.add(d.replace(/[0-9]/g, ''));
-  });
+  listaDescriptores.forEach(d => { conjuntoCompClave.add(d.replace(/[0-9]/g, '')); });
   const listaCompClave = Array.from(conjuntoCompClave).sort();
 
   tbodyCompClave.innerHTML = listaCompClave.map(clave => {
     const notaClave = calcularNotaCompetenciaClave(alumno, clave);
-    return `
-      <tr>
-        <td style="text-align:center;">${clave}</td>
-        <td class="col-nota">${notaClave !== null ? notaClave.toFixed(1) : '-'}</td>
-      </tr>
-    `;
+    return `<tr><td style="text-align:center;">${clave}</td><td class="col-nota">${notaClave !== null ? notaClave.toFixed(1) : '-'}</td></tr>`;
   }).join('');
 }
-
-// -------------------------------------------------------------
-// GESTIÓN Y MODALES DE ALUMNOS
-// -------------------------------------------------------------
 
 function abrirModalAgregarMasivo() {
   document.getElementById('textoListaAlumnos').value = '';
@@ -495,30 +829,19 @@ function procesarListaAlumnosMasiva() {
     const lineaLimpia = linea.trim();
     if (!lineaLimpia) return;
 
-    let nombre = "";
-    let apellidos = "";
-
+    let nombre = "", apellidos = "";
     if (lineaLimpia.includes(',')) {
       const partes = lineaLimpia.split(',');
       apellidos = partes[0].trim();
       nombre = partes.slice(1).join(',').trim();
     } else {
       const partes = lineaLimpia.split(/\s+/);
-      if (partes.length === 1) {
-        nombre = partes[0];
-        apellidos = "";
-      } else {
-        nombre = partes[0];
-        apellidos = partes.slice(1).join(' ');
-      }
+      nombre = partes[0];
+      apellidos = partes.slice(1).join(' ');
     }
 
     if (nombre || apellidos) {
-      estadoApp.alumnos.push({
-        nombre: nombre,
-        apellidos: apellidos,
-        notasUUDD: {}
-      });
+      estadoApp.alumnos.push({ nombre: nombre, apellidos: apellidos, notasUDManuales: {}, notasApartados: {} });
       añadidos++;
     }
   });
@@ -528,26 +851,20 @@ function procesarListaAlumnosMasiva() {
     ordenarAlumnos();
     renderizarTablaPrincipal();
     cerrarModalAgregarMasivo();
-    alert(`✓ Se han añadido ${añadidos} alumnos correctamente.`);
-  } else {
-    alert("No se pudo extraer ningún alumno del texto proporcionado.");
   }
 }
 
 function abrirModalModificarAlumno() {
-  if (estadoApp.alumnos.length === 0) return alert("No hay alumnos para modificar.");
-
+  if (estadoApp.alumnos.length === 0) return alert("No hay alumnos.");
   const contenedor = document.getElementById('listaAlumnosModificar');
   contenedor.innerHTML = '';
-
   estadoApp.alumnos.forEach((alumno, index) => {
     const item = document.createElement('div');
     item.className = 'item-alumno';
-    item.innerText = `${index + 1}. ${alumno.apellidos}, ${alumno.nombre}`;
+    item.textContent = `${index + 1}. ${alumno.apellidos}, ${alumno.nombre}`;
     item.onclick = () => renombrarAlumno(index);
     contenedor.appendChild(item);
   });
-
   document.getElementById('modalModificarAlumno').classList.remove('hidden');
 }
 
@@ -559,7 +876,6 @@ function renombrarAlumno(index) {
   const alumno = estadoApp.alumnos[index];
   const nuevosApellidos = prompt("Apellidos del alumno:", alumno.apellidos);
   if (!nuevosApellidos || nuevosApellidos.trim() === "") return;
-
   const nuevoNombre = prompt("Nombre del alumno:", alumno.nombre);
   if (!nuevoNombre || nuevoNombre.trim() === "") return;
 
@@ -573,19 +889,16 @@ function renombrarAlumno(index) {
 }
 
 function abrirModalEliminarAlumno() {
-  if (estadoApp.alumnos.length === 0) return alert("No hay alumnos para eliminar.");
-
+  if (estadoApp.alumnos.length === 0) return alert("No hay alumnos.");
   const contenedor = document.getElementById('listaAlumnosEliminar');
   contenedor.innerHTML = '';
-
   estadoApp.alumnos.forEach((alumno, index) => {
     const item = document.createElement('div');
     item.className = 'item-alumno item-alumno-danger';
-    item.innerText = `🗑️ ${index + 1}. ${alumno.apellidos}, ${alumno.nombre}`;
+    item.textContent = `🗑 ${index + 1}. ${alumno.apellidos}, ${alumno.nombre}`;
     item.onclick = () => confirmarEliminarAlumno(index);
     contenedor.appendChild(item);
   });
-
   document.getElementById('modalEliminarAlumno').classList.remove('hidden');
 }
 
@@ -603,36 +916,23 @@ function confirmarEliminarAlumno(index) {
   }
 }
 
-// -------------------------------------------------------------
-// PERSISTENCIA Y MANEJO DE ARCHIVOS
-// -------------------------------------------------------------
-
 async function abrirDocumento() {
   if ('showOpenFilePicker' in window) {
     try {
       const [handle] = await window.showOpenFilePicker({
-        types: [{
-          description: 'Archivo JSON',
-          accept: { 'application/json': ['.json'] }
-        }],
+        types: [{ description: 'Archivo JSON', accept: { 'application/json': ['.json'] } }],
         multiple: false
       });
-
       const file = await handle.getFile();
       const contenido = await file.text();
-
       estadoApp = JSON.parse(contenido);
-      archivoHandle = handle; // Guardamos el enlace al archivo para que sobreescriba directo
-      
+      archivoHandle = handle;
       marcarComoGuardado();
       iniciarVistaHoja();
     } catch (err) {
-      if (err.name !== 'AbortError') {
-        alert("Error al abrir el archivo seleccionado.");
-      }
+      if (err.name !== 'AbortError') alert("Error al abrir el archivo.");
     }
   } else {
-    // Fallback para navegadores antiguos que no soportan File System Access API
     document.getElementById('inputCargar').click();
   }
 }
@@ -640,7 +940,6 @@ async function abrirDocumento() {
 function cargarDocumento(event) {
   const file = event.target.files[0];
   if (!file) return;
-
   const reader = new FileReader();
   reader.onload = function(e) {
     try {
@@ -649,7 +948,7 @@ function cargarDocumento(event) {
       marcarComoGuardado();
       iniciarVistaHoja();
     } catch (err) {
-      alert("Error al cargar el archivo seleccionado.");
+      alert("Error al cargar el archivo.");
     }
   };
   reader.readAsText(file);
@@ -662,29 +961,21 @@ async function guardarDocumento() {
   try {
     if ('showSaveFilePicker' in window) {
       if (!archivoHandle) {
-        // Primera vez guardando un nuevo documento
         archivoHandle = await window.showSaveFilePicker({
           suggestedName: nombreSugerido,
           types: [{ description: 'Archivo JSON', accept: { 'application/json': ['.json'] } }]
         });
       } else {
-        // Verificar/solicitar permiso de escritura si el navegador lo requiere tras reabrir
         const options = { mode: 'readwrite' };
         if ((await archivoHandle.queryPermission(options)) !== 'granted') {
-          if ((await archivoHandle.requestPermission(options)) !== 'granted') {
-            alert("Se requieren permisos para guardar en el archivo.");
-            return;
-          }
+          if ((await archivoHandle.requestPermission(options)) !== 'granted') return alert("Permisos denegados.");
         }
       }
-
       const writable = await archivoHandle.createWritable();
       await writable.write(contenido);
       await writable.close();
-
       marcarComoGuardado();
     } else {
-      // Descarga por defecto para navegadores sin API moderna
       const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(contenido);
       const link = document.createElement('a');
       link.setAttribute("href", dataStr);
@@ -692,7 +983,6 @@ async function guardarDocumento() {
       document.body.appendChild(link);
       link.click();
       link.remove();
-
       marcarComoGuardado();
     }
   } catch (err) {
@@ -701,8 +991,6 @@ async function guardarDocumento() {
 }
 
 function reiniciarApp() {
-  if (cambiosSinGuardar) {
-    if (!confirm("Tienes cambios sin guardar. ¿Seguro que quieres volver al inicio?")) return;
-  }
+  if (cambiosSinGuardar && !confirm("Tienes cambios sin guardar. ¿Seguro que quieres volver al inicio?")) return;
   location.reload();
 }

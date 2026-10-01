@@ -1,5 +1,6 @@
 :root {
   --header-blue: #0b4c8c;
+  --header-sub-blue: #cce1f8;
   --header-text: #ffffff;
   --cell-bg: #dbe8f6;
   --border-color: #79a3d2;
@@ -14,9 +15,8 @@ body {
   padding: 15px;
 }
 
-/* Estilos de Logotipos */
 .logo-modal {
-  max-width: 140px; /* Logo de inicio más grande */
+  max-width: 140px;
   height: auto;
   margin-bottom: 12px;
 }
@@ -33,7 +33,6 @@ body {
   object-fit: contain;
 }
 
-/* Indicador de estado de guardado */
 .actions {
   display: flex;
   align-items: center;
@@ -66,7 +65,6 @@ body {
   100% { opacity: 1; }
 }
 
-/* Modales */
 .modal {
   position: fixed;
   top: 0; left: 0; right: 0; bottom: 0;
@@ -89,8 +87,8 @@ body {
 .modal-buttons {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  margin-top: 20px;
+  gap: 10px;
+  margin-top: 15px;
 }
 
 .lista-items {
@@ -135,25 +133,12 @@ button {
   transition: background 0.2s;
 }
 
-button:hover {
-  background-color: #083663;
-}
+button:hover { background-color: #083663; }
+button.btn-danger { background-color: var(--danger); }
+button.btn-danger:hover { background-color: #962d22; }
+button.btn-info { background-color: #2980b9; font-size: 0.75rem; padding: 6px 10px; }
 
-button.btn-danger {
-  background-color: var(--danger);
-}
-
-button.btn-danger:hover {
-  background-color: #962d22;
-}
-
-button.btn-info {
-  background-color: #2980b9;
-  font-size: 0.75rem;
-  padding: 6px 10px;
-}
-
-input[type="text"] {
+input[type="text"], input[type="number"] {
   width: 100%;
   padding: 8px;
   margin: 8px 0 16px 0;
@@ -162,11 +147,8 @@ input[type="text"] {
   border-radius: 4px;
 }
 
-.hidden {
-  display: none !important;
-}
+.hidden { display: none !important; }
 
-/* Layouts */
 .top-bar {
   display: flex;
   justify-content: space-between;
@@ -177,9 +159,7 @@ input[type="text"] {
   margin-bottom: 15px;
 }
 
-.top-bar h1, .top-bar h2 {
-  margin: 0;
-}
+.top-bar h1, .top-bar h2 { margin: 0; }
 
 .toolbar {
   display: flex;
@@ -199,7 +179,70 @@ input[type="text"] {
   box-shadow: 0 2px 5px rgba(0,0,0,0.05);
 }
 
-/* Grid Vista Detalle (Ajustada para encajar sin scroll horizontal) */
+th.th-ud-link {
+  cursor: pointer;
+  transition: background-color 0.2s;
+  text-decoration: underline;
+}
+
+th.th-ud-link:hover { background-color: #083663; }
+
+/* Estilos para la cabecera multinivel */
+.header-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+}
+
+.header-bloque-padre {
+  background-color: var(--header-blue);
+  color: white;
+  font-size: 0.85rem;
+  padding: 8px 5px;
+}
+
+.header-subapartado {
+  background-color: var(--header-sub-blue);
+  color: #000;
+  font-weight: bold;
+  font-size: 0.78rem;
+  padding: 6px 4px;
+}
+
+.header-total-sub {
+  background-color: #b8d5f5;
+  color: #000;
+  font-weight: bold;
+  font-size: 0.78rem;
+  padding: 6px 4px;
+}
+
+.btn-gear {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 0.85rem;
+  padding: 2px 4px;
+  border-radius: 3px;
+  transition: background 0.2s;
+}
+
+.btn-gear:hover {
+  background: rgba(0, 0, 0, 0.15);
+}
+
+.badge-porcentaje {
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-weight: bold;
+  font-size: 0.85rem;
+}
+
+.badge-porcentaje.ok { background-color: #27ae60; color: white; }
+.badge-porcentaje.warn { background-color: #e67e22; color: white; }
+
 .grid-layout {
   display: flex;
   gap: 8px;
@@ -207,14 +250,16 @@ input[type="text"] {
   align-items: flex-start;
   width: 100%;
   box-sizing: border-box;
+  overflow-x: auto;
+  padding-bottom: 10px;
 }
 
 .table-card {
   background: white;
   border-radius: 4px;
   box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-  flex: 1 1 auto;
-  min-width: 0; /* Permite que se reduzca el tamaño del contenedor si es necesario */
+  flex: 1 0 220px;
+  min-width: 180px;
 }
 
 table {
@@ -260,6 +305,22 @@ td {
   padding: 0;
 }
 
+.nota-celda-lectura {
+  text-align: center;
+  font-weight: bold;
+  background-color: #ffffff;
+}
+
+.nota-celda-lectura.total-bloque {
+  background-color: #e3edf7;
+  color: var(--header-blue);
+}
+
+.nota-celda-lectura.total-ud {
+  background-color: #cde0f5;
+  color: #083663;
+}
+
 .col-nota {
   width: 45px;
   min-width: 45px;
@@ -270,6 +331,7 @@ td input.nota-input {
   width: 100%;
   height: 100%;
   padding: 6px 0;
+  margin: 0;
   box-sizing: border-box;
   background: transparent;
   border: none;
