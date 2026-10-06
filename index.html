@@ -27,9 +27,20 @@
 
       <div id="formNuevoDoc" class="form-nuevo-doc hidden">
         <hr style="margin: 20px 0; border: 0; border-top: 1px solid #ddd;">
-        <label for="nombreDoc"><strong>Nombre de la materia / grupo:</strong></label>
-        <input type="text" id="nombreDoc" placeholder="Ej: Tecnología 2º ESO A">
-        <button class="btn-accion" onclick="crearNuevoDocumento()">Comenzar</button>
+        
+        <div class="form-grupo">
+          <label for="selectAsignatura"><strong>Asignatura:</strong></label>
+          <select id="selectAsignatura" style="margin-top: 5px; margin-bottom: 12px; padding: 8px; width: 100%; border-radius: 4px; border: 1px solid #ccc;">
+            <!-- Carga dinámicamente desde CATALOGO_ASIGNATURAS -->
+          </select>
+        </div>
+
+        <div class="form-grupo">
+          <label for="nombreDoc"><strong>Nombre de la materia / grupo:</strong></label>
+          <input type="text" id="nombreDoc" placeholder="Ej: Tecnología 2º ESO A">
+        </div>
+
+        <button class="btn-accion" style="width: 100%; margin-top: 10px;" onclick="crearNuevoDocumento()">Comenzar</button>
       </div>
     </div>
   </div>
@@ -276,7 +287,7 @@
         </button>
       </div>
 
-      <!-- SECCIÓN AÑADIDA: PEGAR NOTAS MASIVAS -->
+      <!-- SECCIÓN PEGAR NOTAS MASIVAS -->
       <hr style="margin: 15px 0; border: 0; border-top: 1px solid #ddd;">
       <div class="form-grupo">
         <label for="textoNotasMasivas"><strong>📋 Pegar notas masivas para este apartado:</strong></label>
@@ -319,6 +330,9 @@
     </div>
   </div>
 
+  <!-- CARGA DE DATOS CURRICULARES DE ASIGNATURAS -->
+  <script src="asignaturas.js"></script>
+  <!-- SCRIPT PRINCIPAL -->
   <script src="script.js"></script>
 </body>
 </html>

@@ -643,3 +643,68 @@ tr:nth-child(even) {
   border: 1px solid #f5c6cb;
   border-radius: 4px;
 }
+
+/* ==========================================
+   ADAPTACIONES PARA PANTALLAS MÓVILES
+   ========================================== */
+
+@media (max-width: 768px) {
+  /* 1. Ajustes generales de espacio */
+  body {
+    padding: 8px;
+  }
+
+  .contenedor-principal {
+    padding: 10px;
+  }
+
+  .header-app {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .acciones-header {
+    width: 100%;
+    justify-content: space-between;
+    flex-wrap: wrap;
+  }
+
+  .toolbar {
+    flex-direction: column;
+  }
+
+  .toolbar button {
+    width: 100%;
+  }
+
+  /* 2. Vista Detalle (Informe): Apilar tablas verticalmente en móvil */
+  .contenedor-tablas-horizontal {
+    flex-direction: column;
+    overflow-x: hidden;
+  }
+
+  .bloque-detalle-tabla, 
+  .bloque-comp-clave {
+    width: 100%;
+    min-width: 100%;
+  }
+
+  /* 3. Ajuste de columna fija en tablas */
+  .col-alumno, 
+  td.nombre-alumno {
+    width: 120px !important;
+    min-width: 120px !important;
+    font-size: 0.75rem;
+    white-space: normal;
+    word-break: break-word;
+  }
+
+  /* 4. Modales adaptables */
+  .modal-content {
+    width: 95%;
+    padding: 15px;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+}

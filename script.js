@@ -1,127 +1,17 @@
-// DICCIONARIOS DE DESCRIPCIÓN PARA TOOLTIPS LOMLOE
-const DESCRIPCIONES_COMPETENCIAS = {
-  "1": "1. Buscar, seleccionar y organizar información en entornos digitales con actitud crítica y segura.",
-  "2": "2. Abordar problemas mediante el diseño y construcción de soluciones tecnológicas sostenibles.",
-  "3": "3. Utilizar herramientas informáticas y de diseño para la creación de contenido digital.",
-  "4": "4. Representar e comunicar ideas técnicas utilizando simbología y normalización adecuada.",
-  "5": "5. Desarrollar un proyecto técnico trabajando de forma cooperativa e inclusiva.",
-  "6": "6. Comprender el funcionamiento de los sistemas tecnológicos y su impacto en la sociedad.",
-  "7": "7. Hacer uso responsable de los recursos tecnológicos promoviendo el desarrollo sostenible."
-};
-
-const DESCRIPCIONES_CRITERIOS = {
-  "1.1": "1.1. Buscar y seleccionar información relevante en la red con sentido crítico.",
-  "1.2": "1.2. Organizar y almacenar la información digital de forma segura.",
-  "1.3": "1.3. Aplicar medidas básicas de seguridad y protección de datos.",
-  "2.1": "2.1. Diseñar soluciones tecnológicas creativas a problemas planteados.",
-  "2.2": "2.2. Construir prototipos aplicando normas de seguridad e higiene.",
-  "3.1": "3.1. Elaborar documentos y presentaciones utilizando aplicaciones informáticas.",
-  "4.1": "4.1. Interpretar y realizar bocetos y croquis técnicos utilizando acotación.",
-  "5.1": "5.1. Trabajar en equipo repartiendo tareas con empatía y equidad.",
-  "5.2": "5.2. Planificar las fases de un proyecto técnico respetando tiempos.",
-  "5.3": "5.3. Evaluar el proceso de trabajo en grupo proponiendo mejoras.",
-  "6.1": "6.1. Identificar los componentes principales de un sistema informático o tecnológico.",
-  "6.2": "6.2. Analizar las repercusiones del avance tecnológico en el entorno social y ambiental.",
-  "6.3": "6.3. Valorar la importancia de la ciberseguridad y la identidad digital.",
-  "7.1": "7.1. Evaluar el consumo energético e impacto medioambiental de la tecnología.",
-  "7.2": "7.2. Aplicar criterios de economía circular en la reutilización de materiales."
-};
-
-const DESCRIPCIONES_DESCRIPTORES = {
-  "CCL1": "Competencia lingüística: Expresa hechos y opiniones de forma oral y escrita.",
-  "CCL3": "Competencia lingüística: Localiza, selecciona y contrasta información de diversas fuentes.",
-  "CP2": "Competencia plurilingüe: Interactúa en otras lenguas en situaciones cotidianas.",
-  "STEM1": "STEM: Utiliza métodos deductivos e inductivos propios de las ciencias.",
-  "STEM2": "STEM: Utiliza el pensamiento científico para plantear hipótesis y resolver problemas.",
-  "STEM3": "STEM: Plantea y resuelve problemas analizando críticamente los resultados.",
-  "STEM4": "STEM: Interpreta y transmite información con lenguaje científico y técnico.",
-  "STEM5": "STEM: Emprende acciones para preservar el medio ambiente y la salud.",
-  "CD1": "Competencia digital: Realiza búsquedas avanzadas e interacciona en entornos virtuales.",
-  "CD2": "Competencia digital: Crea y modifica contenidos digitales en diversos formatos.",
-  "CD3": "Competencia digital: Participa en actividades cooperativas con herramientas digitales.",
-  "CD4": "Competencia digital: Protege la identidad digital, datos y privacidad.",
-  "CD5": "Competencia digital: Desarrolla soluciones algorítmicas mediante programación.",
-  "CPSAA1": "Personal, social y aprender a aprender: Reflexiona sobre sí mismo y sus metas.",
-  "CPSAA3": "Personal, social y aprender a aprender: Evalúa sus propios aprendizajes y procesos.",
-  "CPSAA4": "Personal, social y aprender a aprender: Favorece la convivencia democrática e inclusiva.",
-  "CPSAA5": "Personal, social y aprender a aprender: Mantiene una actitud resiliente y de superación.",
-  "CC4": "Competencia ciudadana: Analiza el impacto ecológico y promueve el desarrollo sostenible.",
-  "CE1": "Competencia emprendedora: Diseña y gestiona ideas originales generando valor.",
-  "CE3": "Competencia emprendedora: Desarrolla proyectos de forma cooperativa liderando tareas.",
-  "CCEC3": "Conciencia cultural: Expresa ideas e impresiones utilizando diversos soportes artísticos.",
-  "CCEC4": "Conciencia cultural: Diseña productos culturales teniendo en cuenta la estética."
-};
-
-const DESCRIPCIONES_COMPETENCIAS_CLAVE = {
-  "CCL": "Competencia en Comunicación Lingüística: Comprender y expresar pensamientos, emociones y conceptos de forma oral y escrita.",
-  "CP": "Competencia Plurilingüe: Utilizar distintas lenguas de forma eficaz para el aprendizaje y la comunicación.",
-  "STEM": "Competencia Matemática y en Ciencia, Tecnología e Ingeniería (STEM): Comprender el mundo utilizando modelos y métodos científicos.",
-  "CD": "Competencia Digital: Uso seguro, crítico y responsable de las tecnologías digitales para el aprendizaje y la sociedad.",
-  "CPSAA": "Competencia Personal, Social y de Aprender a Aprender: Reflexionar sobre uno mismo, gestionar el tiempo y trabajar colaborativamente.",
-  "CC": "Competencia Ciudadana: Actuar como ciudadanos responsables y participar plenamente en la vida social y cívica.",
-  "CE": "Competencia Emprendedora: Desarrollar la creatividad y capacidad de transformar ideas en actos que generen valor.",
-  "CCEC": "Competencia en Conciencia y Expresión Culturales: Comprender y respetar cómo las ideas son expresadas en distintas culturas."
-};
-
-const CONFIG_COMPETENCIAS_CLAVE = {
-  "CCL":   { nombre: "CCL - Comunicación Lingüística", colorClass: "comp-ccl" },
-  "CP":    { nombre: "CP - Plurilingüe", colorClass: "comp-cp" },
-  "STEM":  { nombre: "STEM - Ciencia, Tec. y Mates", colorClass: "comp-stem" },
-  "CD":    { nombre: "CD - Digital", colorClass: "comp-cd" },
-  "CPSAA": { nombre: "CPSAA - Aprender a Aprender", colorClass: "comp-cpsaa" },
-  "CC":    { nombre: "CC - Ciudadana", colorClass: "comp-cc" },
-  "CE":    { nombre: "CE - Emprendedora", colorClass: "comp-ce" },
-  "CCEC":  { nombre: "CCEC - Expresión Cultural", colorClass: "comp-ccec" }
-};
-
-const MAPA_CURRICULAR = [
-  { compNum: "1", compNombre: "1. Buscar...", descriptores: ["CCL3", "STEM2", "CD1", "CD4", "CPSAA4", "CE1"], criterios: ["1.1", "1.2", "1.3"] },
-  { compNum: "2", compNombre: "2. Abordar...", descriptores: ["CCL1", "STEM1", "STEM3", "CD3", "CPSAA3", "CPSAA5", "CE1", "CE3"], criterios: ["2.1", "2.2"] },
-  { compNum: "3", compNombre: "3. Utilizar...", descriptores: ["STEM2", "STEM3", "STEM5", "CD5", "CPSAA1", "CE3", "CCEC3"], criterios: ["3.1"] },
-  { compNum: "4", compNombre: "4. Representar...", descriptores: ["CCL1", "STEM4", "CD3", "CCEC3", "CCEC4"], criterios: ["4.1"] },
-  { compNum: "5", compNombre: "5. Desarrollar...", descriptores: ["CP2", "STEM1", "STEM3", "CD5", "CPSAA5", "CE3"], criterios: ["5.1", "5.2", "5.3"] },
-  { compNum: "6", compNombre: "6. Comprender...", descriptores: ["CP2", "CD2", "CD4", "CD5", "CPSAA4", "CPSAA5"], criterios: ["6.1", "6.2", "6.3"] },
-  { compNum: "7", compNombre: "7. Hacer uso...", descriptores: ["STEM2", "STEM5", "CD4", "CC4"], criterios: ["7.1", "7.2"] }
-];
-
 let estadoApp = {
+  idAsignatura: "tecnologia_digitalizacion",
   nombreDocumento: "",
-  unidades: [
-    { 
-      id: "ud_1", 
-      nombre: "1. PRESENTACIONES GOOGLE", 
-      criterios: [
-        { codigo: "1.1", peso: 2 },
-        { codigo: "1.2", peso: 1 }
-      ],
-      apartados: [
-        { 
-          id: "ap_1", nombre: "EXÁMENES", peso: 60,
-          subapartados: [
-            { id: "sub_1", nombre: "TEMA 1", peso: 50 },
-            { id: "sub_2", nombre: "TEMA 2", peso: 50 }
-          ]
-        },
-        { id: "ap_2", nombre: "PRÁCTICAS", peso: 40, subapartados: [] }
-      ]
-    },
-    { 
-      id: "ud_2", 
-      nombre: "2. PROCESADOR DE TEXTO", 
-      criterios: [
-        { codigo: "2.1", peso: 3 }
-      ], 
-      apartados: [] 
-    }
-  ],
-  alumnos: [
-    { 
-      nombre: "Ana", apellidos: "García López", 
-      notasUDManuales: {}, 
-      notasApartados: { "sub_1": 8, "sub_2": 6, "ap_2": 9 }
-    }
-  ]
+  unidades: [],
+  alumnos: []
 };
+
+// Punteros al currículo activo
+let DESCRIPCIONES_COMPETENCIAS = {};
+let DESCRIPCIONES_CRITERIOS = {};
+let DESCRIPCIONES_DESCRIPTORES = {};
+let DESCRIPCIONES_COMPETENCIAS_CLAVE = {};
+let CONFIG_COMPETENCIAS_CLAVE = {};
+let MAPA_CURRICULAR = [];
 
 let alumnoSeleccionadoIdx = null;
 let udEdicionIdx = null; 
@@ -133,12 +23,42 @@ let apartadoEdicionId = null;
 let archivoHandle = null;
 let cambiosSinGuardar = false;
 
+window.addEventListener('DOMContentLoaded', () => {
+  poblarDesplegableAsignaturas();
+});
+
 window.addEventListener('beforeunload', (event) => {
   if (cambiosSinGuardar) {
     event.preventDefault();
     event.returnValue = '';
   }
 });
+
+function poblarDesplegableAsignaturas() {
+  const select = document.getElementById('selectAsignatura');
+  if (!select) return;
+  select.innerHTML = '';
+
+  Object.keys(CATALOGO_ASIGNATURAS).forEach(key => {
+    const asig = CATALOGO_ASIGNATURAS[key];
+    const opt = document.createElement('option');
+    opt.value = asig.id;
+    opt.textContent = asig.nombreMateria;
+    select.appendChild(opt);
+  });
+}
+
+function cargarCurriculoActivo() {
+  const asigId = estadoApp.idAsignatura || "tecnologia_digitalizacion";
+  const curriculo = CATALOGO_ASIGNATURAS[asigId] || CATALOGO_ASIGNATURAS["tecnologia_digitalizacion"];
+
+  DESCRIPCIONES_COMPETENCIAS = curriculo.DESCRIPCIONES_COMPETENCIAS;
+  DESCRIPCIONES_CRITERIOS = curriculo.DESCRIPCIONES_CRITERIOS;
+  DESCRIPCIONES_DESCRIPTORES = curriculo.DESCRIPCIONES_DESCRIPTORES;
+  DESCRIPCIONES_COMPETENCIAS_CLAVE = curriculo.DESCRIPCIONES_COMPETENCIAS_CLAVE;
+  CONFIG_COMPETENCIAS_CLAVE = curriculo.CONFIG_COMPETENCIAS_CLAVE;
+  MAPA_CURRICULAR = curriculo.MAPA_CURRICULAR;
+}
 
 function marcarCambiosPendientes() {
   cambiosSinGuardar = true;
@@ -163,6 +83,7 @@ function generarIdUnico(prefix = 'id') {
 function migrarEstructuraUD() {
   if (!estadoApp.alumnos) estadoApp.alumnos = [];
   if (!estadoApp.unidades) estadoApp.unidades = [];
+  if (!estadoApp.idAsignatura) estadoApp.idAsignatura = "tecnologia_digitalizacion";
 
   estadoApp.unidades.forEach((ud) => {
     if (!ud.id) ud.id = generarIdUnico('ud');
@@ -190,14 +111,18 @@ function migrarEstructuraUD() {
 }
 
 function mostrarFormNuevoDoc() {
+  poblarDesplegableAsignaturas();
   document.getElementById('formNuevoDoc').classList.remove('hidden');
 }
 
 function crearNuevoDocumento() {
   const nombre = document.getElementById('nombreDoc').value.trim();
+  const idAsig = document.getElementById('selectAsignatura').value;
+
   if (!nombre) return alert("Por favor, introduce el nombre del documento.");
 
   archivoHandle = null;
+  estadoApp.idAsignatura = idAsig;
   estadoApp.nombreDocumento = nombre;
   estadoApp.unidades = [];
   estadoApp.alumnos = [];
@@ -208,6 +133,7 @@ function crearNuevoDocumento() {
 
 function iniciarVistaHoja() {
   migrarEstructuraUD();
+  cargarCurriculoActivo();
   construirFormularioCriterios15();
   document.getElementById('modalInicio').classList.add('hidden');
   document.getElementById('vistaDetalle').classList.add('hidden');
@@ -226,7 +152,6 @@ function ordenarAlumnos() {
   });
 }
 
-// MODIFICACIÓN: Los criterios ya no duplican su código (ej: "1.1. Buscar..." en vez de "1.1 - 1.1...")
 function construirFormularioCriterios15() {
   const cont = document.getElementById('contenedorCriteriosUD');
   if (!cont) return;
@@ -555,7 +480,7 @@ function renderizarTablaUD() {
       thPadre.className = 'header-bloque-padre';
       thPadre.innerHTML = `
         <div class="header-content">
-          <span class="header-title">${ap.nombre} (${ap.peso}%) ${Math.abs(sumaSub - 100) > 0.01 ? '⚠️️' : ''}</span>
+          <span class="header-title">${ap.nombre} (${ap.peso}%) ${Math.abs(sumaSub - 100) > 0.01 ? '⚠' : ''}</span>
           <button class="btn-gear" onclick="abrirOpcionesApartado('${ap.id}', null, '${ap.nombre}', true)">⚙️</button>
         </div>
       `;
@@ -698,7 +623,6 @@ function abrirOpcionesApartado(idItem, idPadre, nombre, esPadre) {
     btnSub.classList.add('hidden');
   }
 
-  // Limpiar el campo de texto de notas masivas
   const campoNotas = document.getElementById('textoNotasMasivas');
   if (campoNotas) campoNotas.value = '';
 
@@ -727,7 +651,6 @@ function menuAccionEliminarApartado() {
   eliminarApartado(idItem, idPadre);
 }
 
-// NUEVA FUNCIÓN: PROCESAR PEGAR NOTAS MASIVAS ALUMNO POR ALUMNO
 function menuAccionPegarNotasMasivas() {
   const texto = document.getElementById('textoNotasMasivas').value.trim();
   if (!texto) return alert("Por favor, introduce o pega la lista de notas.");
@@ -738,7 +661,7 @@ function menuAccionPegarNotasMasivas() {
 
   lineas.forEach((linea, index) => {
     if (index < estadoApp.alumnos.length) {
-      const valStr = linea.trim().replace(',', '.'); // Permite coma como separador decimal
+      const valStr = linea.trim().replace(',', '.');
       const num = parseFloat(valStr);
 
       const alumno = estadoApp.alumnos[index];
@@ -1074,7 +997,7 @@ function abrirModalModificarUUDD() {
     item.innerHTML = `
       <span>${index + 1}. ${ud.nombre}</span>
       <div style="display:flex; gap:6px;">
-        <button class="btn-info" onclick="event.stopPropagation(); editarUnidadSeleccionada(${index})">✏️ Modificar</button>
+        <button class="btn-info" onclick="event.stopPropagation(); editarUnidadSeleccionada(${index})">✏ Modificar</button>
         <button class="btn-danger" style="font-size:0.75rem; padding:6px 10px;" onclick="event.stopPropagation(); eliminarUnidadDirecto(${index})">🗑 Eliminar</button>
       </div>
     `;
