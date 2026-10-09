@@ -105,6 +105,7 @@ function migrarEstructuraUD() {
   });
 
   estadoApp.alumnos.forEach((al) => {
+    if (!al.id) al.id = generarIdUnico('al');   // identificador estable (las notas del corrector vuelven a quien toca aunque se reordene la lista)
     if (!al.notasApartados) al.notasApartados = {};
     if (!al.notasUDManuales) al.notasUDManuales = {};
   });
@@ -465,7 +466,7 @@ function renderizarTablaUD() {
       th.rowSpan = 2;
       th.innerHTML = `
         <div class="header-content">
-          <span class="header-title">${ap.nombre} (${ap.peso}%)</span>
+          <span class="header-title">${esGenially(ap) ? '🧩 ' : ''}${ap.nombre} (${ap.peso}%)</span>
           <button class="btn-gear" onclick="abrirOpcionesApartado('${ap.id}', null, '${ap.nombre}', true)">⚙️</button>
         </div>
       `;
@@ -493,7 +494,7 @@ function renderizarTablaUD() {
         thSub.className = 'header-subapartado';
         thSub.innerHTML = `
           <div class="header-content">
-            <span>${sub.nombre} <small>(${sub.peso}%)</small></span>
+            <span>${esGenially(sub) ? '🧩 ' : ''}${sub.nombre} <small>(${sub.peso}%)</small></span>
             <button class="btn-gear" onclick="abrirOpcionesApartado('${sub.id}', '${ap.id}', '${sub.nombre}', false)">⚙️</button>
           </div>
         `;
@@ -626,6 +627,11 @@ function abrirOpcionesApartado(idItem, idPadre, nombre, esPadre) {
   const campoNotas = document.getElementById('textoNotasMasivas');
   if (campoNotas) campoNotas.value = '';
 
+  const item = buscarItemApartado(idItem, idPadre);
+  const btnGen = document.getElementById('btnOpcionGenially');
+  const esHoja = item && !(item.subapartados && item.subapartados.length);
+  if (btnGen) btnGen.classList.toggle('hidden', !(esGenially(item) && esHoja));
+
   document.getElementById('modalOpcionesApartado').classList.remove('hidden');
 }
 
@@ -699,6 +705,7 @@ function abrirModalAgregarApartado(idPadre = null) {
 
   document.getElementById('inputNombreApartado').value = '';
   document.getElementById('inputPesoApartado').value = '';
+  document.getElementById('selectHerramientaApartado').value = 'manual';
   document.getElementById('modalAgregarApartado').classList.remove('hidden');
 }
 
@@ -723,6 +730,7 @@ function editarApartado(idItem, idPadre = null) {
   if (itemTarget) {
     document.getElementById('inputNombreApartado').value = itemTarget.nombre;
     document.getElementById('inputPesoApartado').value = itemTarget.peso;
+    document.getElementById('selectHerramientaApartado').value = itemTarget.herramienta || 'manual';
     document.getElementById('modalAgregarApartado').classList.remove('hidden');
   }
 }
@@ -739,6 +747,7 @@ function procesarGuardarApartado() {
   if (!nombre) return alert("Introduce un nombre.");
   if (isNaN(peso) || peso <= 0 || peso > 100) return alert("Introduce un porcentaje válido de 1 a 100.");
 
+  const herramienta = document.getElementById('selectHerramientaApartado').value || 'manual';
   const ud = estadoApp.unidades[udActivaIdx];
 
   if (padreApartadoEdicionId !== null) {
@@ -757,10 +766,10 @@ function procesarGuardarApartado() {
     }
 
     if (apartadoEdicionId === null) {
-      padre.subapartados.push({ id: generarIdUnico('sub'), nombre: nombre, peso: peso });
+      padre.subapartados.push({ id: generarIdUnico('sub'), nombre: nombre, peso: peso, herramienta: herramienta });
     } else {
       const sub = padre.subapartados.find(s => s.id === apartadoEdicionId);
-      if (sub) { sub.nombre = nombre; sub.peso = peso; }
+      if (sub) { sub.nombre = nombre; sub.peso = peso; sub.herramienta = herramienta; }
     }
   } else {
     let sumaActualPadre = ud.apartados.reduce((acc, ap) => {
@@ -774,10 +783,10 @@ function procesarGuardarApartado() {
     }
 
     if (apartadoEdicionId === null) {
-      ud.apartados.push({ id: generarIdUnico('ap'), nombre: nombre, peso: peso, subapartados: [] });
+      ud.apartados.push({ id: generarIdUnico('ap'), nombre: nombre, peso: peso, herramienta: herramienta, subapartados: [] });
     } else {
       const ap = ud.apartados.find(a => a.id === apartadoEdicionId);
-      if (ap) { ap.nombre = nombre; ap.peso = peso; }
+      if (ap) { ap.nombre = nombre; ap.peso = peso; ap.herramienta = herramienta; }
     }
   }
 
@@ -1109,7 +1118,7 @@ function procesarListaAlumnosMasiva() {
     }
 
     if (nombre || apellidos) {
-      estadoApp.alumnos.push({ nombre: nombre, apellidos: apellidos, notasUDManuales: {}, notasApartados: {} });
+      estadoApp.alumnos.push({ id: generarIdUnico('al'), nombre: nombre, apellidos: apellidos, notasUDManuales: {}, notasApartados: {} });
       añadidos++;
     }
   });
@@ -1251,3 +1260,133 @@ function reiniciarApp() {
   if (cambiosSinGuardar && !confirm("Tienes cambios sin guardar. ¿Seguro que quieres volver al inicio?")) return;
   location.reload();
 }
+// -------------------------------------------------------------
+// CORRECTOR DE GENIALLY (conexión con la extensión)
+// -------------------------------------------------------------
+
+// La extensión va dentro de la propia web (carpeta «extension»), lista para descargar desde el aviso.
+// Cuando la actualices, sustituye ese zip por el nuevo.
+const URL_EXTENSION_GENIALLY = 'extension/evaluador-genially.zip';
+
+function esGenially(item) {
+  return !!item && item.herramienta === 'genially';
+}
+
+function extensionGeniallyInstalada() {
+  return document.documentElement.hasAttribute('data-genially-ext');
+}
+
+function buscarItemApartado(idItem, idPadre) {
+  const ud = estadoApp.unidades[udActivaIdx];
+  if (!ud) return null;
+  if (idPadre === null || idPadre === undefined) return (ud.apartados || []).find(a => a.id === idItem) || null;
+  const padre = (ud.apartados || []).find(a => a.id === idPadre);
+  return padre ? (padre.subapartados || []).find(sb => sb.id === idItem) || null : null;
+}
+
+// Busca un apartado o subapartado por su id en todas las UD
+function localizarApartado(id) {
+  for (let i = 0; i < estadoApp.unidades.length; i++) {
+    const ud = estadoApp.unidades[i];
+    for (const ap of (ud.apartados || [])) {
+      if (ap.id === id) return { ud, udIdx: i, item: ap };
+      for (const sub of (ap.subapartados || [])) if (sub.id === id) return { ud, udIdx: i, item: sub, padre: ap };
+    }
+  }
+  return null;
+}
+
+function mostrarToast(texto, esError) {
+  const t = document.getElementById('toast');
+  if (!t) return;
+  t.textContent = texto;
+  t.className = 'toast' + (esError ? ' error' : '');
+  clearTimeout(mostrarToast._t);
+  mostrarToast._t = setTimeout(() => t.classList.add('hidden'), esError ? 7000 : 4000);
+}
+
+function abrirModalGenially(motivo) {
+  document.getElementById('geniallyMotivo').textContent = motivo || 'No se ha detectado la extensión en este navegador.';
+  const paso = document.getElementById('pasoDescarga');
+  if (URL_EXTENSION_GENIALLY) {
+    paso.innerHTML = '<a class="btn-descarga" href="' + URL_EXTENSION_GENIALLY + '" download>⬇️ Descargar la extensión (.zip)</a><br>Descomprime el zip en una carpeta que no vayas a borrar (Chrome la usa siempre desde ahí).';
+  }
+  document.getElementById('pasoArchivo').classList.toggle('hidden', location.protocol !== 'file:');
+  document.getElementById('modalGenially').classList.remove('hidden');
+}
+
+function cerrarModalGenially() {
+  document.getElementById('modalGenially').classList.add('hidden');
+}
+
+const pendientesGenially = new Map();
+
+function menuAccionCorregirGenially() {
+  const { idItem, idPadre } = contextoEngranaje;
+  const ud = estadoApp.unidades[udActivaIdx];
+  const item = buscarItemApartado(idItem, idPadre);
+  cerrarModalOpcionesApartado();
+  if (!item) return;
+
+  if (!extensionGeniallyInstalada()) return abrirModalGenially();
+  if (!estadoApp.alumnos.length) return alert('Añade primero la lista de alumnos.');
+
+  const payload = {
+    sesion: item.id,
+    apartadoId: item.id,
+    titulo: `${estadoApp.nombreDocumento} · ${ud.nombre} · ${item.nombre}`,
+    alumnos: estadoApp.alumnos.map(a => ({ id: a.id, nombre: `${a.apellidos}, ${a.nombre}` })),
+    proyecto: item.genially || null
+  };
+  const reqId = 'r' + Date.now() + Math.random().toString(36).slice(2);
+  const espera = setTimeout(() => {
+    pendientesGenially.delete(reqId);
+    abrirModalGenially('La extensión no responde. Recarga esta página (después de guardar) y vuelve a intentarlo.');
+  }, 6000);
+  pendientesGenially.set(reqId, (r) => {
+    clearTimeout(espera);
+    if (r.ok) mostrarToast('🧩 Abriendo el corrector de Genially para «' + item.nombre + '»…');
+    else abrirModalGenially('No se pudo abrir el corrector: ' + (r.error || 'error desconocido') + '.');
+  });
+  window.postMessage({ origen: 'cuaderno-lomloe', tipo: 'abrir-corrector', reqId, payload }, '*');
+}
+
+function rerenderVistaActual() {
+  if (!document.getElementById('vistaUD').classList.contains('hidden')) renderizarTablaUD();
+  else if (!document.getElementById('vistaDetalle').classList.contains('hidden')) renderizarDetalleAlumno();
+  else if (!document.getElementById('app').classList.contains('hidden')) renderizarTablaPrincipal();
+}
+
+// Mensajes que llegan desde la extensión
+window.addEventListener('message', (ev) => {
+  const d = ev.data;
+  if (ev.source !== window || !d || d.origen !== 'genially-ext') return;
+
+  if (d.tipo === 'respuesta') {
+    const f = pendientesGenially.get(d.reqId);
+    if (f) { pendientesGenially.delete(d.reqId); f(d); }
+    return;
+  }
+
+  if (d.tipo === 'notas') {
+    const ack = (ok, error, recibidas) => window.postMessage({ origen: 'cuaderno-lomloe', tipo: 'ack', reqId: d.reqId, ok, error: error || '', recibidas: recibidas || 0 }, '*');
+    const loc = localizarApartado(d.apartadoId);
+    if (!loc) return ack(false, 'este apartado no está en el cuaderno abierto');
+
+    let recibidas = 0;
+    const notas = d.notas || {};
+    estadoApp.alumnos.forEach(al => {
+      const v = notas[al.id];
+      if (typeof v === 'number' && !isNaN(v)) {
+        if (!al.notasApartados) al.notasApartados = {};
+        al.notasApartados[loc.item.id] = Math.round(Math.max(0, Math.min(10, v)) * 100) / 100;
+        recibidas++;
+      }
+    });
+    if (d.proyecto) loc.item.genially = d.proyecto;   // modelo, criterios, enlaces y análisis: viajan dentro del archivo del cuaderno
+    marcarCambiosPendientes();
+    rerenderVistaActual();
+    ack(true, '', recibidas);
+    if (recibidas) mostrarToast('🧩 ' + recibidas + ' nota(s) de «' + loc.item.nombre + '» recibidas del corrector de Genially. Recuerda guardar el archivo.');
+  }
+});

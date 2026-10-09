@@ -3,6 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Permite que la extensión «Evaluador de Genially» reconozca esta página -->
+  <meta name="cuaderno-lomloe" content="1">
   <title>Cuaderno de Evaluación LOMLOE</title>
   <!-- FAVICON AÑADIDO CON LOGO.PNG -->
   <link rel="icon" type="image/png" href="logo.png">
@@ -262,6 +264,14 @@
         <label id="labelPesoApartado" for="inputPesoApartado">Porcentaje sobre la UD (%):</label>
         <input type="number" id="inputPesoApartado" min="1" max="100" placeholder="Ej: 40">
       </div>
+      <div class="form-grupo">
+        <label for="selectHerramientaApartado">Herramienta de corrección:</label>
+        <select id="selectHerramientaApartado">
+          <option value="manual">✏️ Manual (escribo yo las notas)</option>
+          <option value="genially">🧩 Corrector de Genially</option>
+        </select>
+        <p class="ayuda-campo">Con el corrector de Genially, las notas de este apartado llegan solas desde la extensión.</p>
+      </div>
       <div class="modal-acciones">
         <button class="btn-secundario" onclick="cerrarModalAgregarApartado()">Cancelar</button>
         <button onclick="procesarGuardarApartado()">Guardar</button>
@@ -278,6 +288,9 @@
       <div class="lista-opciones-menu">
         <button id="btnOpcionSubapartado" class="btn-menu-opcion" onclick="menuAccionAñadirSubapartado()">
           ➕ Añadir Subapartado a este bloque
+        </button>
+        <button id="btnOpcionGenially" class="btn-menu-opcion btn-menu-genially hidden" onclick="menuAccionCorregirGenially()">
+          🧩 Corregir con el corrector de Genially
         </button>
         <button class="btn-menu-opcion" onclick="menuAccionEditarApartado()">
           ✏️ Modificar Nombre / Porcentaje
@@ -329,6 +342,27 @@
       </div>
     </div>
   </div>
+
+  <!-- MODAL: FALTA LA EXTENSIÓN DEL CORRECTOR DE GENIALLY -->
+  <div id="modalGenially" class="modal-overlay hidden">
+    <div class="modal-content">
+      <h3>🧩 Hace falta la extensión «Evaluador de Genially»</h3>
+      <p id="geniallyMotivo" class="ayuda-campo" style="margin:8px 0 12px;"></p>
+      <p style="font-size:0.9rem; margin-bottom:8px;">El corrector abre cada Genially y pulsa sus botones para comprobarlos. Una página web no puede hacer eso por seguridad del navegador, así que se necesita la extensión (solo en Chrome o Edge de ordenador).</p>
+      <ol class="lista-pasos">
+        <li id="pasoDescarga">Consigue la carpeta de la extensión (pídesela a quien te pasó el cuaderno) y descomprímela si viene en .zip.</li>
+        <li>Abre <code>chrome://extensions</code> y activa el <b>Modo de desarrollador</b> (arriba a la derecha).</li>
+        <li>Pulsa <b>Cargar descomprimida</b> y elige la carpeta de la extensión.</li>
+        <li id="pasoArchivo">Como abres el cuaderno desde un archivo del ordenador, entra en <b>Detalles</b> de la extensión y activa <b>Permitir el acceso a las URL de archivo</b>.</li>
+        <li><b>Guarda el cuaderno</b> y recarga esta página.</li>
+      </ol>
+      <div class="modal-acciones">
+        <button class="btn-secundario" onclick="cerrarModalGenially()">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast hidden"></div>
 
   <!-- CARGA DE DATOS CURRICULARES DE ASIGNATURAS -->
   <script src="asignaturas.js"></script>
