@@ -247,6 +247,26 @@
         <input type="text" id="inputNombreUD" placeholder="Ej: UD 1. PROGRAMACIÓN CON SCRATCH">
       </div>
 
+      <div class="fila-evaluacion-ud">
+        <div class="form-grupo">
+          <label for="selectEvaluacionUD">Evaluación a la que pertenece:</label>
+          <select id="selectEvaluacionUD" onchange="actualizarPesoEvalUD()">
+            <option value="">— Sin asignar —</option>
+            <option value="1">1ª Evaluación</option>
+            <option value="2">2ª Evaluación</option>
+            <option value="3">3ª Evaluación</option>
+          </select>
+        </div>
+        <div class="form-grupo">
+          <label for="selectPesoEvalUD">Importancia dentro de la evaluación:</label>
+          <select id="selectPesoEvalUD">
+            <option value="1">Baja (x1)</option>
+            <option value="2" selected>Media (x2)</option>
+            <option value="3">Alta (x3)</option>
+          </select>
+        </div>
+      </div>
+
       <h4>Criterios de Evaluación y Pesos:</h4>
       <div id="contenedorCriteriosUD" class="grid-criterios-ud">
         <!-- Generado dinámicamente -->
@@ -309,6 +329,10 @@
       <p id="subtituloOpcionesApartado" style="font-size:0.85rem; color:#666; margin-bottom:15px;"></p>
       
       <div class="lista-opciones-menu">
+        <div class="fila-mover">
+          <button id="btnMoverApIzq" class="btn-menu-opcion" onclick="moverApartado(-1)">⬅️ Mover a la izquierda</button>
+          <button id="btnMoverApDer" class="btn-menu-opcion" onclick="moverApartado(1)">Mover a la derecha ➡️</button>
+        </div>
         <button id="btnOpcionSubapartado" class="btn-menu-opcion" onclick="menuAccionAñadirSubapartado()">
           ➕ Añadir Subapartado a este bloque
         </button>
@@ -344,6 +368,26 @@
 
       <div class="modal-acciones" style="margin-top:15px;">
         <button class="btn-secundario" onclick="cerrarModalOpcionesApartado()">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: OPCIONES DE UNIDAD (ENGRANAJE ⚙️ DE LA TABLA PRINCIPAL) -->
+  <div id="modalOpcionesUD" class="modal-overlay hidden">
+    <div class="modal-content modal-menu-engranaje">
+      <h3 id="tituloOpcionesUD">Opciones de la Unidad</h3>
+      <p id="subtituloOpcionesUD" style="font-size:0.85rem; color:#666; margin-bottom:15px;"></p>
+      <div class="lista-opciones-menu">
+        <div class="fila-mover">
+          <button id="btnMoverUDIzq" class="btn-menu-opcion" onclick="moverUnidad(-1)">⬅️ Mover a la izquierda</button>
+          <button id="btnMoverUDDer" class="btn-menu-opcion" onclick="moverUnidad(1)">Mover a la derecha ➡️</button>
+        </div>
+        <button class="btn-menu-opcion" onclick="menuUDAbrir()">📋 Abrir el desglose de la unidad</button>
+        <button class="btn-menu-opcion" onclick="menuUDModificar()">✏️ Modificar nombre, evaluación y criterios</button>
+        <button class="btn-menu-opcion btn-menu-danger" onclick="menuUDEliminar()">🗑️ Eliminar esta unidad</button>
+      </div>
+      <div class="modal-acciones" style="margin-top:15px;">
+        <button class="btn-secundario" onclick="cerrarModalOpcionesUD()">Cerrar</button>
       </div>
     </div>
   </div>

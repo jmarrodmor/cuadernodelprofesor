@@ -366,15 +366,49 @@ function renderizarTablaPrincipal() {
   estadoApp.unidades.forEach((ud, index) => {
     const th = document.createElement('th');
     th.className = 'th-ud-link';
-    th.textContent = ud.nombre || "";
     th.title = "Haz clic para abrir el desglose de esta Unidad";
     th.onclick = () => abrirVistaUD(index);
+    const cont = document.createElement('div');
+    cont.className = 'header-content';
+    const tit = document.createElement('span');
+    tit.textContent = ud.nombre || '';
+    if (ud.evaluacion) {
+      const etq = document.createElement('span');
+      etq.className = 'etq-eval';
+      etq.textContent = `${ud.evaluacion}ª ev. · importancia ${NOMBRE_PESO[ud.pesoEval || 2]}`;
+      tit.appendChild(etq);
+    }
+    const gear = document.createElement('button');
+    gear.className = 'btn-gear';
+    gear.textContent = '⚙️';
+    gear.title = 'Opciones de la unidad (mover, modificar…)';
+    gear.onclick = (e) => { e.stopPropagation(); abrirOpcionesUD(index); };
+    cont.append(tit, gear);
+    th.appendChild(cont);
     filaCabecera.appendChild(th);
   });
-  
+
+  // columnas de cada evaluación con unidades asignadas y de la evaluación final
+  const evals = evaluacionesUsadas();
+  evals.forEach(n => {
+    const th = document.createElement('th');
+    th.className = 'th-evaluacion th-ajustable';
+    th.textContent = `${n}ª EVALUACIÓN`;
+    th.title = 'Media ponderada de las unidades de esta evaluación (según su importancia)';
+    filaCabecera.appendChild(th);
+  });
+  if (evals.length) {
+    const th = document.createElement('th');
+    th.className = 'th-final th-ajustable';
+    th.textContent = 'EVALUACIÓN FINAL';
+    th.title = 'Media de las evaluaciones que tienen nota';
+    filaCabecera.appendChild(th);
+  }
+
   const thInfo = document.createElement('th');
   thInfo.style.textAlign = 'center';
-  thInfo.textContent = 'INFORMACIÓN';
+  thInfo.className = 'th-ajustable';
+  thInfo.textContent = 'EVALUACIÓN COMPETENCIAL';
   filaCabecera.appendChild(thInfo);
 
   cuerpoAlumnos.innerHTML = '';
@@ -428,11 +462,27 @@ function renderizarTablaPrincipal() {
       tr.appendChild(tdNota);
     });
 
+    evals.forEach(n => {
+      const td = document.createElement('td');
+      td.className = 'nota-celda-lectura nota-evaluacion';
+      const v = calcularNotaEvaluacion(alumno, n);
+      td.textContent = v !== null ? v.toFixed(1) : '-';
+      tr.appendChild(td);
+    });
+    if (evals.length) {
+      const td = document.createElement('td');
+      td.className = 'nota-celda-lectura nota-final';
+      const v = calcularNotaFinal(alumno);
+      td.textContent = v !== null ? v.toFixed(1) : '-';
+      tr.appendChild(td);
+    }
+
     const tdBtn = document.createElement('td');
     tdBtn.style.textAlign = 'center';
     const btnInfo = document.createElement('button');
     btnInfo.className = 'btn-info';
-    btnInfo.textContent = 'MÁS INFORMACIÓN';
+    btnInfo.textContent = '📊 Ver informe';
+    btnInfo.title = 'Ver criterios, competencias específicas, descriptores y competencias clave';
     btnInfo.onclick = () => verMasInformacion(idx);
     tdBtn.appendChild(btnInfo);
     tr.appendChild(tdBtn);
@@ -660,6 +710,7 @@ function abrirOpcionesApartado(idItem, idPadre, nombre, esPadre) {
 
   const campoNotas = document.getElementById('textoNotasMasivas');
   if (campoNotas) campoNotas.value = '';
+  actualizarBotonesMoverApartado();
 
   const item = buscarItemApartado(idItem, idPadre);
   const btnGen = document.getElementById('btnOpcionGenially');
@@ -902,7 +953,13 @@ function renderizarDetalleAlumno() {
   tbodyUD.innerHTML = estadoApp.unidades.map(ud => {
     const notaUD = calcularNotaUD(alumno, ud);
     return `<tr><td>${ud.nombre}</td><td class="col-nota">${notaUD !== null ? notaUD.toFixed(1) : '-'}</td></tr>`;
-  }).join('');
+  }).join('') + (() => {
+    const evals = evaluacionesUsadas();
+    if (!evals.length) return '';
+    const f = (v) => v !== null ? v.toFixed(1) : '-';
+    return evals.map(n => `<tr class="fila-evaluacion"><td>${n}ª Evaluación</td><td class="col-nota">${f(calcularNotaEvaluacion(alumno, n))}</td></tr>`).join('') +
+      `<tr class="fila-evaluacion"><td>Evaluación final</td><td class="col-nota">${f(calcularNotaFinal(alumno))}</td></tr>`;
+  })();
 
   // 2. CRITERIOS
   const tbodyCrit = document.getElementById('tablaDetalleCriterios');
@@ -990,6 +1047,9 @@ function abrirModalAgregarUD() {
   construirFormularioCriterios15();   // lista limpia con los criterios de la asignatura actual
   document.getElementById('tituloModalUD').innerText = 'Añadir Unidad Didáctica';
   document.getElementById('inputNombreUD').value = '';
+  document.getElementById('selectEvaluacionUD').value = '';
+  document.getElementById('selectPesoEvalUD').value = '2';
+  actualizarPesoEvalUD();
   
   for (let i = 0; i < 15; i++) {
     document.getElementById(`crit_cod_${i}`).value = '';
@@ -1017,16 +1077,23 @@ function procesarGuardarUnidad() {
     }
   }
 
+  const evaluacion = parseInt(document.getElementById('selectEvaluacionUD').value, 10) || null;
+  const pesoEval = evaluacion ? (parseInt(document.getElementById('selectPesoEvalUD').value, 10) || 2) : 2;
+
   if (udEdicionIdx === null) {
     estadoApp.unidades.push({
       id: generarIdUnico('ud'),
       nombre: nombreUD,
       criterios: listaCriterios,
+      evaluacion: evaluacion,
+      pesoEval: pesoEval,
       apartados: []
     });
   } else {
     estadoApp.unidades[udEdicionIdx].nombre = nombreUD;
     estadoApp.unidades[udEdicionIdx].criterios = listaCriterios;
+    estadoApp.unidades[udEdicionIdx].evaluacion = evaluacion;
+    estadoApp.unidades[udEdicionIdx].pesoEval = pesoEval;
   }
 
   marcarCambiosPendientes();
@@ -1067,6 +1134,9 @@ function editarUnidadSeleccionada(index) {
 
   document.getElementById('tituloModalUD').innerText = 'Modificar Unidad Didáctica';
   document.getElementById('inputNombreUD').value = ud.nombre;
+  document.getElementById('selectEvaluacionUD').value = ud.evaluacion ? String(ud.evaluacion) : '';
+  document.getElementById('selectPesoEvalUD').value = String(ud.pesoEval || 2);
+  actualizarPesoEvalUD();
 
   for (let i = 0; i < 15; i++) {
     const critObj = (ud.criterios && ud.criterios[i]) ? ud.criterios[i] : null;
@@ -1576,4 +1646,108 @@ function abrirHerramientaApartado(idItem, idPadre) {
   contextoEngranaje = { idItem, idPadre, nombre: item.nombre, esPadre: idPadre === null };
   if (esGenially(item)) menuAccionCorregirGenially();
   else if (CORRECTORES[item.herramienta]) abrirCorrectorIntegrado(item.herramienta);
+}
+
+// -------------------------------------------------------------
+// EVALUACIONES (1ª, 2ª, 3ª Y FINAL)
+// -------------------------------------------------------------
+
+const NOMBRE_PESO = { 1: 'baja', 2: 'media', 3: 'alta' };
+
+function actualizarPesoEvalUD() {
+  const sinEval = !document.getElementById('selectEvaluacionUD').value;
+  document.getElementById('selectPesoEvalUD').disabled = sinEval;
+}
+
+// Evaluaciones que tienen al menos una unidad asignada (en orden)
+function evaluacionesUsadas() {
+  return [1, 2, 3].filter(n => estadoApp.unidades.some(ud => ud.evaluacion === n));
+}
+
+// Media ponderada (por la importancia de cada UD) de las unidades de la evaluación que tienen nota
+function calcularNotaEvaluacion(alumno, n) {
+  let suma = 0, pesos = 0;
+  estadoApp.unidades.forEach(ud => {
+    if (ud.evaluacion !== n) return;
+    const nota = calcularNotaUD(alumno, ud);
+    if (nota === null) return;
+    const w = parseInt(ud.pesoEval, 10) || 2;
+    suma += nota * w;
+    pesos += w;
+  });
+  return pesos ? suma / pesos : null;
+}
+
+// Evaluación final: media de las evaluaciones que tienen nota
+function calcularNotaFinal(alumno) {
+  const notas = evaluacionesUsadas().map(n => calcularNotaEvaluacion(alumno, n)).filter(v => v !== null);
+  return notas.length ? notas.reduce((a, b) => a + b, 0) / notas.length : null;
+}
+
+// -------------------------------------------------------------
+// MOVER UNIDADES Y APARTADOS A IZQUIERDA / DERECHA
+// -------------------------------------------------------------
+
+let udOpcionesIdx = null;
+
+function abrirOpcionesUD(index) {
+  udOpcionesIdx = index;
+  pintarOpcionesUD();
+  document.getElementById('modalOpcionesUD').classList.remove('hidden');
+}
+
+function pintarOpcionesUD() {
+  const ud = estadoApp.unidades[udOpcionesIdx];
+  if (!ud) return;
+  document.getElementById('tituloOpcionesUD').textContent = `Opciones: ${ud.nombre}`;
+  document.getElementById('subtituloOpcionesUD').textContent = `Unidad ${udOpcionesIdx + 1} de ${estadoApp.unidades.length}` + (ud.evaluacion ? ` · ${ud.evaluacion}ª evaluación` : '');
+  document.getElementById('btnMoverUDIzq').disabled = udOpcionesIdx <= 0;
+  document.getElementById('btnMoverUDDer').disabled = udOpcionesIdx >= estadoApp.unidades.length - 1;
+}
+
+function cerrarModalOpcionesUD() {
+  document.getElementById('modalOpcionesUD').classList.add('hidden');
+}
+
+// El menú se queda abierto para poder mover varias posiciones seguidas
+function moverUnidad(delta) {
+  const i = udOpcionesIdx, j = i + delta, lista = estadoApp.unidades;
+  if (i === null || j < 0 || j >= lista.length) return;
+  [lista[i], lista[j]] = [lista[j], lista[i]];
+  udOpcionesIdx = j;
+  marcarCambiosPendientes();
+  renderizarTablaPrincipal();
+  pintarOpcionesUD();
+}
+
+function menuUDAbrir() { const i = udOpcionesIdx; cerrarModalOpcionesUD(); abrirVistaUD(i); }
+function menuUDModificar() { const i = udOpcionesIdx; cerrarModalOpcionesUD(); editarUnidadSeleccionada(i); }
+function menuUDEliminar() { const i = udOpcionesIdx; cerrarModalOpcionesUD(); eliminarUnidadDirecto(i); }
+
+// Lista de hermanos del apartado del engranaje (apartados principales de la UD o subapartados del bloque)
+function hermanosApartado() {
+  const ud = estadoApp.unidades[udActivaIdx];
+  if (!ud) return null;
+  const { idPadre } = contextoEngranaje;
+  if (idPadre === null || idPadre === undefined) return ud.apartados || [];
+  const padre = (ud.apartados || []).find(a => a.id === idPadre);
+  return padre ? (padre.subapartados || []) : null;
+}
+
+function actualizarBotonesMoverApartado() {
+  const lista = hermanosApartado() || [];
+  const i = lista.findIndex(x => x.id === contextoEngranaje.idItem);
+  document.getElementById('btnMoverApIzq').disabled = i <= 0;
+  document.getElementById('btnMoverApDer').disabled = i < 0 || i >= lista.length - 1;
+}
+
+function moverApartado(delta) {
+  const lista = hermanosApartado();
+  if (!lista) return;
+  const i = lista.findIndex(x => x.id === contextoEngranaje.idItem), j = i + delta;
+  if (i < 0 || j < 0 || j >= lista.length) return;
+  [lista[i], lista[j]] = [lista[j], lista[i]];
+  marcarCambiosPendientes();
+  renderizarTablaUD();
+  actualizarBotonesMoverApartado();
 }

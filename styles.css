@@ -743,6 +743,76 @@ tr:nth-child(even) {
   background-color: #9b1c1c;
 }
 
+/* MOVER COLUMNAS (ENGRANAJE) */
+.fila-mover {
+  display: flex;
+  gap: 8px;
+}
+
+.fila-mover .btn-menu-opcion {
+  flex: 1;
+  text-align: center;
+}
+
+.btn-menu-opcion:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+/* EVALUACIONES (TRIMESTRES) */
+.fila-evaluacion-ud {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.fila-evaluacion-ud .form-grupo {
+  flex: 1;
+  min-width: 220px;
+}
+
+.th-ud-link .header-content {
+  justify-content: center;
+}
+
+.etq-eval {
+  display: block;
+  font-size: 0.68rem;
+  font-weight: 400;
+  opacity: 0.85;
+  margin-top: 2px;
+}
+
+th.th-ajustable {
+  white-space: normal;
+  min-width: 90px;
+  max-width: 120px;
+  line-height: 1.2;
+}
+
+th.th-evaluacion {
+  background-color: #2e6485;
+}
+
+th.th-final {
+  background-color: #083663;
+}
+
+td.nota-evaluacion {
+  font-weight: bold;
+  background-color: #e8f1f5;
+}
+
+td.nota-final {
+  font-weight: bold;
+  background-color: #cbd5e1;
+}
+
+.fila-evaluacion td {
+  background-color: #e8f1f5;
+  font-weight: bold;
+}
+
 /* NOMBRE DE APARTADO CON CORRECTOR: PULSABLE */
 .enlace-herramienta {
   color: #fff;
