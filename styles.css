@@ -155,6 +155,38 @@ body {
   font-weight: bold;
 }
 
+.selector-asignatura {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: 6px;
+  font-size: 0.82rem;
+  color: #555;
+  white-space: nowrap;
+}
+
+.selector-asignatura select {
+  padding: 5px 8px;
+  border: 1px solid #a6c2e2;
+  border-radius: 4px;
+  background-color: #f8fafc;
+  color: #0b4f6c;
+  font-weight: 600;
+  font-size: 0.85rem;
+  max-width: 300px;
+  text-overflow: ellipsis;
+  cursor: pointer;
+}
+
+.header-titulos {
+  min-width: 0;
+}
+
+.acciones-header button,
+.acciones-header .estado-guardado {
+  white-space: nowrap;
+}
+
 .estado-guardado {
   font-size: 0.85rem;
   padding: 6px 12px;
@@ -709,6 +741,21 @@ tr:nth-child(even) {
 
 .toast.error {
   background-color: #9b1c1c;
+}
+
+/* CORRECTOR DE SCRATCH INTEGRADO */
+#vistaScratch {
+  padding-bottom: 0;
+}
+
+.marco-corrector {
+  display: block;
+  width: 100%;
+  height: calc(100vh - 150px);
+  min-height: 480px;
+  border: 1px solid #dde3e8;
+  border-radius: 6px;
+  background: #f4f7f6;
 }
 
 /* ==========================================

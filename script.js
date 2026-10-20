@@ -35,17 +35,49 @@ window.addEventListener('beforeunload', (event) => {
 });
 
 function poblarDesplegableAsignaturas() {
-  const select = document.getElementById('selectAsignatura');
-  if (!select) return;
-  select.innerHTML = '';
-
-  Object.keys(CATALOGO_ASIGNATURAS).forEach(key => {
-    const asig = CATALOGO_ASIGNATURAS[key];
-    const opt = document.createElement('option');
-    opt.value = asig.id;
-    opt.textContent = asig.nombreMateria;
-    select.appendChild(opt);
+  ['selectAsignatura', 'selectAsignaturaDoc'].forEach(idSel => {
+    const select = document.getElementById(idSel);
+    if (!select) return;
+    const actual = select.value;
+    select.innerHTML = '';
+    Object.keys(CATALOGO_ASIGNATURAS).forEach(key => {
+      const asig = CATALOGO_ASIGNATURAS[key];
+      const opt = document.createElement('option');
+      opt.value = asig.id;
+      opt.textContent = asig.nombreMateria;
+      select.appendChild(opt);
+    });
+    if (actual) select.value = actual;
   });
+}
+
+// Cambia la asignatura de un cuaderno ya creado. Las UD conservan sus criterios por código (1.1, 2.3…):
+// los que existen en la nueva asignatura pasan a significar los de esta; los que no existen se ignoran
+// en los cálculos, pero no se borran (si vuelves a la asignatura anterior, reaparecen).
+function cambiarAsignatura(nuevaId) {
+  const select = document.getElementById('selectAsignaturaDoc');
+  const anterior = estadoApp.idAsignatura;
+  if (!CATALOGO_ASIGNATURAS[nuevaId] || nuevaId === anterior) return;
+
+  const nueva = CATALOGO_ASIGNATURAS[nuevaId];
+  const codigosNuevos = new Set(Object.keys(nueva.DESCRIPCIONES_CRITERIOS));
+  const usados = new Set();
+  estadoApp.unidades.forEach(ud => (ud.criterios || []).forEach(c => usados.add(typeof c === 'string' ? c : c.codigo)));
+  const perdidos = [...usados].filter(c => !codigosNuevos.has(c));
+
+  if (usados.size) {
+    let aviso = `Vas a cambiar la asignatura a «${nueva.nombreMateria}».\n\n` +
+      `Las unidades conservan sus criterios por su número (1.1, 2.3…), que pasarán a corresponder a los criterios de la nueva asignatura. Revisa después cada UD en «Gestionar UUDD».`;
+    if (perdidos.length) aviso += `\n\nEstos criterios no existen en la nueva asignatura y no contarán (no se borran): ${perdidos.sort().join(', ')}.`;
+    if (!confirm(aviso + '\n\n¿Continuar?')) { select.value = anterior; return; }
+  }
+
+  estadoApp.idAsignatura = nuevaId;
+  cargarCurriculoActivo();
+  construirFormularioCriterios15();
+  marcarCambiosPendientes();
+  renderizarTablaPrincipal();
+  if (!document.getElementById('vistaDetalle').classList.contains('hidden') && alumnoSeleccionadoIdx !== null) renderizarDetalleAlumno();
 }
 
 function cargarCurriculoActivo() {
@@ -141,6 +173,8 @@ function iniciarVistaHoja() {
   document.getElementById('vistaUD').classList.add('hidden');
   document.getElementById('app').classList.remove('hidden');
   document.getElementById('tituloDocumento').innerText = estadoApp.nombreDocumento;
+  poblarDesplegableAsignaturas();
+  document.getElementById('selectAsignaturaDoc').value = CATALOGO_ASIGNATURAS[estadoApp.idAsignatura] ? estadoApp.idAsignatura : 'tecnologia_digitalizacion';
   ordenarAlumnos();
   renderizarTablaPrincipal();
 }
@@ -466,7 +500,7 @@ function renderizarTablaUD() {
       th.rowSpan = 2;
       th.innerHTML = `
         <div class="header-content">
-          <span class="header-title">${esGenially(ap) ? '🧩 ' : ''}${ap.nombre} (${ap.peso}%)</span>
+          <span class="header-title">${iconoHerramienta(ap)}${ap.nombre} (${ap.peso}%)</span>
           <button class="btn-gear" onclick="abrirOpcionesApartado('${ap.id}', null, '${ap.nombre}', true)">⚙️</button>
         </div>
       `;
@@ -494,7 +528,7 @@ function renderizarTablaUD() {
         thSub.className = 'header-subapartado';
         thSub.innerHTML = `
           <div class="header-content">
-            <span>${esGenially(sub) ? '🧩 ' : ''}${sub.nombre} <small>(${sub.peso}%)</small></span>
+            <span>${iconoHerramienta(sub)}${sub.nombre} <small>(${sub.peso}%)</small></span>
             <button class="btn-gear" onclick="abrirOpcionesApartado('${sub.id}', '${ap.id}', '${sub.nombre}', false)">⚙️</button>
           </div>
         `;
@@ -631,6 +665,8 @@ function abrirOpcionesApartado(idItem, idPadre, nombre, esPadre) {
   const btnGen = document.getElementById('btnOpcionGenially');
   const esHoja = item && !(item.subapartados && item.subapartados.length);
   if (btnGen) btnGen.classList.toggle('hidden', !(esGenially(item) && esHoja));
+  const btnScr = document.getElementById('btnOpcionScratch');
+  if (btnScr) btnScr.classList.toggle('hidden', !(esScratch(item) && esHoja));
 
   document.getElementById('modalOpcionesApartado').classList.remove('hidden');
 }
@@ -949,6 +985,7 @@ function renderizarDetalleAlumno() {
 
 function abrirModalAgregarUD() {
   udEdicionIdx = null;
+  construirFormularioCriterios15();   // lista limpia con los criterios de la asignatura actual
   document.getElementById('tituloModalUD').innerText = 'Añadir Unidad Didáctica';
   document.getElementById('inputNombreUD').value = '';
   
@@ -1022,6 +1059,7 @@ function cerrarModalModificarUUDD() {
 
 function editarUnidadSeleccionada(index) {
   cerrarModalModificarUUDD();
+  construirFormularioCriterios15();   // lista limpia con los criterios de la asignatura actual
   udEdicionIdx = index;
   const ud = estadoApp.unidades[index];
 
@@ -1031,7 +1069,11 @@ function editarUnidadSeleccionada(index) {
   for (let i = 0; i < 15; i++) {
     const critObj = (ud.criterios && ud.criterios[i]) ? ud.criterios[i] : null;
     if (critObj) {
-      document.getElementById(`crit_cod_${i}`).value = typeof critObj === 'string' ? critObj : critObj.codigo;
+      const sel = document.getElementById(`crit_cod_${i}`);
+      const cod = typeof critObj === 'string' ? critObj : critObj.codigo;
+      // criterio de otra asignatura: se conserva con un aviso para no perderlo al guardar
+      if (cod && ![...sel.options].some(o => o.value === cod)) sel.add(new Option(`${cod} (no existe en esta asignatura: no cuenta)`, cod));
+      sel.value = cod;
       document.getElementById(`crit_peso_${i}`).value = typeof critObj === 'object' ? critObj.peso : 2;
     } else {
       document.getElementById(`crit_cod_${i}`).value = '';
@@ -1352,6 +1394,7 @@ function menuAccionCorregirGenially() {
 }
 
 function rerenderVistaActual() {
+  if (!document.getElementById('vistaScratch').classList.contains('hidden')) return;   // la tabla se repinta al volver
   if (!document.getElementById('vistaUD').classList.contains('hidden')) renderizarTablaUD();
   else if (!document.getElementById('vistaDetalle').classList.contains('hidden')) renderizarDetalleAlumno();
   else if (!document.getElementById('app').classList.contains('hidden')) renderizarTablaPrincipal();
@@ -1389,4 +1432,100 @@ window.addEventListener('message', (ev) => {
     ack(true, '', recibidas);
     if (recibidas) mostrarToast('🧩 ' + recibidas + ' nota(s) de «' + loc.item.nombre + '» recibidas del corrector de Genially. Recuerda guardar el archivo.');
   }
+});
+
+// -------------------------------------------------------------
+// CORRECTOR DE SCRATCH (integrado: carpeta «scratch» de esta web)
+// -------------------------------------------------------------
+
+function esScratch(item) {
+  return !!item && item.herramienta === 'scratch';
+}
+
+function iconoHerramienta(item) {
+  return esGenially(item) ? '🧩 ' : esScratch(item) ? '🐱 ' : '';
+}
+
+const SCR = { item: null, titulo: '', ocupado: false, esperaFlush: null };
+
+function menuAccionCorregirScratch() {
+  const { idItem, idPadre } = contextoEngranaje;
+  const ud = estadoApp.unidades[udActivaIdx];
+  const item = buscarItemApartado(idItem, idPadre);
+  cerrarModalOpcionesApartado();
+  if (!item) return;
+  if (!estadoApp.alumnos.length) return alert('Añade primero la lista de alumnos.');
+
+  SCR.item = item;
+  SCR.ocupado = false;
+  SCR.titulo = `${ud.nombre} · ${item.nombre}`;
+  document.getElementById('tituloScratch').textContent = '🐱 ' + item.nombre;
+  document.getElementById('vistaUD').classList.add('hidden');
+  document.getElementById('vistaScratch').classList.remove('hidden');
+  document.getElementById('marcoScratch').src = 'scratch/index.html?cuaderno=1&t=' + Date.now();
+}
+
+function enviarAScratch(m) {
+  const f = document.getElementById('marcoScratch');
+  if (f && f.contentWindow) f.contentWindow.postMessage({ origen: 'cuaderno-lomloe', ...m }, '*');
+}
+
+// Recibe el estado del corrector: guarda el proyecto en el apartado y pone las notas
+function aplicarEstadoScratch(d) {
+  const item = SCR.item;
+  if (!item) return;
+  if (d.proyecto) item.scratch = d.proyecto;
+  const notas = d.notas || {};
+  let n = 0;
+  estadoApp.alumnos.forEach(al => {
+    const v = notas[al.id];
+    if (typeof v === 'number' && !isNaN(v)) {
+      if (!al.notasApartados) al.notasApartados = {};
+      al.notasApartados[item.id] = Math.round(Math.max(0, Math.min(10, v)) * 100) / 100;
+      n++;
+    }
+  });
+  marcarCambiosPendientes();
+  return n;
+}
+
+async function volverDeScratch() {
+  if (SCR.ocupado && !confirm('El corrector está trabajando. Si sales ahora se detiene (lo ya corregido se conserva). ¿Salir?')) return;
+  // pide al corrector su último estado antes de cerrarlo
+  await new Promise(res => {
+    const t = setTimeout(() => { SCR.esperaFlush = null; res(); }, 1500);
+    SCR.esperaFlush = () => { clearTimeout(t); SCR.esperaFlush = null; res(); };
+    enviarAScratch({ tipo: 'flush' });
+  });
+  document.getElementById('marcoScratch').src = 'about:blank';
+  SCR.item = null;
+  document.getElementById('vistaScratch').classList.add('hidden');
+  document.getElementById('vistaUD').classList.remove('hidden');
+  renderizarTablaUD();
+}
+
+window.addEventListener('message', (ev) => {
+  const f = document.getElementById('marcoScratch');
+  const d = ev.data;
+  if (!f || ev.source !== f.contentWindow || !d || d.origen !== 'corrector-scratch') return;
+
+  if (d.tipo === 'listo') {
+    if (!SCR.item) return;
+    enviarAScratch({
+      tipo: 'init',
+      titulo: `${estadoApp.nombreDocumento} · ${SCR.titulo}`,
+      alumnos: estadoApp.alumnos.map(a => ({ id: a.id, nombre: `${a.apellidos}, ${a.nombre}` })),
+      proyecto: SCR.item.scratch || null
+    });
+  } else if (d.tipo === 'estado') {
+    aplicarEstadoScratch(d);
+    if (SCR.esperaFlush) SCR.esperaFlush();
+  } else if (d.tipo === 'ocupado') {
+    SCR.ocupado = !!d.valor;
+  }
+});
+
+// Avisa también al recargar o cerrar la página mientras se corrige
+window.addEventListener('beforeunload', (event) => {
+  if (SCR.item && SCR.ocupado) { event.preventDefault(); event.returnValue = ''; }
 });

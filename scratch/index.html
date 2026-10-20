@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Corrector de Scratch</title>
+<link rel="icon" type="image/png" href="../logo.png">
+<style>
+:root{
+  /* Layout: una columna de pasos numerados (1→4), con el escenario de Scratch a la izquierda del registro. Colores de la web del profesor. */
+  --azul:#0b4f6c; --azul-osc:#004b8d; --fondo:#f4f7f6; --tarjeta:#ffffff; --texto:#1f2d33; --suave:#5b6b72;
+  --borde:#d8e1e4; --ok:#1e8e3e; --mal:#c62828; --medio:#b26a00; --claro:#e8f1f5;
+  --zona:#fafcfc; --linea:#eef3f4; --panel:#fbfdfd; --pista:#e3eaed; --aviso:#fff6dc; --aviso-borde:#f0d68a;
+  --ok-fondo:#e3f2e6; --mal-fondo:#fdecea; --enlace:#0b4f6c; --boton-sec:#ffffff; --cabecera:#0b4f6c; --verde:#2e7d32;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --azul:#3d8fb5; --azul-osc:#1d4f80; --fondo:#121a1d; --tarjeta:#1a2428; --texto:#e3ecef; --suave:#9db0b8;
+  --borde:#2e3e44; --ok:#5cc47a; --mal:#ef6b6b; --medio:#e0a54a; --claro:#1f3440;
+  --zona:#172024; --linea:#25333a; --panel:#172024; --pista:#2a383e; --aviso:#3a3320; --aviso-borde:#6b5a2a;
+  --ok-fondo:#1d3a26; --mal-fondo:#3d2222; --enlace:#7cc0e0; --boton-sec:#1a2428; --cabecera:#0b4f6c; --verde:#3f9a45; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --azul:#3d8fb5; --azul-osc:#1d4f80; --fondo:#121a1d; --tarjeta:#1a2428; --texto:#e3ecef; --suave:#9db0b8;
+  --borde:#2e3e44; --ok:#5cc47a; --mal:#ef6b6b; --medio:#e0a54a; --claro:#1f3440;
+  --zona:#172024; --linea:#25333a; --panel:#172024; --pista:#2a383e; --aviso:#3a3320; --aviso-borde:#6b5a2a;
+  --ok-fondo:#1d3a26; --mal-fondo:#3d2222; --enlace:#7cc0e0; --boton-sec:#1a2428; --cabecera:#0b4f6c; --verde:#3f9a45; color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--fondo);color:var(--texto);font-family:"Segoe UI",system-ui,-apple-system,Roboto,Arial,sans-serif;font-size:15px;line-height:1.45}
+header{background:var(--cabecera);color:#fff;padding:18px 24px}
+header h1{margin:0;font-size:1.45rem;font-weight:600}
+header p{margin:4px 0 0;opacity:.85;font-size:.95rem}
+main{max-width:1180px;margin:0 auto;padding:20px 16px 60px}
+.alumno .archivo{min-width:0!important}
+@media (max-width:520px){.tarjeta{padding:14px}.alumno input[type=text]{width:100%}}
+.tarjeta{background:var(--tarjeta);border:1px solid var(--borde);border-radius:10px;padding:18px 20px;margin-bottom:18px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+.tarjeta h2{margin:0 0 4px;font-size:1.15rem;color:var(--enlace);text-wrap:balance}
+.tarjeta h2 .num{display:inline-flex;width:26px;height:26px;border-radius:50%;background:var(--azul);color:#fff;align-items:center;justify-content:center;font-size:.9rem;margin-right:8px}
+.ayuda{color:var(--suave);margin:0 0 12px;font-size:.92rem}
+button{font:inherit;border:0;border-radius:6px;padding:8px 14px;cursor:pointer;background:var(--azul);color:#fff}
+button:hover:not(:disabled){filter:brightness(1.12)}
+button:focus-visible,.zona:focus-visible,select:focus-visible,input:focus-visible{outline:2px solid var(--azul);outline-offset:2px}
+button:disabled{opacity:.45;cursor:default}
+button.sec{background:var(--boton-sec);color:var(--enlace);border:1px solid var(--azul)}
+button.rojo{background:var(--mal)}
+button.verde{background:var(--verde)}
+button.grande{padding:10px 20px;font-size:1rem}
+.fila{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.zona{border:2px dashed var(--borde);border-radius:8px;padding:14px;text-align:center;color:var(--suave);background:var(--zona);cursor:pointer}
+.zona.encima{background:var(--claro);border-color:var(--azul)}
+.zona strong{color:var(--enlace)}
+input[type=file]{display:none}
+.estudio{display:grid;grid-template-columns:auto minmax(0,1fr);gap:18px;margin-top:14px}
+@media (max-width:900px){.estudio{grid-template-columns:1fr}}
+.escenario-caja{position:relative;width:480px;max-width:100%}
+#escenario{width:480px;height:360px;max-width:100%;aspect-ratio:4/3;border:1px solid var(--borde);border-radius:6px;background:#fff;display:block;outline:none}
+#escenario.grabando{box-shadow:0 0 0 3px var(--mal)}
+.estado-esc{font-size:.85rem;color:var(--suave);margin-top:6px;min-height:1.3em}
+.rec{display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--mal);margin-right:6px;animation:parpadeo 1s infinite}
+@keyframes parpadeo{50%{opacity:.2}}
+.registro{border:1px solid var(--borde);border-radius:6px;height:360px;overflow:auto;font-size:.86rem;background:var(--panel)}
+.registro div{padding:3px 10px;border-bottom:1px solid var(--linea)}
+.registro .t{color:var(--suave);font-variant-numeric:tabular-nums;margin-right:6px}
+.registro .vacio{color:var(--suave);padding:12px}
+.criterios{width:100%;border-collapse:collapse}
+.criterios td{padding:8px 6px;border-bottom:1px solid var(--linea);vertical-align:top}
+.criterios td.c1{width:30px}
+.criterios .sub{font-size:.84rem;color:var(--suave)}
+.criterios select{font:inherit;padding:3px 6px}
+.etq{display:inline-block;font-size:.75rem;border-radius:10px;padding:1px 8px;margin-left:6px;background:var(--ok-fondo);color:var(--ok)}
+.etq.no{background:var(--mal-fondo);color:var(--mal)}
+.muestra{display:inline-block;width:12px;height:12px;border:1px solid #888;vertical-align:middle;margin:0 3px;border-radius:2px}
+.alumno{display:flex;gap:8px;align-items:center;margin-bottom:8px;flex-wrap:wrap}
+.alumno input[type=text]{font:inherit;padding:6px 8px;border:1px solid var(--borde);border-radius:5px;width:220px;max-width:100%;background:var(--tarjeta);color:var(--texto)}
+.alumno .archivo{flex:1;min-width:200px;font-size:.9rem;color:var(--suave);border:1px dashed var(--borde);border-radius:5px;padding:6px 10px;cursor:pointer;background:var(--zona)}
+.alumno .archivo.ok{color:var(--texto);border-style:solid}
+.alumno button{padding:5px 10px}
+table.notas{width:100%;border-collapse:collapse;margin-top:10px;font-size:.92rem}
+table.notas th{background:var(--azul-osc);color:#fff;padding:8px 6px;font-weight:600;text-align:center;font-size:.83rem;vertical-align:bottom}
+table.notas th:first-child{text-align:left}
+table.notas td{border-bottom:1px solid var(--pista);padding:5px 6px;text-align:center}
+table.notas td:first-child{text-align:left;font-weight:600}
+table.notas input{width:58px;font:inherit;text-align:center;border:1px solid transparent;border-radius:4px;padding:3px;background:transparent}
+table.notas input:hover,table.notas input:focus{border-color:var(--borde);background:var(--tarjeta)}
+table.notas input.editada{background:var(--aviso)}
+.final{font-weight:700;font-size:1.02rem}
+.n-alta{color:var(--ok)} .n-media{color:var(--medio)} .n-baja{color:var(--mal)}
+.tabla-scroll{overflow-x:auto}
+details.detalle{border:1px solid var(--borde);border-radius:6px;margin-top:8px;background:var(--panel)}
+details.detalle summary{padding:8px 12px;cursor:pointer;font-weight:600;color:var(--enlace)}
+details.detalle .cuerpo{padding:0 14px 10px}
+details.detalle h4{margin:10px 0 4px;font-size:.92rem}
+details.detalle ul{margin:0;padding-left:20px;font-size:.88rem}
+li.ok::marker{content:"✔  ";color:var(--ok)}
+li.mal::marker{content:"✘  ";color:var(--mal)}
+li.info::marker{content:"•  ";color:var(--suave)}
+.progreso{font-size:.9rem;color:var(--suave);margin-top:8px}
+.barra{height:6px;background:var(--pista);border-radius:3px;overflow:hidden;margin-top:6px}
+.barra i{display:block;height:100%;background:var(--azul);width:0;transition:width .2s}
+.aviso{background:var(--aviso);border:1px solid var(--aviso-borde);border-radius:6px;padding:8px 12px;font-size:.9rem;margin:10px 0}
+.oculto{display:none!important}
+#miniEsc canvas{width:240px!important;height:180px!important}
+.fam{display:inline-block;font-size:.72rem;text-transform:uppercase;letter-spacing:.04em;color:var(--suave);border:1px solid var(--borde);border-radius:4px;padding:0 5px;margin-right:4px}
+.fam-th{font-size:.7rem;text-transform:uppercase;letter-spacing:.04em;opacity:.8}
+.pregunta{margin-top:8px;padding:8px 10px;border:2px solid var(--azul);border-radius:8px;background:var(--claro);max-width:480px}
+.pregunta label{display:block;font-weight:600;margin-bottom:6px}
+.pregunta input{flex:1;min-width:0;font:inherit;padding:6px 8px;border:1px solid var(--borde);border-radius:5px;background:var(--tarjeta);color:var(--texto)}
+.criterios .sub{margin-top:3px}
+.pie{color:var(--suave);font-size:.8rem;text-align:center;margin-top:30px}
+/* Dentro del cuaderno de evaluación */
+body.en-cuaderno header{display:none}
+body.en-cuaderno main{padding-top:14px}
+.barra-cuaderno{background:var(--ok-fondo);border:1px solid #b7dfc2;border-radius:8px;padding:10px 14px;margin-bottom:16px;font-size:.92rem}
+.alumno .est{min-width:150px;font-size:.88rem;color:var(--suave);text-align:right}
+.alumno .est.final{font-size:1.05rem;font-weight:700}
+.alumno .est.n-alta{color:var(--ok)}.alumno .est.n-media{color:var(--medio)}.alumno .est.n-baja{color:var(--mal)}
+.alumno input[readonly]{background:var(--claro);border-color:transparent;font-weight:600}
+</style>
+<script src="vendor/scratch-storage.min.js"></script>
+<script src="vendor/scratch-render.min.js"></script>
+<script src="vendor/scratch-svg-renderer.js"></script>
+<script src="vendor/scratch-vm.js"></script>
+<script src="corrector.js"></script>
+<script src="enlace-cuaderno.js"></script>
+</head>
+<body>
+<header>
+  <h1>Corrector de juegos de Scratch</h1>
+  <p>Juega tu modelo, el programa aprende qué hace y comprueba que los juegos de los alumnos consiguen lo mismo.</p>
+</header>
+<main>
+<div id="barraCuaderno" class="barra-cuaderno oculto"></div>
+
+<section class="tarjeta" id="paso1">
+  <h2><span class="num">1</span>Tu juego modelo</h2>
+  <p class="ayuda">Sube tu juego (.sb3) y pulsa <b>Empezar a grabar</b>. Juega enseñando todo lo que quieres evaluar: usa todas las teclas y el ratón, choca con cada tipo de obstáculo, haz clic o arrastra objetos, responde preguntas (bien y mal), marca puntos… Cuando el juego se detenga, pulsa <b>⚑ Bandera verde</b> para jugar otra vez y enseñar otros finales (perder, ganar). La grabación solo termina cuando pulsas <b>Terminar</b>.</p>
+  <div class="fila">
+    <div class="zona" id="zonaModelo" style="flex:1;min-width:260px"><strong>Arrastra aquí tu .sb3</strong> o haz clic para elegirlo<div id="nombreModelo" class="sub"></div></div>
+    <div class="zona" id="zonaGrab" style="min-width:220px">o <strong>carga una grabación</strong> guardada (.json)</div>
+    <input type="file" id="fModelo" accept=".sb3">
+    <input type="file" id="fGrab" accept=".json,application/json">
+  </div>
+  <div class="estudio">
+    <div>
+      <div class="escenario-caja" id="cajaEscenario"><canvas id="escenario" width="480" height="360" tabindex="0"></canvas></div>
+      <div id="cajaPregunta" class="pregunta oculto"><label for="respuesta" id="textoPregunta">Responde:</label><div class="fila"><input type="text" id="respuesta" autocomplete="off"><button id="bResponder">Responder</button></div></div>
+      <div class="estado-esc" id="estadoEsc">Sin juego cargado.</div>
+      <div class="fila" style="margin-top:8px">
+        <button id="bGrabar" disabled>⏺ Empezar a grabar</button>
+        <button id="bBandera" class="verde" disabled>⚑ Bandera verde</button>
+        <button id="bParar" class="rojo" disabled>⏹ Terminar</button>
+        <button id="bGuardar" class="sec" disabled>💾 Guardar grabación</button>
+      </div>
+    </div>
+    <div>
+      <div style="font-weight:600;margin-bottom:6px;color:var(--enlace)">Lo que va pasando</div>
+      <div class="registro" id="registro"><div class="vacio">Aquí aparecerán los cambios de variables, choques, fondos, mensajes… mientras juegas.</div></div>
+    </div>
+  </div>
+</section>
+
+<section class="tarjeta oculto" id="paso2">
+  <h2><span class="num">2</span>Qué se va a evaluar</h2>
+  <p class="ayuda">De todo lo que el corrector sabe comprobar, estos son los puntos que aparecen en tu juego. Cada uno se ha probado en tu propio modelo. Desmarca lo que no quieras evaluar y elige su importancia.</p>
+  <div id="avisoCrit"></div>
+  <div id="progModelo" class="progreso oculto"></div>
+  <table class="criterios" id="tablaCriterios"></table>
+</section>
+
+<section class="tarjeta oculto" id="paso3">
+  <h2><span class="num">3</span>Juegos de los alumnos</h2>
+  <p class="ayuda">Añade un juego por alumno. También puedes arrastrar varios .sb3 a la vez: el nombre se toma del archivo y puedes cambiarlo.</p>
+  <div id="alumnos"></div>
+  <div class="fila" style="margin-top:6px">
+    <button class="sec" id="bAnadir">+ Añadir alumno</button>
+    <button class="sec" id="bVarios">Añadir varios archivos…</button>
+    <input type="file" id="fVarios" accept=".sb3" multiple>
+    <span style="flex:1"></span>
+    <button class="grande" id="bCorregir">Corregir</button>
+  </div>
+  <div id="progCorr" class="progreso oculto"><div class="fila" style="align-items:flex-start"><div id="miniEsc"></div><div style="flex:1;min-width:200px"><span id="txtCorr"></span><div class="barra"><i id="barraCorr"></i></div></div></div></div>
+</section>
+
+<section class="tarjeta oculto" id="paso4">
+  <h2><span class="num">4</span>Resultados</h2>
+  <p class="ayuda">Puedes cambiar cualquier nota haciendo clic en ella: la nota final se recalcula. Debajo tienes el detalle de cada alumno.</p>
+  <div class="tabla-scroll"><table class="notas" id="tablaNotas"></table></div>
+  <div class="fila" style="margin-top:12px">
+    <button class="sec" id="bCSV">Descargar tabla (CSV)</button>
+  </div>
+  <div id="detalles"></div>
+</section>
+
+<p class="pie">Funciona en tu navegador con el motor oficial de Scratch (scratch-vm). Los juegos no se envían a ningún sitio.</p>
+</main>
+
+</body>
+</html>

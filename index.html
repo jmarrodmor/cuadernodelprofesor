@@ -61,6 +61,10 @@
         </div>
         <h1 id="tituloDocumento">Materia / Grupo</h1>
         <span class="badge-lomloe">LOMLOE</span>
+        <label class="selector-asignatura" title="Asignatura que evalúa este cuaderno">
+          <span>Asignatura:</span>
+          <select id="selectAsignaturaDoc" onchange="cambiarAsignatura(this.value)"></select>
+        </label>
       </div>
       <!-- Mensaje de estado y botón de guardar juntos a la derecha -->
       <div class="acciones-header">
@@ -217,6 +221,23 @@
     </div>
   </div>
 
+  <!-- VISTA 4: CORRECTOR DE SCRATCH (integrado en el cuaderno) -->
+  <div id="vistaScratch" class="contenedor-principal hidden">
+    <header class="header-app">
+      <div class="header-titulos">
+        <img src="logo.png" alt="" class="logo-app logo-app-header">
+        <h1 id="tituloScratch">Corrector de Scratch</h1>
+        <span class="badge-lomloe">🐱 Scratch</span>
+      </div>
+      <div class="acciones-header">
+        <span class="estado-guardado ok">✓ Guardado</span>
+        <button onclick="guardarDocumento()">💾 Guardar Archivo</button>
+        <button onclick="volverDeScratch()">⬅️ Volver a la Unidad</button>
+      </div>
+    </header>
+    <iframe id="marcoScratch" class="marco-corrector" title="Corrector de Scratch"></iframe>
+  </div>
+
   <!-- MODAL: AGREGAR / EDITAR UD -->
   <div id="modalAgregarUD" class="modal-overlay hidden">
     <div class="modal-content modal-ancho">
@@ -269,8 +290,9 @@
         <select id="selectHerramientaApartado">
           <option value="manual">✏️ Manual (escribo yo las notas)</option>
           <option value="genially">🧩 Corrector de Genially</option>
+          <option value="scratch">🐱 Corrector de Scratch</option>
         </select>
-        <p class="ayuda-campo">Con el corrector de Genially, las notas de este apartado llegan solas desde la extensión.</p>
+        <p class="ayuda-campo">Con un corrector automático, las notas de este apartado llegan solas al cuaderno (Genially necesita la extensión; Scratch funciona dentro de esta web).</p>
       </div>
       <div class="modal-acciones">
         <button class="btn-secundario" onclick="cerrarModalAgregarApartado()">Cancelar</button>
@@ -291,6 +313,9 @@
         </button>
         <button id="btnOpcionGenially" class="btn-menu-opcion btn-menu-genially hidden" onclick="menuAccionCorregirGenially()">
           🧩 Corregir con el corrector de Genially
+        </button>
+        <button id="btnOpcionScratch" class="btn-menu-opcion btn-menu-genially hidden" onclick="menuAccionCorregirScratch()">
+          🐱 Corregir con el corrector de Scratch
         </button>
         <button class="btn-menu-opcion" onclick="menuAccionEditarApartado()">
           ✏️ Modificar Nombre / Porcentaje

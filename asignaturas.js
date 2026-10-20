@@ -175,5 +175,83 @@ const CATALOGO_ASIGNATURAS = {
       { compNum: "6", compNombre: "6. Comprender...", descriptores: ["CP2", "CD2", "CD4", "CD5", "CPSAA4", "CPSAA5"], criterios: ["6.1", "6.2", "6.3"] },
       { compNum: "7", compNombre: "7. Hacer uso...", descriptores: ["STEM2", "STEM5", "CD4", "CC4"], criterios: ["7.1", "7.2"] }
     ]
+  },
+  "fopp": {
+    id: "fopp",
+    nombreMateria: "Formación y Orientación Personal y Profesional (4º ESO)",
+
+    DESCRIPCIONES_COMPETENCIAS: {
+      "1": "1. Comprender los procesos físicos y psicológicos implicados en la cognición, la motivación y el aprendizaje, y sus implicaciones en la conducta, aplicando estrategias de aprendizaje y de gestión emocional para mejorar el desempeño personal, social y académico.",
+      "2": "2. Comprender las principales características del desarrollo evolutivo de la persona, identificando las cualidades propias y de los demás, para afrontar nuevos retos con autonomía y facilitar la transición a la vida adulta.",
+      "3": "3. Conocer y comprender al ser humano, sus sociedades y culturas, reflexionando de forma crítica desde las ciencias humanas y sociales y analizando la diversidad con respeto y empatía.",
+      "4": "4. Conocer la dimensión social y antropológica del ser humano, desarrollando habilidades para adaptarse a nuevos grupos y contextos y valorando la diversidad, la inclusión y la igualdad real entre mujeres y hombres.",
+      "5": "5. Explorar las oportunidades académicas y profesionales del entorno, presencial y virtual, para elaborar un proyecto personal, académico y profesional propio y aproximarse a la búsqueda activa de empleo."
+    },
+
+    DESCRIPCIONES_CRITERIOS: {
+      "1.1": "1.1. Mejorar el desempeño personal, social y académico aplicando estrategias de aprendizaje y de gestión emocional, para tener un mayor control sobre las propias acciones y sus consecuencias.",
+      "1.2": "1.2. Identificar y aplicar los procesos que intervienen en el aprendizaje, analizando sus implicaciones y desarrollando estrategias para adquirir conocimientos, destrezas y actitudes.",
+      "1.3": "1.3. Analizar la importancia del componente emocional, tomando conciencia de su repercusión en el aprendizaje y desarrollando estrategias para mejorarlo.",
+      "1.4": "1.4. Analizar la relación de la cognición, la motivación, el aprendizaje y la gestión emocional con la conducta propia y la de los demás.",
+      "2.1": "2.1. Afrontar nuevos retos, de forma eficaz y con progresiva autonomía, identificando las cualidades personales y de los demás y los factores que condicionan la conducta a lo largo del desarrollo.",
+      "2.2": "2.2. Conocer el desarrollo evolutivo de las personas, analizando y comprendiendo las principales características de la madurez en los planos físico, cognitivo, social, emocional y sexual.",
+      "2.3": "2.3. Identificar cualidades personales y de los demás, reflexionando sobre la importancia de potenciar aquellas que ayudan a afrontar retos y a la transición a la vida adulta.",
+      "3.1": "3.1. Reflexionar de manera crítica sobre la condición humana, la sociedad y la cultura a partir del conocimiento de las ciencias humanas y sociales.",
+      "3.2": "3.2. Analizar la diversidad personal, social y cultural desde distintas perspectivas, con respeto, empatía y valoración de la equidad y la no discriminación.",
+      "3.3": "3.3. Aplicar de manera consciente la empatía y el espíritu crítico ante circunstancias de diversidad planteadas en la vida cotidiana.",
+      "4.1": "4.1. Desarrollar estrategias y habilidades que faciliten la adaptación a nuevos grupos y contextos a partir del conocimiento social y antropológico del ser humano.",
+      "4.2": "4.2. Analizar los factores personales y socioculturales que intervienen en la configuración psicológica de la persona, contrastando distintas perspectivas sociales y antropológicas.",
+      "4.3": "4.3. Valorar la diversidad desde el respeto, la inclusión y la igualdad real y efectiva entre mujeres y hombres.",
+      "4.4": "4.4. Apreciar la riqueza de los contextos heterogéneos a nivel personal, social y cultural y sus posibilidades de crecimiento individual y grupal.",
+      "5.1": "5.1. Explorar el entorno próximo identificando las oportunidades académicas y profesionales que ofrece, valorando las que mejor se ajustan a las cualidades e intereses propios, así como las opciones nacionales y europeas.",
+      "5.2": "5.2. Realizar un proyecto personal, académico y profesional propio y aproximarse al proceso de búsqueda activa de empleo, aprovechando las oportunidades del entorno presencial y virtual."
+    },
+
+    DESCRIPCIONES_DESCRIPTORES: {
+      "CD1": "Competencia digital: Realiza búsquedas en internet con criterios de validez, calidad y fiabilidad, y selecciona la información.",
+      "CD3": "Competencia digital: Se comunica, participa y colabora en entornos digitales de forma responsable.",
+      "CPSAA1": "Personal, social y aprender a aprender: Regula y expresa sus emociones, fortaleciendo el optimismo, la resiliencia y la autoeficacia ante los retos y cambios.",
+      "CPSAA3": "Personal, social y aprender a aprender: Comprende las perspectivas y experiencias de los demás, trabaja en equipo y asume responsabilidades.",
+      "CPSAA4": "Personal, social y aprender a aprender: Realiza autoevaluaciones sobre su proceso de aprendizaje y contrasta la información con fuentes fiables.",
+      "CPSAA5": "Personal, social y aprender a aprender: Planea objetivos a medio plazo y desarrolla procesos metacognitivos para aprender de sus errores.",
+      "CC1": "Competencia ciudadana: Analiza hechos, normas e ideas relativas a la dimensión social y ciudadana de su propia identidad.",
+      "CC2": "Competencia ciudadana: Participa en la vida comunitaria con actitud democrática, respetando la diversidad y la igualdad.",
+      "CC3": "Competencia ciudadana: Comprende y analiza problemas éticos fundamentales y de actualidad, desarrollando un juicio propio.",
+      "CC4": "Competencia ciudadana: Comprende las relaciones entre las acciones humanas y el entorno, y adopta hábitos de vida sostenibles.",
+      "CE1": "Competencia emprendedora: Analiza necesidades y oportunidades y afronta retos con sentido crítico.",
+      "CE2": "Competencia emprendedora: Evalúa las fortalezas y debilidades propias y conoce los recursos para llevar a cabo sus proyectos.",
+      "CE3": "Competencia emprendedora: Desarrolla ideas y proyectos valiosos, colaborando en equipo y aprendiendo de la experiencia.",
+      "CCEC3": "Conciencia cultural: Expresa ideas, opiniones y emociones con creatividad y respeto, mediante distintos lenguajes y soportes."
+    },
+
+    DESCRIPCIONES_COMPETENCIAS_CLAVE: {
+      "CCL": "Competencia en Comunicación Lingüística: Comprender y expresar pensamientos, emociones y conceptos de forma oral y escrita.",
+      "CP": "Competencia Plurilingüe: Utilizar distintas lenguas de forma eficaz para el aprendizaje y la comunicación.",
+      "STEM": "Competencia Matemática y en Ciencia, Tecnología e Ingeniería (STEM): Comprender el mundo utilizando modelos y métodos científicos.",
+      "CD": "Competencia Digital: Uso seguro, crítico y responsable de las tecnologías digitales para el aprendizaje y la sociedad.",
+      "CPSAA": "Competencia Personal, Social y de Aprender a Aprender: Reflexionar sobre uno mismo, gestionar el tiempo y trabajar colaborativamente.",
+      "CC": "Competencia Ciudadana: Actuar como ciudadanos responsables y participar plenamente en la vida social y cívica.",
+      "CE": "Competencia Emprendedora: Desarrollar la creatividad y capacidad de transformar ideas en actos que generen valor.",
+      "CCEC": "Competencia en Conciencia y Expresión Culturales: Comprender y respetar cómo las ideas son expresadas en distintas culturas."
+    },
+
+    CONFIG_COMPETENCIAS_CLAVE: {
+      "CCL":   { nombre: "CCL - Comunicación Lingüística", colorClass: "comp-ccl" },
+      "CP":    { nombre: "CP - Plurilingüe", colorClass: "comp-cp" },
+      "STEM":  { nombre: "STEM - Ciencia, Tec. y Mates", colorClass: "comp-stem" },
+      "CD":    { nombre: "CD - Digital", colorClass: "comp-cd" },
+      "CPSAA": { nombre: "CPSAA - Aprender a Aprender", colorClass: "comp-cpsaa" },
+      "CC":    { nombre: "CC - Ciudadana", colorClass: "comp-cc" },
+      "CE":    { nombre: "CE - Emprendedora", colorClass: "comp-ce" },
+      "CCEC":  { nombre: "CCEC - Expresión Cultural", colorClass: "comp-ccec" }
+    },
+
+    MAPA_CURRICULAR: [
+      { compNum: "1", compNombre: "1. Comprender los procesos...", descriptores: ["CPSAA1", "CPSAA3", "CPSAA4", "CPSAA5", "CE1"], criterios: ["1.1", "1.2", "1.3", "1.4"] },
+      { compNum: "2", compNombre: "2. Comprender el desarrollo...", descriptores: ["CPSAA1", "CPSAA3", "CPSAA4", "CPSAA5", "CC1", "CE2"], criterios: ["2.1", "2.2", "2.3"] },
+      { compNum: "3", compNombre: "3. Conocer y comprender...", descriptores: ["CPSAA3", "CC1", "CC2", "CC3", "CC4", "CE2"], criterios: ["3.1", "3.2", "3.3"] },
+      { compNum: "4", compNombre: "4. Conocer la dimensión...", descriptores: ["CC1", "CC2", "CC3", "CE2", "CCEC3"], criterios: ["4.1", "4.2", "4.3", "4.4"] },
+      { compNum: "5", compNombre: "5. Explorar las oportunidades...", descriptores: ["CD1", "CD3", "CPSAA4", "CPSAA5", "CE1", "CE2", "CE3"], criterios: ["5.1", "5.2"] }
+    ]
   }
 };

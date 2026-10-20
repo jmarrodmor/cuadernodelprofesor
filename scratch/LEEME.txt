@@ -1,0 +1,16 @@
+CORRECTOR DE JUEGOS DE SCRATCH
+==============================
+En local: descomprime la carpeta y abre index.html con Chrome o Edge (doble clic).
+En GitHub Pages: sube la carpeta tal cual (index.html, corrector.js y la carpeta vendor) a un repositorio y activa Pages.
+
+Cómo se usa
+1. Sube tu juego modelo y pulsa «Empezar a grabar». Juega enseñando todo lo que quieres evaluar.
+   Cuando el juego se pare, pulsa «Bandera verde» para jugar otra vez (perder, ganar…).
+   Si el juego hace preguntas, responde en el recuadro que aparece debajo del escenario.
+   La grabación termina al pulsar «Terminar».
+2. El corrector propone lo que ha encontrado en tu juego. Desmarca lo que no quieras y elige la importancia.
+   Puedes guardar la grabación (.json) para usarla otro día sin volver a jugar.
+3. Añade los .sb3 de los alumnos y pulsa «Corregir». Las notas se pueden cambiar a mano.
+
+La carpeta vendor contiene el motor oficial de Scratch (scratch-vm, scratch-render, scratch-storage,
+scratch-svg-renderer) de la Scratch Foundation.
