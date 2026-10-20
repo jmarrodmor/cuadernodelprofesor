@@ -743,6 +743,19 @@ tr:nth-child(even) {
   background-color: #9b1c1c;
 }
 
+/* NOMBRE DE APARTADO CON CORRECTOR: PULSABLE */
+.enlace-herramienta {
+  color: #fff;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+.enlace-herramienta:hover {
+  text-decoration-thickness: 2px;
+  color: #d4ecf7;
+}
+
 /* CORRECTOR DE SCRATCH INTEGRADO */
 #vistaCorrector {
   padding-bottom: 0;

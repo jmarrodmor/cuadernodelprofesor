@@ -500,7 +500,7 @@ function renderizarTablaUD() {
       th.rowSpan = 2;
       th.innerHTML = `
         <div class="header-content">
-          <span class="header-title">${iconoHerramienta(ap)}${ap.nombre} (${ap.peso}%)</span>
+          <span class="header-title">${iconoHerramienta(ap)}${nombreConEnlace(ap, null)} (${ap.peso}%)</span>
           <button class="btn-gear" onclick="abrirOpcionesApartado('${ap.id}', null, '${ap.nombre}', true)">⚙️</button>
         </div>
       `;
@@ -528,7 +528,7 @@ function renderizarTablaUD() {
         thSub.className = 'header-subapartado';
         thSub.innerHTML = `
           <div class="header-content">
-            <span>${iconoHerramienta(sub)}${sub.nombre} <small>(${sub.peso}%)</small></span>
+            <span>${iconoHerramienta(sub)}${nombreConEnlace(sub, ap.id)} <small>(${sub.peso}%)</small></span>
             <button class="btn-gear" onclick="abrirOpcionesApartado('${sub.id}', '${ap.id}', '${sub.nombre}', false)">⚙️</button>
           </div>
         `;
@@ -1552,3 +1552,28 @@ window.addEventListener('message', (ev) => {
 window.addEventListener('beforeunload', (event) => {
   if (SCR.item && SCR.ocupado) { event.preventDefault(); event.returnValue = ''; }
 });
+
+// -------------------------------------------------------------
+// ACCESO A LA HERRAMIENTA PINCHANDO EN EL NOMBRE DEL APARTADO
+// -------------------------------------------------------------
+
+function tieneHerramienta(item) {
+  return !!item && (esGenially(item) || !!CORRECTORES[item.herramienta]);
+}
+
+// Nombre del apartado en la cabecera: subrayado y pulsable si tiene corrector automático
+function nombreConEnlace(item, idPadre) {
+  const esHoja = !(item.subapartados && item.subapartados.length);
+  const nombre = String(item.nombre).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  if (!tieneHerramienta(item) || !esHoja) return nombre;
+  const padre = idPadre ? `'${idPadre}'` : 'null';
+  return `<a href="#" class="enlace-herramienta" title="Abrir el corrector de este apartado" onclick="event.preventDefault(); abrirHerramientaApartado('${item.id}', ${padre})">${nombre}</a>`;
+}
+
+function abrirHerramientaApartado(idItem, idPadre) {
+  const item = buscarItemApartado(idItem, idPadre);
+  if (!item) return;
+  contextoEngranaje = { idItem, idPadre, nombre: item.nombre, esPadre: idPadre === null };
+  if (esGenially(item)) menuAccionCorregirGenially();
+  else if (CORRECTORES[item.herramienta]) abrirCorrectorIntegrado(item.herramienta);
+}

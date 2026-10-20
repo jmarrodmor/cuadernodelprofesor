@@ -95,7 +95,7 @@ if (EN_CUADERNO) (() => {
   function proyecto() {
     return JSON.parse(JSON.stringify({
       tipo: 'proyecto-presentaciones', version: 1, guardado: Date.now(),
-      model, sel, weights,
+      model, sel, weights, manuales,
       alumnos: students.filter((s) => s.deck || s.fileName).map((s) => ({ id: s.id, fileName: s.fileName, deck: s.deck, found: s.found || '', warn: s.warn || '', error: s.error || '' })),
       results,
     }));
@@ -120,7 +120,7 @@ if (EN_CUADERNO) (() => {
     CX.alumnos = Array.isArray(d.alumnos) ? d.alumnos : []; CX.titulo = d.titulo || '';
     const bar = $('#barraCuaderno'); bar.textContent = '';
     bar.append(el('b', {}, '📒 Conectado al Cuaderno de Evaluación'), CX.titulo ? ' · ' + CX.titulo : '',
-      el('span', { class: 'hint' }, 'Los alumnos vienen del cuaderno. Todo se envía solo al cuaderno y se guarda en su archivo al pulsar «💾 Guardar Archivo». Lo leído de cada presentación también se guarda: si cambias los ítems, no hace falta volver a subirlas.'),
+      el('span', { class: 'hint' }, 'Los alumnos vienen del cuaderno. Todo se envía solo al cuaderno y se guarda en su archivo al pulsar «💾 Guardar Archivo». Lo leído de cada presentación (y sus miniaturas) también se guarda: si cambias los ítems, no hace falta volver a subirlas.'),
       el('span', { class: 'hint', id: 'cxEstado' }));
     bar.hidden = false;
 
@@ -131,8 +131,9 @@ if (EN_CUADERNO) (() => {
       model = p.model;
       sel = Array.isArray(p.sel) && p.sel.length === model.slides.length ? p.sel : model.slides.map(() => Object.fromEntries(ITEMS.map((i) => [i.k, true])));
       ITEMS.forEach((i) => { if (p.weights && p.weights[i.k]) weights[i.k] = p.weights[i.k]; });
+      manuales = Array.isArray(p.manuales) ? p.manuales : [];
       results = (p.results || []).filter((r) => students.some((s) => s.id === r.id && s.deck));
-    } else { model = null; sel = []; results = []; }
+    } else { model = null; sel = []; results = []; manuales = Array.isArray(p.manuales) ? p.manuales : []; }
     openRows.clear();
     renderModel(); renderMatrix(); renderResOrig(); renderStudents();
     CX.listo = true;

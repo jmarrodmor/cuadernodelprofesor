@@ -112,6 +112,28 @@ tr.detail td{text-align:left;background:var(--bg);padding:12px 14px}
 .allgood{color:var(--ok);font-size:.85rem}
 .empty{color:var(--muted);font-size:.9rem;padding:6px 0}
 .toast{font-size:.85rem;color:var(--ok)}
+/* Miniaturas */
+td.slide img.mini{float:left;width:72px;height:auto;margin:0 8px 0 0;border:1px solid var(--line);border-radius:3px;cursor:zoom-in;background:#fff}
+details.fotos{margin-top:10px;border:1px solid var(--line);border-radius:8px;background:var(--surface);padding:6px 10px}
+details.fotos summary{cursor:pointer;font-weight:600;color:var(--accent)}
+.thumbs{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:10px;margin-top:8px}
+.thumbs figure{margin:0;background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:5px}
+.thumbs img{width:100%;display:block;border-radius:3px;cursor:zoom-in;background:#fff}
+.thumbs figcaption{font-size:.8rem;color:var(--muted);margin-top:3px}
+.lb{position:fixed;inset:0;background:rgba(0,0,0,.82);display:flex;align-items:center;justify-content:center;z-index:9;cursor:zoom-out;padding:16px}
+.lb-fotos{display:flex;gap:16px;flex-wrap:wrap;justify-content:center;align-items:flex-start;max-width:96vw}
+.lb figure{margin:0;flex:1 1 360px;max-width:min(46vw,900px)}
+.lb img{width:100%;border-radius:4px;background:#fff}
+.lb figcaption{color:#fff;font-size:.9rem;margin-top:6px;text-align:center}
+@media (max-width:700px){.lb figure{max-width:92vw}}
+/* Ítems de nota manual */
+.manuales{display:grid;gap:8px;justify-items:start}
+.manuales h3{margin:6px 0 0;font-size:1rem;color:var(--accent)}
+.manuales .hint{margin:0}
+.mrow{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.mrow input[type=text]{width:260px;max-width:100%}
+th.th-man{background:#2e6485}
+.res input.manual{border-style:dashed}
 /* Dentro del cuaderno de evaluación */
 body.en-cuaderno header.band{display:none}
 body.en-cuaderno main.wrap{padding-top:14px}
@@ -149,6 +171,7 @@ body.en-cuaderno .srow{grid-template-columns:minmax(0,1fr) minmax(0,1.5fr) auto}
       <p class="sub">Marca los ítems que cuentan en cada diapositiva y elige en la cabecera de cada columna su importancia. Debajo de cada casilla ves lo que tiene tu modelo. La casilla de la cabecera marca o desmarca la columna entera.</p>
     </div></div>
     <div class="scroll"><table id="matrix"></table></div>
+    <div id="manuales" class="manuales"></div>
   </section>
 
   <section class="step">
@@ -184,6 +207,7 @@ body.en-cuaderno .srow{grid-template-columns:minmax(0,1fr) minmax(0,1.5fr) auto}
 </main>
 
 <script src="vendor/jszip.min.js"></script>
+<script src="miniaturas.js"></script>
 <script>
 "use strict";
 const ITEMS = [
@@ -239,11 +263,12 @@ async function parsePptx(file){
     if(mn){ const l=tags(mn,'latin')[0]; if(l) minor=l.getAttribute('typeface'); } }
   const resolveFont = f => f==='+mj-lt'?major : f==='+mn-lt'?minor : f;
 
-  const slides = [];
+  const slides = [], rutas = [];
   for(const sid of tags(pres,'sldId')){
     const rid = sid.getAttributeNS(R_NS,'id') || sid.getAttribute('r:id');
     const path = norm(relMap[rid]);
     const doc = await xml(path); if(!doc) continue;
+    rutas.push(path);
     const relPath = path.replace(/slides\/(slide\d+\.xml)$/,'slides/_rels/$1.rels');
     const rels = await xml(relPath); const srel = {};
     if(rels) tags(rels,'Relationship').forEach(r => srel[r.getAttribute('Id')] = {t:r.getAttribute('Target'), ext:r.getAttribute('TargetMode')==='External'});
@@ -292,7 +317,10 @@ async function parsePptx(file){
   const authors = [];
   const core = await xml('docProps/core.xml');
   if(core) ['creator','lastModifiedBy'].forEach(n => tags(core,n).forEach(e => { const v=e.textContent.trim(); if(v) authors.push(v); }));
-  return {slides, authors};
+  // miniaturas de cada diapositiva (vista aproximada para ver el aspecto)
+  let thumbs = [];
+  try{ if(window.miniaturasPptx) thumbs = await miniaturasPptx(zip, rutas); }catch(_){ thumbs = []; }
+  return {slides, authors, thumbs};
 }
 
 /* ---------- identificación del alumno ---------- */
@@ -382,10 +410,11 @@ function compare(m, a, k){
 
 /* ---------- estado ---------- */
 let model = null, sel = [], weights = {}, students = [], results = [], openRows = new Set(), nextId = 1;
+let manuales = [];   // ítems de nota manual: {id, nombre, w} (la nota la pone el profesor en la tabla de resultados)
 ITEMS.forEach(i => weights[i.k] = 'medio');
 
 function setModel(deck, name){
-  model = {name, slides:deck.slides};
+  model = {name, slides:deck.slides, thumbs:deck.thumbs||[]};
   sel = deck.slides.map(() => Object.fromEntries(ITEMS.map(i => [i.k, true])));
   results = []; renderModel(); renderMatrix(); renderResults();
 }
@@ -406,11 +435,27 @@ function renderMatrix(){
         ['bajo','medio','alto'].map(v=>el('option',{value:v, selected:weights[it.k]===v}, v)));
       return el('th',{}, el('label',{}, it.label, cb), ws); }));
   const body = el('tbody',{}, model.slides.map((s,i) => el('tr',{},
-    el('td',{class:'slide'}, el('span',{class:'num'},'Diap. '+(i+1)), el('span',{class:'ttl', title:s.title}, s.title)),
+    el('td',{class:'slide'}, model.thumbs&&model.thumbs[i] ? el('img',{class:'mini', src:model.thumbs[i], alt:'Diapositiva '+(i+1), title:'Pulsa para ampliar', onclick:()=>lightbox([{src:model.thumbs[i], pie:'Modelo · diapositiva '+(i+1)}])}) : null, el('span',{class:'num'},'Diap. '+(i+1)), el('span',{class:'ttl', title:s.title}, s.title)),
     ITEMS.map(it => el('td',{}, el('label',{class:'cell', title:describe(s,it.k)},
       el('input',{type:'checkbox', id:`c-${i}-${it.k}`, checked:sel[i][it.k], onchange:e=>{ sel[i][it.k]=e.target.checked; const h=$('#col-'+it.k); if(h) h.checked=sel.every(r=>r[it.k]); renderResults(); }}),
       el('small',{}, modelSummary(s,it.k))))))));
   t.append(el('thead',{},head), body);
+  renderManuales();
+}
+/* ---------- ítems de nota manual ---------- */
+function renderManuales(){
+  const box = $('#manuales'); if(!box) return; box.textContent='';
+  box.append(el('h3',{},'Ítems de nota manual'), el('p',{class:'hint'},'Para lo que el programa no puede medir (apariencia, trabajo observado, exposición…). La nota la pones tú en la tabla de resultados; cuenta en la nota final como un ítem más, con su importancia, solo si le pones nota.'));
+  for(const m of manuales) box.append(el('div',{class:'mrow'},
+    el('input',{type:'text', value:m.nombre, 'aria-label':'Nombre del ítem manual', placeholder:'Nombre del ítem', oninput:e=>{ m.nombre=e.target.value; }, onchange:e=>{ m.nombre=e.target.value.trim()||'Ítem manual'; renderResults(); }}),
+    el('label',{class:'hint'},'Importancia ', el('select',{class:'wsel', 'aria-label':'Importancia de '+m.nombre, onchange:e=>{ m.w=e.target.value; renderResults(); }}, ['bajo','medio','alto'].map(v=>el('option',{value:v, selected:m.w===v}, v)))),
+    el('button',{type:'button', class:'ghost', title:'Quitar este ítem', 'aria-label':'Quitar '+m.nombre, onclick:()=>{ manuales=manuales.filter(x=>x!==m); results.forEach(r=>{ if(r.manual) delete r.manual[m.id]; }); renderManuales(); renderResults(); }}, '✕')));
+  box.append(el('button',{type:'button', onclick:()=>{ manuales.push({id:'m'+Date.now().toString(36), nombre: manuales.length?'Ítem manual':'Apariencia', w:'medio'}); renderManuales(); renderResults(); }}, '+ Añadir ítem de nota manual'));
+}
+/* ---------- ver una miniatura en grande ---------- */
+function lightbox(fotos){
+  const o = el('div',{class:'lb', onclick:()=>o.remove()}, el('div',{class:'lb-fotos'}, fotos.filter(f=>f.src).map(f=>el('figure',{}, el('img',{src:f.src, alt:f.pie}), el('figcaption',{}, f.pie)))));
+  document.body.append(o);
 }
 function renderStudents(){
   const box = $('#students'); box.textContent='';
@@ -439,14 +484,19 @@ function grade(){
     const auto={}, notes={};
     model.slides.forEach((m,i) => { for(const it of ITEMS){ if(!sel[i][it.k]) continue;
       const c = compare(m, st.deck.slides[i], it.k); auto[i+':'+it.k] = c.score*10; notes[i+':'+it.k] = c.note; } });
-    return {id:st.id, auto, notes, sover:{}, over:{}, extra: Math.max(0, st.deck.slides.length - model.slides.length)};
+    const prev = results.find(x=>x.id===st.id);
+    return {id:st.id, auto, notes, sover:{}, over:{}, manual:(prev&&prev.manual)||{}, extra: Math.max(0, st.deck.slides.length - model.slides.length)};
   });
 }
 const active = () => ITEMS.filter(it => sel.some(r=>r[it.k]));
 const slideVal = (r,i,k) => r.sover[i+':'+k] ?? r.auto[i+':'+k];
 function avgOf(r,k){ const idx = sel.map((s,i)=>s[k]?i:-1).filter(i=>i>=0); if(!idx.length) return null; return idx.reduce((a,i)=>a+slideVal(r,i,k),0)/idx.length; }
 const itemVal = (r,k) => r.over[k] ?? avgOf(r,k);
-function finalOf(r){ let s=0, w=0; for(const it of active()){ const v = itemVal(r,it.k); if(v==null) continue; s+=v*W[weights[it.k]]; w+=W[weights[it.k]]; } return w? s/w : 0; }
+function finalOf(r){ let s=0, w=0; for(const it of active()){ const v = itemVal(r,it.k); if(v==null) continue; s+=v*W[weights[it.k]]; w+=W[weights[it.k]]; }
+  // ítems manuales: cuentan como uno más, solo si tienen nota
+  for(const m of manuales){ const v = r.manual && r.manual[m.id]; if(v==null) continue; s+=v*W[m.w]; w+=W[m.w]; }
+  return w? s/w : 0; }
+const manVal = (r,m) => (r.manual && r.manual[m.id]!=null) ? r.manual[m.id] : null;
 
 function renderResults(){
   const t = $('#results'); t.textContent='';
@@ -458,7 +508,7 @@ function renderResults(){
   }
   const its = active();
   if(!results.length){ t.append(el('tbody',{},el('tr',{},el('td',{class:'empty'},'Aquí aparecerán las notas al pulsar Corregir.')))); return; }
-  t.append(el('thead',{}, el('tr',{}, el('th',{style:'text-align:left'},'Alumno'), its.map(it=>el('th',{},it.label, el('br'), el('span',{style:'font-weight:400;opacity:.85'},weights[it.k]))), el('th',{},'Nota final'))));
+  t.append(el('thead',{}, el('tr',{}, el('th',{style:'text-align:left'},'Alumno'), its.map(it=>el('th',{},it.label, el('br'), el('span',{style:'font-weight:400;opacity:.85'},weights[it.k]))), manuales.map(m=>el('th',{class:'th-man', title:'Ítem de nota manual: escribe tú la nota'}, m.nombre+' ✎', el('br'), el('span',{style:'font-weight:400;opacity:.85'},m.w))), el('th',{},'Nota final'))));
   const body = el('tbody');
   for(const r of results){
     const st = students.find(s=>s.id===r.id); const f = finalOf(r); const open = openRows.has(r.id);
@@ -469,6 +519,9 @@ function renderResults(){
         const inp = el('input',{type:'number', min:'0', max:'10', step:'0.1', id:`r-${r.id}-${it.k}`, value:String(Math.round(v*10)/10), class:(r.over[it.k]!=null?'edited ':'')+gclass(v), 'aria-label':`${it.label} de ${st.name}`,
           onchange:e=>{ let x=parseFloat(String(e.target.value).replace(',','.')); if(isNaN(x)){ delete r.over[it.k]; } else { r.over[it.k]=Math.max(0,Math.min(10,x)); } renderResults(); }});
         return el('td',{}, inp); }),
+      manuales.map(m => { const v = manVal(r,m);
+        return el('td',{}, el('input',{type:'number', min:'0', max:'10', step:'0.1', id:`m-${r.id}-${m.id}`, value: v==null?'':String(v), placeholder:'—', class:'manual '+(v==null?'':gclass(v)), title:'Nota manual (0–10). Vacía = no cuenta.', 'aria-label':`${m.nombre} de ${st.name}`,
+          onchange:e=>{ const x=parseFloat(String(e.target.value).replace(',','.')); r.manual=r.manual||{}; if(isNaN(x)) delete r.manual[m.id]; else r.manual[m.id]=Math.max(0,Math.min(10,x)); renderResults(); }})); }),
       el('td',{}, finalEl));
     body.append(tr);
     if(open){
@@ -494,7 +547,12 @@ function renderResults(){
       });
       if(!any) list.append(el('div',{class:'allgood'},'Todo lo marcado coincide con el modelo.'));
       if(r.extra) list.append(el('div',{class:'hint'}, `Tiene ${r.extra} diapositiva(s) de más que no se han corregido.`));
-      body.append(el('tr',{class:'detail'}, el('td',{colspan:String(its.length+2)}, dt, list)));
+      // miniaturas de las diapositivas del alumno (pulsa para verla junto a la del modelo)
+      const th = (st.deck && st.deck.thumbs) || [];
+      const fotos = th.length ? el('details',{class:'fotos', open: openRows.has('f'+r.id), ontoggle:e=>{ e.target.open?openRows.add('f'+r.id):openRows.delete('f'+r.id); }},
+        el('summary',{},`📷 Diapositivas del alumno (${th.filter(Boolean).length})`),
+        el('div',{class:'thumbs'}, th.map((src,i)=> src ? el('figure',{}, el('img',{src, alt:'Diapositiva '+(i+1), title:'Pulsa para verla junto a la del modelo', onclick:()=>lightbox([{src, pie:`${st.name} · diapositiva ${i+1}`}, {src:model.thumbs&&model.thumbs[i], pie:'Modelo · diapositiva '+(i+1)}])}), el('figcaption',{}, 'Diap. '+(i+1) + (i>=model.slides.length?' (de más)':''))) : null))) : null;
+      body.append(el('tr',{class:'detail'}, el('td',{colspan:String(its.length+manuales.length+2)}, dt, list, fotos)));
     }
   }
   t.append(body);
@@ -529,8 +587,8 @@ $('#run').addEventListener('click', ()=>{
   $('#resultsSec').scrollIntoView({behavior: matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});
 });
 $('#copy').addEventListener('click', async ()=>{
-  const its=active(); const lines=[['Alumno',...its.map(i=>i.label),'Nota final'].join('\t')];
-  for(const r of results){ const st=students.find(s=>s.id===r.id); lines.push([st.name, ...its.map(i=>fmt(itemVal(r,i.k))), fmt(finalOf(r))].join('\t')); }
+  const its=active(); const lines=[['Alumno',...its.map(i=>i.label),...manuales.map(m=>m.nombre),'Nota final'].join('\t')];
+  for(const r of results){ const st=students.find(s=>s.id===r.id); lines.push([st.name, ...its.map(i=>fmt(itemVal(r,i.k))), ...manuales.map(m=>{ const v=manVal(r,m); return v==null?'':fmt(v); }), fmt(finalOf(r))].join('\t')); }
   const txt=lines.join('\n'); const m=$('#copyMsg');
   try{ await navigator.clipboard.writeText(txt); m.textContent='Copiada. Pégala en tu hoja de cálculo.'; }
   catch(_){ const ta=el('textarea',{style:'width:100%;height:120px'}); ta.value=txt; m.textContent=''; m.append(ta); ta.select(); }
