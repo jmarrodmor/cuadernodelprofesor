@@ -667,6 +667,8 @@ function abrirOpcionesApartado(idItem, idPadre, nombre, esPadre) {
   if (btnGen) btnGen.classList.toggle('hidden', !(esGenially(item) && esHoja));
   const btnScr = document.getElementById('btnOpcionScratch');
   if (btnScr) btnScr.classList.toggle('hidden', !(esScratch(item) && esHoja));
+  const btnPres = document.getElementById('btnOpcionPresentaciones');
+  if (btnPres) btnPres.classList.toggle('hidden', !(esPresentaciones(item) && esHoja));
 
   document.getElementById('modalOpcionesApartado').classList.remove('hidden');
 }
@@ -1394,7 +1396,7 @@ function menuAccionCorregirGenially() {
 }
 
 function rerenderVistaActual() {
-  if (!document.getElementById('vistaScratch').classList.contains('hidden')) return;   // la tabla se repinta al volver
+  if (!document.getElementById('vistaCorrector').classList.contains('hidden')) return;   // la tabla se repinta al volver
   if (!document.getElementById('vistaUD').classList.contains('hidden')) renderizarTablaUD();
   else if (!document.getElementById('vistaDetalle').classList.contains('hidden')) renderizarDetalleAlumno();
   else if (!document.getElementById('app').classList.contains('hidden')) renderizarTablaPrincipal();
@@ -1435,46 +1437,66 @@ window.addEventListener('message', (ev) => {
 });
 
 // -------------------------------------------------------------
-// CORRECTOR DE SCRATCH (integrado: carpeta «scratch» de esta web)
+// CORRECTORES INTEGRADOS EN ESTA WEB (Scratch y Presentaciones)
+// Se abren dentro del cuaderno, en un marco, y se comunican por mensajes.
 // -------------------------------------------------------------
+
+const CORRECTORES = {
+  scratch:        { src: 'scratch/index.html',        icono: '🐱', nombre: 'Scratch',        origen: 'corrector-scratch' },
+  presentaciones: { src: 'presentaciones/index.html', icono: '📊', nombre: 'Presentaciones', origen: 'corrector-presentaciones' }
+};
 
 function esScratch(item) {
   return !!item && item.herramienta === 'scratch';
 }
 
-function iconoHerramienta(item) {
-  return esGenially(item) ? '🧩 ' : esScratch(item) ? '🐱 ' : '';
+function esPresentaciones(item) {
+  return !!item && item.herramienta === 'presentaciones';
 }
 
-const SCR = { item: null, titulo: '', ocupado: false, esperaFlush: null };
+function iconoHerramienta(item) {
+  if (esGenially(item)) return '🧩 ';
+  const c = item && CORRECTORES[item.herramienta];
+  return c ? c.icono + ' ' : '';
+}
 
-function menuAccionCorregirScratch() {
+const SCR = { item: null, herramienta: '', titulo: '', ocupado: false, esperaFlush: null };
+
+function abrirCorrectorIntegrado(herramienta) {
   const { idItem, idPadre } = contextoEngranaje;
   const ud = estadoApp.unidades[udActivaIdx];
   const item = buscarItemApartado(idItem, idPadre);
+  const conf = CORRECTORES[herramienta];
   cerrarModalOpcionesApartado();
-  if (!item) return;
+  if (!item || !conf) return;
   if (!estadoApp.alumnos.length) return alert('Añade primero la lista de alumnos.');
 
   SCR.item = item;
+  SCR.herramienta = herramienta;
   SCR.ocupado = false;
   SCR.titulo = `${ud.nombre} · ${item.nombre}`;
-  document.getElementById('tituloScratch').textContent = '🐱 ' + item.nombre;
+  document.getElementById('tituloCorrector').textContent = conf.icono + ' ' + item.nombre;
+  document.getElementById('badgeCorrector').textContent = conf.icono + ' ' + conf.nombre;
   document.getElementById('vistaUD').classList.add('hidden');
-  document.getElementById('vistaScratch').classList.remove('hidden');
-  document.getElementById('marcoScratch').src = 'scratch/index.html?cuaderno=1&t=' + Date.now();
+  document.getElementById('vistaCorrector').classList.remove('hidden');
+  const marco = document.getElementById('marcoCorrector');
+  marco.title = 'Corrector de ' + conf.nombre;
+  marco.src = conf.src + '?cuaderno=1&t=' + Date.now();
 }
 
-function enviarAScratch(m) {
-  const f = document.getElementById('marcoScratch');
+function menuAccionCorregirScratch() { abrirCorrectorIntegrado('scratch'); }
+function menuAccionCorregirPresentaciones() { abrirCorrectorIntegrado('presentaciones'); }
+
+function enviarAlCorrector(m) {
+  const f = document.getElementById('marcoCorrector');
   if (f && f.contentWindow) f.contentWindow.postMessage({ origen: 'cuaderno-lomloe', ...m }, '*');
 }
 
 // Recibe el estado del corrector: guarda el proyecto en el apartado y pone las notas
-function aplicarEstadoScratch(d) {
+function aplicarEstadoCorrector(d) {
   const item = SCR.item;
   if (!item) return;
-  if (d.proyecto) item.scratch = d.proyecto;
+  if (d.proyecto) item[SCR.herramienta] = d.proyecto;     // item.scratch / item.presentaciones
   const notas = d.notas || {};
   let n = 0;
   estadoApp.alumnos.forEach(al => {
@@ -1489,36 +1511,37 @@ function aplicarEstadoScratch(d) {
   return n;
 }
 
-async function volverDeScratch() {
+async function volverDelCorrector() {
   if (SCR.ocupado && !confirm('El corrector está trabajando. Si sales ahora se detiene (lo ya corregido se conserva). ¿Salir?')) return;
   // pide al corrector su último estado antes de cerrarlo
   await new Promise(res => {
     const t = setTimeout(() => { SCR.esperaFlush = null; res(); }, 1500);
     SCR.esperaFlush = () => { clearTimeout(t); SCR.esperaFlush = null; res(); };
-    enviarAScratch({ tipo: 'flush' });
+    enviarAlCorrector({ tipo: 'flush' });
   });
-  document.getElementById('marcoScratch').src = 'about:blank';
+  document.getElementById('marcoCorrector').src = 'about:blank';
   SCR.item = null;
-  document.getElementById('vistaScratch').classList.add('hidden');
+  document.getElementById('vistaCorrector').classList.add('hidden');
   document.getElementById('vistaUD').classList.remove('hidden');
   renderizarTablaUD();
 }
 
 window.addEventListener('message', (ev) => {
-  const f = document.getElementById('marcoScratch');
+  const f = document.getElementById('marcoCorrector');
   const d = ev.data;
-  if (!f || ev.source !== f.contentWindow || !d || d.origen !== 'corrector-scratch') return;
+  const conf = CORRECTORES[SCR.herramienta];
+  if (!f || ev.source !== f.contentWindow || !d || !conf || d.origen !== conf.origen) return;
 
   if (d.tipo === 'listo') {
     if (!SCR.item) return;
-    enviarAScratch({
+    enviarAlCorrector({
       tipo: 'init',
       titulo: `${estadoApp.nombreDocumento} · ${SCR.titulo}`,
       alumnos: estadoApp.alumnos.map(a => ({ id: a.id, nombre: `${a.apellidos}, ${a.nombre}` })),
-      proyecto: SCR.item.scratch || null
+      proyecto: SCR.item[SCR.herramienta] || null
     });
   } else if (d.tipo === 'estado') {
-    aplicarEstadoScratch(d);
+    aplicarEstadoCorrector(d);
     if (SCR.esperaFlush) SCR.esperaFlush();
   } else if (d.tipo === 'ocupado') {
     SCR.ocupado = !!d.valor;

@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Corrector de Presentaciones</title>
+<link rel="icon" type="image/png" href="../logo.png">
+<style>
+/* Layout: banda de cabecera + tres pasos en columna, resultados en tabla editable.
+   Colores de la familia de correctores del cuaderno (los mismos que el de Scratch). */
+:root{
+  color-scheme:light;
+  --bg:#f4f7f6; --surface:#ffffff; --ink:#1f2d33; --muted:#5b6b72; --line:#d8e1e4;
+  --accent:#0b4f6c; --accent-strong:#004b8d; --accent-ink:#ffffff; --accent-soft:#e8f1f5;
+  --ok:#1e8e3e; --ok-soft:#e3f2e6; --mid:#b26a00; --mid-soft:#fff6dc; --bad:#c62828; --bad-soft:#fdecea;
+  --font:"Segoe UI",system-ui,-apple-system,Roboto,"Helvetica Neue",Arial,sans-serif;
+  --mono:ui-monospace,"Cascadia Mono",Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#121a1d; --surface:#1a2428; --ink:#e3ecef; --muted:#9db0b8; --line:#2e3e44;
+  --accent:#3d8fb5; --accent-strong:#7cc0e0; --accent-ink:#ffffff; --accent-soft:#1f3440;
+  --ok:#5cc17d; --ok-soft:#173323; --mid:#e2ab4f; --mid-soft:#3a2c14; --bad:#f07264; --bad-soft:#3c1d1a; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#121a1d; --surface:#1a2428; --ink:#e3ecef; --muted:#9db0b8; --line:#2e3e44;
+  --accent:#3d8fb5; --accent-strong:#7cc0e0; --accent-ink:#ffffff; --accent-soft:#1f3440;
+  --ok:#5cc17d; --ok-soft:#173323; --mid:#e2ab4f; --mid-soft:#3a2c14; --bad:#f07264; --bad-soft:#3c1d1a; color-scheme:dark }
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font);font-size:15px;line-height:1.5}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+img{max-width:100%}
+.wrap{max-width:1080px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+header.band{background:#0b4f6c;color:#fff}
+header.band .wrap{padding-block:18px}
+header h1{margin:0;font-size:1.45rem;font-weight:600}
+header p{margin:4px 0 0;opacity:.85;font-size:.95rem}
+main.wrap{padding-block:22px 48px;display:grid;gap:18px}
+section.step{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:18px 20px;display:grid;gap:14px;min-width:0;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+.step-head{display:flex;gap:12px;align-items:baseline}
+.step-n{flex:none;width:26px;height:26px;border-radius:50%;background:var(--accent);color:#fff;font-weight:600;font-size:.9rem;display:grid;place-items:center;font-variant-numeric:tabular-nums}
+.step h2{margin:0;font-size:1.15rem;font-weight:600;color:var(--accent)}
+.step .sub{margin:2px 0 0;color:var(--muted);font-size:.9rem;max-width:70ch}
+.hint{font-size:.85rem;color:var(--muted)}
+.hint b{color:var(--ink);font-weight:600}
+.banner{background:var(--mid-soft);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:10px 14px;font-size:.9rem}
+.banner strong{color:var(--mid)}
+button,.filebtn{font:inherit;cursor:pointer;border-radius:6px;border:1px solid var(--accent);background:var(--surface);color:var(--accent);padding:8px 14px;display:inline-flex;align-items:center;gap:6px}
+button:hover,.filebtn:hover{background:var(--accent-soft)}
+button.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:600;padding:11px 22px;font-size:1rem}
+button.primary:hover{background:var(--accent-strong);border-color:var(--accent-strong)}
+button:disabled{opacity:.5;cursor:not-allowed}
+button.ghost{border-color:transparent;color:var(--muted);padding:6px 8px}
+button.ghost:hover{color:var(--bad)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+input[type=text],input[type=number],select{font:inherit;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:7px 9px}
+.filebtn input{display:none}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.modelinfo{font-size:.92rem}
+.modelinfo .fname{font-weight:600}
+thead th .wsel{margin-top:5px;font-size:.78rem;padding:2px 4px;border-radius:5px;font-weight:400}
+tr.wrow td{background:var(--accent-soft);font-size:.8rem;color:var(--muted);padding:6px 10px}
+.dtable{margin-bottom:12px}
+.dtable table{font-size:.85rem}
+.res .dtable thead th{background:var(--accent-soft);color:var(--accent-strong);font-size:.78rem}
+tr.detail .dtable td{text-align:center;background:var(--surface);padding:6px 8px}
+tr.detail .dtable td.slide{text-align:left}
+tr.detail .dtable td.avg{background:var(--accent-soft);font-weight:600}
+.dtable .off{color:var(--muted)}
+.dl h5{margin:0 0 2px;font-size:.82rem;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.04em}
+.scroll{overflow-x:auto;border:1px solid var(--line);border-radius:8px}
+table{border-collapse:collapse;width:100%;font-size:.9rem}
+th,td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:center;vertical-align:middle}
+thead th{background:var(--accent-strong);color:#fff;font-weight:600;font-size:.82rem;white-space:nowrap}
+thead th label{display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer}
+tbody tr:last-child td{border-bottom:none}
+td.slide{text-align:left;min-width:170px}
+td.slide .num{font-weight:600;font-variant-numeric:tabular-nums}
+td.slide .ttl{display:block;color:var(--muted);font-size:.8rem;max-width:26ch;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cell{display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer}
+.cell small{color:var(--muted);font-size:.74rem;max-width:14ch;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+input[type=checkbox]{width:17px;height:17px;accent-color:var(--accent);cursor:pointer}
+.students{display:grid;gap:8px}
+.srow{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1.4fr) auto;gap:8px;align-items:center}
+.srow input[type=text]{width:100%}
+.srow .status{font-size:.82rem;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.srow .status.err{color:var(--bad)}
+.srow .status .found{color:var(--ok)}
+.srow .status .warn{color:var(--mid)}
+.srow .status{white-space:normal;line-height:1.3}
+.classbox{display:grid;gap:5px}
+.classbox label{font-weight:600;font-size:.92rem}
+.classbox label .hint{font-weight:400}
+textarea{font:inherit;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:8px 10px;resize:vertical;width:100%;max-width:520px}
+@media (max-width:620px){.srow{grid-template-columns:1fr auto}.srow .fcol{grid-column:1/-1;grid-row:2}}
+.actions{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;align-items:center}
+.res td.name{text-align:left;font-weight:600;white-space:nowrap}
+.res td.name button{all:unset;cursor:pointer;display:inline-flex;gap:6px;align-items:center}
+.res td.name button:focus-visible{outline:2px solid var(--accent)}
+.res td.name .car{color:var(--muted);font-size:.75rem;transition:transform .15s}
+.res tr.open td.name .car{transform:rotate(90deg)}
+.res input[type=number]{width:4.4em;text-align:center;font-variant-numeric:tabular-nums;padding:5px 4px;border-radius:5px}
+.res input.edited{border-color:var(--accent);background:var(--accent-soft)}
+.g-ok{color:var(--ok)} .g-mid{color:var(--mid)} .g-bad{color:var(--bad)}
+.final{font-weight:700;font-size:1.05rem;font-variant-numeric:tabular-nums;border-radius:6px;padding:3px 10px;display:inline-block}
+.final.g-ok{background:var(--ok-soft)} .final.g-mid{background:var(--mid-soft)} .final.g-bad{background:var(--bad-soft)}
+tr.detail td{text-align:left;background:var(--bg);padding:12px 14px}
+.dl{display:grid;gap:10px}
+.dslide h4{margin:0 0 4px;font-size:.88rem}
+.dslide ul{margin:0;padding-left:18px;display:grid;gap:3px;font-size:.85rem}
+.dslide li span.v{color:var(--muted)}
+.pill{display:inline-block;font-size:.75rem;font-weight:600;border-radius:999px;padding:1px 8px;margin-right:6px;font-variant-numeric:tabular-nums}
+.pill.g-ok{background:var(--ok-soft)} .pill.g-mid{background:var(--mid-soft)} .pill.g-bad{background:var(--bad-soft)}
+.allgood{color:var(--ok);font-size:.85rem}
+.empty{color:var(--muted);font-size:.9rem;padding:6px 0}
+.toast{font-size:.85rem;color:var(--ok)}
+/* Dentro del cuaderno de evaluación */
+body.en-cuaderno header.band{display:none}
+body.en-cuaderno main.wrap{padding-top:14px}
+.barra-cuaderno{background:var(--ok-soft);border:1px solid #b7dfc2;border-radius:8px;padding:10px 14px;font-size:.92rem}
+.barra-cuaderno .hint{display:block;margin-top:4px}
+.srow input[readonly]{background:var(--accent-soft);border-color:transparent;font-weight:600}
+.srow .nota{font-weight:700;font-variant-numeric:tabular-nums;min-width:3.2em;text-align:right}
+body.en-cuaderno .srow{grid-template-columns:minmax(0,1fr) minmax(0,1.5fr) auto}
+.aviso{background:var(--mid-soft);border:1px solid #f0d68a;border-radius:6px;padding:8px 12px;font-size:.9rem}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<header class="band"><div class="wrap">
+  <h1>Corrector de Presentaciones</h1>
+  <p>Compara diapositiva a diapositiva las presentaciones de Google de tus alumnos con la tuya y calcula la nota.</p>
+</div></header>
+
+<main class="wrap">
+  <div id="barraCuaderno" class="barra-cuaderno" hidden></div>
+  <section class="step">
+    <div class="step-head"><span class="step-n">1</span><div>
+      <h2>Tu presentación modelo</h2>
+      <p class="sub">En Google Presentaciones: <b>Archivo › Descargar › Microsoft PowerPoint (.pptx)</b>. Sube ese archivo aquí. Tus alumnos deben entregarla igual.</p>
+    </div></div>
+    <div class="row">
+      <label class="filebtn">Elegir presentación .pptx<input type="file" id="modelFile" accept=".pptx"></label>
+      <span class="modelinfo" id="modelInfo"></span>
+    </div>
+  </section>
+
+  <section class="step">
+    <div class="step-head"><span class="step-n">2</span><div>
+      <h2>Qué se corrige en cada diapositiva</h2>
+      <p class="sub">Marca los ítems que cuentan en cada diapositiva y elige en la cabecera de cada columna su importancia. Debajo de cada casilla ves lo que tiene tu modelo. La casilla de la cabecera marca o desmarca la columna entera.</p>
+    </div></div>
+    <div class="scroll"><table id="matrix"></table></div>
+  </section>
+
+  <section class="step">
+    <div class="step-head"><span class="step-n">3</span><div>
+      <h2>Presentaciones de los alumnos</h2>
+      <p class="sub">Sube las presentaciones una a una o varias de golpe. Si rellenas la lista de clase, el programa busca cada nombre en el nombre del archivo, en el autor del archivo y en el texto de las diapositivas, y lo pone solo. Siempre puedes corregirlo a mano.</p>
+    </div></div>
+    <div class="classbox">
+      <label for="classList">Lista de clase <span class="hint">(un alumno por línea; puedes pegarla desde una hoja de cálculo)</span></label>
+      <textarea id="classList" rows="4" placeholder="Lucía García Pérez&#10;Marcos Ruiz Sanz&#10;…"></textarea>
+      <span class="hint" id="classCount"></span>
+    </div>
+    <div class="students" id="students"></div>
+    <div class="row">
+      <button type="button" id="addStudent">+ Añadir alumno</button>
+      <label class="filebtn">Subir varias a la vez<input type="file" id="multiFile" accept=".pptx" multiple></label>
+    </div>
+  </section>
+
+  <div class="actions">
+    <button class="primary" type="button" id="run">Corregir</button>
+    <span class="hint" id="runMsg"></span>
+  </div>
+
+  <section class="step" id="resultsSec">
+    <div class="step-head"><div>
+      <h2>Resultados</h2>
+      <p class="sub">Notas sobre 10 por ítem. Pulsa el nombre de un alumno para ver la nota de cada ítem en cada diapositiva: puedes cambiar cualquiera y se recalculan la media del ítem y la nota final.</p>
+    </div></div>
+    <div class="scroll"><table class="res" id="results"></table></div>
+    <div class="row"><button type="button" id="copy">Copiar tabla para pegar en una hoja de cálculo</button><span class="toast" id="copyMsg"></span></div>
+  </section>
+</main>
+
+<script src="vendor/jszip.min.js"></script>
+<script>
+"use strict";
+const ITEMS = [
+  {k:'imagenes', label:'Imágenes'},
+  {k:'texto', label:'Texto'},
+  {k:'fuentes', label:'Fuentes'},
+  {k:'formas', label:'Formas'},
+  {k:'animaciones', label:'Animaciones'},
+  {k:'enlaces', label:'Enlaces'},
+  {k:'transiciones', label:'Transición'}
+];
+const W = {bajo:1, medio:2, alto:3};
+const R_NS = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships';
+
+const SHAPE_ES = {rect:'rectángulo',roundRect:'rect. redondeado',snip1Rect:'rect. recortado',ellipse:'elipse',triangle:'triángulo',rtTriangle:'triángulo rectángulo',diamond:'rombo',parallelogram:'paralelogramo',trapezoid:'trapecio',pentagon:'pentágono',homePlate:'pentágono flecha',hexagon:'hexágono',octagon:'octógono',star4:'estrella 4',star5:'estrella 5',star6:'estrella 6',star8:'estrella 8',rightArrow:'flecha derecha',leftArrow:'flecha izquierda',upArrow:'flecha arriba',downArrow:'flecha abajo',leftRightArrow:'flecha doble',line:'línea',straightConnector1:'línea/flecha',bentConnector3:'conector angular',curvedConnector3:'conector curvo',cloud:'nube',heart:'corazón',smileyFace:'cara sonriente',sun:'sol',moon:'luna',lightningBolt:'rayo',wedgeRectCallout:'bocadillo',wedgeRoundRectCallout:'bocadillo redondeado',wedgeEllipseCallout:'bocadillo ovalado',cloudCallout:'bocadillo nube',plus:'cruz',donut:'anillo',can:'cilindro',cube:'cubo',chevron:'cheurón',arc:'arco',frame:'marco',libre:'forma libre'};
+const ANIM_CLASS = {entr:'entrada',exit:'salida',emph:'énfasis',path:'trayectoria'};
+const ANIM_ENTR = {1:'Aparecer',2:'Desplazar hacia dentro',10:'Aparecer gradualmente',16:'Dividir',21:'Rueda',22:'Barrido',23:'Zoom',26:'Rebote',53:'Zoom',55:'Aumentar y girar',42:'Ascender',47:'Descender'};
+const ANIM_EXIT = {1:'Desaparecer',2:'Desplazar hacia fuera',10:'Desvanecer',22:'Barrido',23:'Zoom',53:'Zoom'};
+const ANIM_EMPH = {6:'Aumentar/encoger',8:'Girar',9:'Transparencia',26:'Parpadear',32:'Balancear'};
+const TRANS_ES = {fade:'Disolver',dissolve:'Disolver (puntos)',push:'Empujar/deslizar',pull:'Descubrir',cover:'Cubrir',wipe:'Barrido',split:'Dividir',cut:'Corte',zoom:'Zoom',random:'Aleatoria',flip:'Voltear',prism:'Cubo',gallery:'Galería',vortex:'Vórtice',ripple:'Onda',honeycomb:'Panal',ferris:'Noria',conveyor:'Cinta',doors:'Puertas',window:'Ventana',reveal:'Revelar',shred:'Triturar',flash:'Destello',morph:'Transformación',ninguna:'ninguna'};
+
+/* ---------- utilidades ---------- */
+const $ = s => document.querySelector(s);
+const el = (tag, attrs={}, ...kids) => { const e=document.createElement(tag); for(const [a,v] of Object.entries(attrs)){ if(a==='class') e.className=v; else if(a.startsWith('on')) e.addEventListener(a.slice(2),v); else if(v!==false&&v!=null) e.setAttribute(a,v===true?'':v);} for(const k of kids.flat()) if(k!=null) e.append(k.nodeType?k:document.createTextNode(k)); return e; };
+const tags = (node, name) => Array.from(node.getElementsByTagNameNS('*', name));
+const words = s => (s.normalize('NFC').toLowerCase().match(/[\p{L}\p{N}]+/gu) || []);
+const fmt = n => (Math.round(n*10)/10).toLocaleString('es-ES',{minimumFractionDigits:1,maximumFractionDigits:1});
+const gclass = n => n>=7?'g-ok':n>=5?'g-mid':'g-bad';
+const countList = arr => { const m={}; arr.forEach(x=>m[x]=(m[x]||0)+1); return m; };
+const countText = (arr, name=x=>x) => { const m=countList(arr); const p=Object.entries(m).map(([k,v])=>`${v} ${name(k)}`); return p.length?p.join(', '):'ninguna'; };
+function dice(a,b){ if(!a.length&&!b.length) return 1; const ma=countList(a), mb=countList(b); let c=0; for(const k in ma) c+=Math.min(ma[k],mb[k]||0); return 2*c/(a.length+b.length); }
+function jaccard(a,b){ const A=new Set(a), B=new Set(b); if(!A.size&&!B.size) return 1; let i=0; A.forEach(x=>{if(B.has(x)) i++;}); return i/(A.size+B.size-i); }
+const shapeName = k => SHAPE_ES[k] || k;
+function animName(key){ const [c,id]=key.split(':'); const map=c==='entr'?ANIM_ENTR:c==='exit'?ANIM_EXIT:c==='emph'?ANIM_EMPH:{}; return `${map[id]||'efecto '+id} (${ANIM_CLASS[c]||c})`; }
+const transName = k => TRANS_ES[k] || k;
+function normUrl(u){ return u.trim().toLowerCase().replace(/^https?:\/\//,'').replace(/^www\./,'').replace(/\/+$/,''); }
+
+/* ---------- lectura de .pptx ---------- */
+async function parsePptx(file){
+  const zip = await JSZip.loadAsync(file);
+  const xml = async p => { const f = zip.file(p); if(!f) return null; return new DOMParser().parseFromString(await f.async('string'),'application/xml'); };
+  const pres = await xml('ppt/presentation.xml');
+  const presRels = await xml('ppt/_rels/presentation.xml.rels');
+  if(!pres || !presRels) throw new Error('no es pptx');
+  const relMap = {}; tags(presRels,'Relationship').forEach(r => relMap[r.getAttribute('Id')] = r.getAttribute('Target'));
+  const norm = t => t.startsWith('/') ? t.slice(1) : 'ppt/' + t.replace(/^\.\//,'');
+  // fuentes del tema
+  let major='', minor='';
+  const themePath = Object.keys(zip.files).find(p => /^ppt\/theme\/theme\d+\.xml$/.test(p));
+  if(themePath){ const th = await xml(themePath);
+    const mj = tags(th,'majorFont')[0], mn = tags(th,'minorFont')[0];
+    if(mj){ const l=tags(mj,'latin')[0]; if(l) major=l.getAttribute('typeface'); }
+    if(mn){ const l=tags(mn,'latin')[0]; if(l) minor=l.getAttribute('typeface'); } }
+  const resolveFont = f => f==='+mj-lt'?major : f==='+mn-lt'?minor : f;
+
+  const slides = [];
+  for(const sid of tags(pres,'sldId')){
+    const rid = sid.getAttributeNS(R_NS,'id') || sid.getAttribute('r:id');
+    const path = norm(relMap[rid]);
+    const doc = await xml(path); if(!doc) continue;
+    const relPath = path.replace(/slides\/(slide\d+\.xml)$/,'slides/_rels/$1.rels');
+    const rels = await xml(relPath); const srel = {};
+    if(rels) tags(rels,'Relationship').forEach(r => srel[r.getAttribute('Id')] = {t:r.getAttribute('Target'), ext:r.getAttribute('TargetMode')==='External'});
+
+    // imágenes
+    const images = tags(doc,'pic').length;
+    // texto y fuentes
+    const paras = tags(doc,'p').filter(p => p.namespaceURI && p.namespaceURI.includes('drawingml'));
+    const fullText = paras.map(p => tags(p,'t').map(t=>t.textContent).join('')).join('\n');
+    const fonts = new Set();
+    for(const sp of tags(doc,'sp')){
+      const ph = tags(sp,'ph')[0]; const isTitle = ph && /title|ctrTitle/i.test(ph.getAttribute('type')||'');
+      for(const r of tags(sp,'r')){
+        const txt = tags(r,'t').map(t=>t.textContent).join(''); if(!txt.trim()) continue;
+        const rPr = tags(r,'rPr')[0]; const lat = rPr ? tags(rPr,'latin')[0] : null;
+        let f = lat ? resolveFont(lat.getAttribute('typeface')) : (isTitle?major:minor);
+        if(f) fonts.add(f);
+      }
+    }
+    // formas dibujadas
+    const shapes = [];
+    for(const sp of [...tags(doc,'sp'), ...tags(doc,'cxnSp')]){
+      if(tags(sp,'ph').length) continue;
+      const c = tags(sp,'cNvSpPr')[0]; if(c && c.getAttribute('txBox')==='1') continue;
+      const pg = tags(sp,'prstGeom')[0];
+      if(pg) shapes.push(pg.getAttribute('prst')); else if(tags(sp,'custGeom').length) shapes.push('libre');
+    }
+    // animaciones
+    const anims = tags(doc,'cTn').filter(c => c.getAttribute('presetClass')).map(c => c.getAttribute('presetClass')+':'+(c.getAttribute('presetID')||'0'));
+    // enlaces
+    const links = [];
+    for(const h of [...tags(doc,'hlinkClick'), ...tags(doc,'hlinkMouseOver')]){
+      const id = h.getAttributeNS(R_NS,'id') || h.getAttribute('r:id'); const act = h.getAttribute('action')||'';
+      if(id && srel[id]){ if(srel[id].ext) links.push(normUrl(srel[id].t)); else if(/sldjump/.test(act)) links.push('→ ' + srel[id].t.replace(/.*slide(\d+)\.xml/,'diapositiva $1')); }
+      else if(/jump=(\w+)/.test(act)) links.push('→ ' + act.match(/jump=(\w+)/)[1]);
+    }
+    // transición
+    let transition = 'ninguna';
+    const tr = tags(doc,'transition')[0];
+    if(tr){ const ch = Array.from(tr.children).find(c => !['sndAc','extLst','stSnd','endSnd'].includes(c.localName)); if(ch) transition = ch.localName; }
+
+    const firstLine = fullText.split('\n').map(s=>s.trim()).find(Boolean) || '(sin texto)';
+    slides.push({title:firstLine, text:fullText, images, words:words(fullText), fonts:[...fonts], shapes, anims, links:[...new Set(links)], transition});
+  }
+  if(!slides.length) throw new Error('sin diapositivas');
+  const authors = [];
+  const core = await xml('docProps/core.xml');
+  if(core) ['creator','lastModifiedBy'].forEach(n => tags(core,n).forEach(e => { const v=e.textContent.trim(); if(v) authors.push(v); }));
+  return {slides, authors};
+}
+
+/* ---------- identificación del alumno ---------- */
+const ntoks = s => (String(s||'').normalize('NFD').replace(/\p{M}/gu,'').toLowerCase().match(/[\p{L}\p{N}]+/gu) || []);
+function classList(){ return $('#classList').value.split(/\r?\n/).map(s=>s.trim()).filter(Boolean); }
+function cleanFileName(fn){
+  let b = fn.replace(/\.pptx$/i,'');
+  if(model){ const mb = model.name.replace(/\.pptx$/i,''); if(mb && b.toLowerCase().includes(mb.toLowerCase())) b = b.slice(0, b.toLowerCase().indexOf(mb.toLowerCase())) + b.slice(b.toLowerCase().indexOf(mb.toLowerCase())+mb.length); }
+  return b.replace(/[_]+/g,' ').replace(/^[\s\-–·.]+|[\s\-–·.]+$/g,'').replace(/\s{2,}/g,' ').trim();
+}
+// Busca un nombre de la lista: primero en el nombre del archivo, luego en el autor y luego en cada diapositiva
+function identify(deck, fileName){
+  const names = classList();
+  if(!names.length) return null;
+  const sources = [{where:'el nombre del archivo', text:fileName.replace(/\.pptx$/i,'')}, {where:'el autor del archivo', text:(deck.authors||[]).join(' ')}]
+    .concat(deck.slides.map((s,i)=>({where:'la diapositiva '+(i+1), text:s.text||''})));
+  for(const src of sources){
+    const hay = new Set(ntoks(src.text)); if(!hay.size) continue;
+    let best=[], bestScore=0;
+    for(const n of names){
+      const t = ntoks(n).filter(x=>x.length>1); if(!t.length) continue;
+      const m = t.filter(x=>hay.has(x)).length;
+      if(m < Math.min(2, t.length)) continue;
+      const score = m/t.length + m*0.01;
+      if(score > bestScore+1e-9){ best=[n]; bestScore=score; } else if(Math.abs(score-bestScore)<1e-9) best.push(n);
+    }
+    if(best.length===1) return {name:best[0], where:src.where};
+    if(best.length>1) return {ambiguous:best, where:src.where};
+  }
+  return {notFound:true};
+}
+function applyIdentity(st){
+  st.found=''; st.warn='';
+  if(!st.deck || !(st.autoName || !st.name)) return;
+  st.autoName = true;
+  const r = identify(st.deck, st.fileName);
+  if(r && r.name){ st.name=r.name; st.found=`nombre hallado en ${r.where}`; }
+  else { st.name = cleanFileName(st.fileName);
+    if(r && r.ambiguous) st.warn = `en ${r.where} encaja con varios: ${r.ambiguous.join(', ')}`;
+    else if(r && r.notFound) st.warn = 'no se ha encontrado ningún nombre de la lista; revisa el nombre'; }
+}
+
+/* ---------- comparación ---------- */
+function modelSummary(s, k){
+  switch(k){
+    case 'imagenes': return String(s.images);
+    case 'texto': return s.words.length+' pal.';
+    case 'fuentes': return s.fonts.join(', ') || '—';
+    case 'formas': return String(s.shapes.length);
+    case 'animaciones': return String(s.anims.length);
+    case 'enlaces': return String(s.links.length);
+    case 'transiciones': return transName(s.transition);
+  }
+}
+function describe(s, k){
+  switch(k){
+    case 'imagenes': return s.images + (s.images===1?' imagen':' imágenes');
+    case 'texto': return s.words.length + ' palabras';
+    case 'fuentes': return s.fonts.join(', ') || 'sin texto';
+    case 'formas': return countText(s.shapes, shapeName);
+    case 'animaciones': return countText(s.anims, animName);
+    case 'enlaces': return s.links.length ? s.links.join(', ') : 'ninguno';
+    case 'transiciones': return transName(s.transition);
+  }
+}
+function compare(m, a, k){
+  if(!a) return {score:0, note:'el alumno no tiene esta diapositiva'};
+  let score;
+  switch(k){
+    case 'imagenes': score = m.images===a.images?1:(Math.max(m.images,a.images)===0?1:Math.min(m.images,a.images)/Math.max(m.images,a.images)); break;
+    case 'texto': score = dice(m.words, a.words); break;
+    case 'fuentes': score = jaccard(m.fonts.map(f=>f.toLowerCase()), a.fonts.map(f=>f.toLowerCase())); break;
+    case 'formas': score = dice(m.shapes, a.shapes); break;
+    case 'animaciones': score = dice(m.anims, a.anims); break;
+    case 'enlaces': score = dice(m.links, a.links); break;
+    case 'transiciones': score = m.transition===a.transition?1:0; break;
+  }
+  let note = `modelo: ${describe(m,k)} · alumno: ${describe(a,k)}`;
+  if(k==='texto' && score<1){
+    const am = countList(a.words); const miss=[];
+    for(const w of m.words){ if(am[w]) am[w]--; else miss.push(w); }
+    const extra = Object.entries(am).filter(([,v])=>v>0).map(([w])=>w);
+    note = (miss.length?`faltan: ${[...new Set(miss)].slice(0,12).join(', ')}${miss.length>12?'…':''}`:'') + (miss.length&&extra.length?' · ':'') + (extra.length?`sobran: ${extra.slice(0,8).join(', ')}${extra.length>8?'…':''}`:'');
+  }
+  return {score, note};
+}
+
+/* ---------- estado ---------- */
+let model = null, sel = [], weights = {}, students = [], results = [], openRows = new Set(), nextId = 1;
+ITEMS.forEach(i => weights[i.k] = 'medio');
+
+function setModel(deck, name){
+  model = {name, slides:deck.slides};
+  sel = deck.slides.map(() => Object.fromEntries(ITEMS.map(i => [i.k, true])));
+  results = []; renderModel(); renderMatrix(); renderResults();
+}
+
+/* ---------- render ---------- */
+function renderModel(){
+  const box = $('#modelInfo'); box.textContent='';
+  if(!model){ box.append('Aún no has subido ninguna.'); return; }
+  box.append(el('span',{class:'fname'},model.name), ` · ${model.slides.length} diapositivas`);
+}
+function renderMatrix(){
+  const t = $('#matrix'); t.textContent='';
+  if(!model){ t.append(el('tbody',{},el('tr',{},el('td',{class:'empty'},'Sube tu presentación modelo para ver aquí sus diapositivas.')))); return; }
+  const head = el('tr',{}, el('th',{style:'text-align:left;vertical-align:bottom'},'Diapositiva'),
+    ITEMS.map(it => { const all = sel.every(r=>r[it.k]);
+      const cb = el('input',{type:'checkbox', id:'col-'+it.k, checked:all, 'aria-label':'Marcar toda la columna '+it.label, onchange:e=>{ sel.forEach(r=>r[it.k]=e.target.checked); renderMatrix(); renderResults(); }});
+      const ws = el('select',{class:'wsel', id:'w-'+it.k, 'aria-label':'Importancia de '+it.label, onchange:e=>{weights[it.k]=e.target.value; renderResults();}},
+        ['bajo','medio','alto'].map(v=>el('option',{value:v, selected:weights[it.k]===v}, v)));
+      return el('th',{}, el('label',{}, it.label, cb), ws); }));
+  const body = el('tbody',{}, model.slides.map((s,i) => el('tr',{},
+    el('td',{class:'slide'}, el('span',{class:'num'},'Diap. '+(i+1)), el('span',{class:'ttl', title:s.title}, s.title)),
+    ITEMS.map(it => el('td',{}, el('label',{class:'cell', title:describe(s,it.k)},
+      el('input',{type:'checkbox', id:`c-${i}-${it.k}`, checked:sel[i][it.k], onchange:e=>{ sel[i][it.k]=e.target.checked; const h=$('#col-'+it.k); if(h) h.checked=sel.every(r=>r[it.k]); renderResults(); }}),
+      el('small',{}, modelSummary(s,it.k))))))));
+  t.append(el('thead',{},head), body);
+}
+function renderStudents(){
+  const box = $('#students'); box.textContent='';
+  for(const st of students){
+    const dup = st.name && students.some(o => o!==st && o.name && ntoks(o.name).join(' ')===ntoks(st.name).join(' '));
+    const status = st.error ? el('span',{class:'status err'},st.error) : el('span',{class:'status'}, st.fileName ? st.fileName + (st.deck?` · ${st.deck.slides.length} diap.`:' · leyendo…') : 'sin archivo',
+      st.found ? el('span',{class:'found'},' · '+st.found) : null,
+      st.warn ? el('span',{class:'warn'},' · '+st.warn) : null,
+      dup ? el('span',{class:'warn'},' · nombre repetido en otra fila') : null);
+    const fi = el('input',{type:'file', accept:'.pptx', id:'f-'+st.id, onchange:async e=>{ const f=e.target.files[0]; if(f) await loadStudentFile(st,f); }});
+    box.append(el('div',{class:'srow'},
+      el('input',{type:'text', id:'n-'+st.id, placeholder:'Nombre del alumno', value:st.name, oninput:e=>{st.name=e.target.value; st.autoName=false; st.found=''; st.warn=''; const r=results.find(r=>r.id===st.id); if(r){ const c=document.querySelector(`[data-name="${st.id}"]`); if(c) c.textContent=st.name||'(sin nombre)'; }}}),
+      el('div',{class:'fcol row', style:'flex-wrap:nowrap;min-width:0'}, el('label',{class:'filebtn'}, 'Archivo', fi), status),
+      el('button',{type:'button', class:'ghost', title:'Quitar alumno', 'aria-label':'Quitar alumno', onclick:()=>{ students=students.filter(x=>x!==st); results=results.filter(r=>r.id!==st.id); if(!students.length) addStudent(); renderStudents(); renderResults(); }}, '✕')));
+  }
+}
+function addStudent(name='', fileName=''){ const st={id:nextId++, name, fileName, deck:null, error:''}; students.push(st); return st; }
+async function loadStudentFile(st, f){
+  st.fileName=f.name; st.deck=null; st.error=''; st.found=''; st.warn=''; renderStudents();
+  try{ st.deck = await parsePptx(f); applyIdentity(st); }catch(err){ st.error = `${f.name}: no se pudo leer. ¿Es un .pptx descargado de Google?`; }
+  renderStudents(); renderResults();
+}
+
+function grade(){
+  results = students.filter(s=>s.deck).map(st => {
+    const auto={}, notes={};
+    model.slides.forEach((m,i) => { for(const it of ITEMS){ if(!sel[i][it.k]) continue;
+      const c = compare(m, st.deck.slides[i], it.k); auto[i+':'+it.k] = c.score*10; notes[i+':'+it.k] = c.note; } });
+    return {id:st.id, auto, notes, sover:{}, over:{}, extra: Math.max(0, st.deck.slides.length - model.slides.length)};
+  });
+}
+const active = () => ITEMS.filter(it => sel.some(r=>r[it.k]));
+const slideVal = (r,i,k) => r.sover[i+':'+k] ?? r.auto[i+':'+k];
+function avgOf(r,k){ const idx = sel.map((s,i)=>s[k]?i:-1).filter(i=>i>=0); if(!idx.length) return null; return idx.reduce((a,i)=>a+slideVal(r,i,k),0)/idx.length; }
+const itemVal = (r,k) => r.over[k] ?? avgOf(r,k);
+function finalOf(r){ let s=0, w=0; for(const it of active()){ const v = itemVal(r,it.k); if(v==null) continue; s+=v*W[weights[it.k]]; w+=W[weights[it.k]]; } return w? s/w : 0; }
+
+function renderResults(){
+  const t = $('#results'); t.textContent='';
+  if(results.length && model){ // recalcula si cambió la selección, conservando las notas cambiadas a mano
+    const keep = results.map(r=>({id:r.id, over:r.over, sover:r.sover})); grade();
+    results.forEach(r=>{ const k=keep.find(x=>x.id===r.id); if(!k) return;
+      for(const key in k.sover) if(r.auto[key]!=null) r.sover[key]=k.sover[key];
+      for(const key in k.over) if(sel.some(s=>s[key])) r.over[key]=k.over[key]; });
+  }
+  const its = active();
+  if(!results.length){ t.append(el('tbody',{},el('tr',{},el('td',{class:'empty'},'Aquí aparecerán las notas al pulsar Corregir.')))); return; }
+  t.append(el('thead',{}, el('tr',{}, el('th',{style:'text-align:left'},'Alumno'), its.map(it=>el('th',{},it.label, el('br'), el('span',{style:'font-weight:400;opacity:.85'},weights[it.k]))), el('th',{},'Nota final'))));
+  const body = el('tbody');
+  for(const r of results){
+    const st = students.find(s=>s.id===r.id); const f = finalOf(r); const open = openRows.has(r.id);
+    const finalEl = el('span',{class:'final '+gclass(f)}, fmt(f));
+    const tr = el('tr',{class:open?'open':''},
+      el('td',{class:'name'}, el('button',{type:'button','aria-expanded':String(open), onclick:()=>{ open?openRows.delete(r.id):openRows.add(r.id); renderResults(); }}, el('span',{class:'car'},'▶'), el('span',{'data-name':r.id}, st.name||'(sin nombre)'))),
+      its.map(it => { const v = itemVal(r,it.k);
+        const inp = el('input',{type:'number', min:'0', max:'10', step:'0.1', id:`r-${r.id}-${it.k}`, value:String(Math.round(v*10)/10), class:(r.over[it.k]!=null?'edited ':'')+gclass(v), 'aria-label':`${it.label} de ${st.name}`,
+          onchange:e=>{ let x=parseFloat(String(e.target.value).replace(',','.')); if(isNaN(x)){ delete r.over[it.k]; } else { r.over[it.k]=Math.max(0,Math.min(10,x)); } renderResults(); }});
+        return el('td',{}, inp); }),
+      el('td',{}, finalEl));
+    body.append(tr);
+    if(open){
+      // tabla de notas por diapositiva, editable
+      const dHead = el('tr',{}, el('th',{style:'text-align:left'},'Diapositiva'), its.map(it=>el('th',{},it.label)));
+      const dRows = model.slides.map((s,i) => el('tr',{},
+        el('td',{class:'slide'}, el('span',{class:'num'},'Diap. '+(i+1)), el('span',{class:'ttl', title:s.title}, s.title)),
+        its.map(it => { const key=i+':'+it.k;
+          if(!sel[i][it.k]) return el('td',{class:'off', title:'Este ítem no se corrige en esta diapositiva'},'—');
+          const v = slideVal(r,i,it.k);
+          return el('td',{}, el('input',{type:'number', min:'0', max:'10', step:'0.1', id:`s-${r.id}-${i}-${it.k}`, value:String(Math.round(v*10)/10), title:r.notes[key]||'',
+            class:(r.sover[key]!=null?'edited ':'')+gclass(v), 'aria-label':`${it.label}, diapositiva ${i+1}, ${st.name}`,
+            onchange:e=>{ const x=parseFloat(String(e.target.value).replace(',','.')); if(isNaN(x)) delete r.sover[key]; else r.sover[key]=Math.max(0,Math.min(10,x)); delete r.over[it.k]; renderResults(); }})); })));
+      const avgRow = el('tr',{}, el('td',{class:'slide avg'},'Media'), its.map(it=>{ const v=avgOf(r,it.k); return el('td',{class:'avg '+gclass(v)}, fmt(v)); }));
+      const dt = el('div',{class:'scroll dtable'}, el('table',{}, el('thead',{},dHead), el('tbody',{},dRows,avgRow)));
+      // diferencias detectadas
+      const list = el('div',{class:'dl'}, el('h5',{},'Diferencias detectadas'));
+      let any=false;
+      model.slides.forEach((s,i) => {
+        const items = its.filter(it => sel[i][it.k] && r.auto[i+':'+it.k] < 9.99);
+        if(!items.length) return; any=true;
+        list.append(el('div',{class:'dslide'}, el('h4',{},`Diapositiva ${i+1}`), el('ul',{}, items.map(it=>{ const n=r.auto[i+':'+it.k]; return el('li',{}, el('span',{class:'pill '+gclass(n)}, it.label+' '+fmt(n)), el('span',{class:'v'}, r.notes[i+':'+it.k])); }))));
+      });
+      if(!any) list.append(el('div',{class:'allgood'},'Todo lo marcado coincide con el modelo.'));
+      if(r.extra) list.append(el('div',{class:'hint'}, `Tiene ${r.extra} diapositiva(s) de más que no se han corregido.`));
+      body.append(el('tr',{class:'detail'}, el('td',{colspan:String(its.length+2)}, dt, list)));
+    }
+  }
+  t.append(body);
+}
+
+/* ---------- eventos ---------- */
+$('#modelFile').addEventListener('change', async e => {
+  const f = e.target.files[0]; if(!f) return;
+  $('#modelInfo').textContent='Leyendo…';
+  try{ setModel(await parsePptx(f), f.name); }
+  catch(err){ model=null; renderMatrix(); $('#modelInfo').textContent=`No se pudo leer ${f.name}. Descárgala desde Google como Microsoft PowerPoint (.pptx).`; }
+});
+$('#addStudent').addEventListener('click', ()=>{ addStudent(); renderStudents(); });
+async function subirVarias(files){
+  students = students.filter(s=>s.name||s.fileName);
+  const made = files.map(f => { const st = addStudent(); st.autoName = true; return [st, f]; });
+  renderStudents(); for(const [st,f] of made) await loadStudentFile(st,f);
+}
+$('#multiFile').addEventListener('change', async e => {
+  const files=[...e.target.files]; if(!files.length) return;
+  await subirVarias(files);
+  e.target.value='';
+});
+$('#run').addEventListener('click', ()=>{
+  const msg=$('#runMsg');
+  if(!model){ msg.textContent='Primero sube tu presentación modelo (paso 1).'; return; }
+  if(!students.some(s=>s.deck)){ msg.textContent='Añade al menos una presentación de alumno (paso 3).'; return; }
+  if(!active().length){ msg.textContent='Marca al menos un ítem en el paso 2.'; return; }
+  grade(); openRows.clear(); renderResults();
+  const sin = students.filter(s=>!s.deck && (s.name||s.fileName)).length;
+  msg.textContent = `${results.length} corregida(s).` + (sin?` ${sin} sin archivo válido.`:'');
+  $('#resultsSec').scrollIntoView({behavior: matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});
+});
+$('#copy').addEventListener('click', async ()=>{
+  const its=active(); const lines=[['Alumno',...its.map(i=>i.label),'Nota final'].join('\t')];
+  for(const r of results){ const st=students.find(s=>s.id===r.id); lines.push([st.name, ...its.map(i=>fmt(itemVal(r,i.k))), fmt(finalOf(r))].join('\t')); }
+  const txt=lines.join('\n'); const m=$('#copyMsg');
+  try{ await navigator.clipboard.writeText(txt); m.textContent='Copiada. Pégala en tu hoja de cálculo.'; }
+  catch(_){ const ta=el('textarea',{style:'width:100%;height:120px'}); ta.value=txt; m.textContent=''; m.append(ta); ta.select(); }
+});
+
+/* ---------- lista de clase ---------- */
+function onClassList(){
+  const n = classList().length; $('#classCount').textContent = n ? `${n} alumno(s) en la lista.` : '';
+  try{ localStorage.setItem('cp-lista', $('#classList').value); }catch(_){}
+  students.forEach(st => { if(st.deck && (st.autoName || !st.name)) applyIdentity(st); });
+  renderStudents(); renderResults();
+}
+let listTimer; $('#classList').addEventListener('input', ()=>{ clearTimeout(listTimer); listTimer=setTimeout(onClassList, 400); });
+try{ const saved = localStorage.getItem('cp-lista'); if(saved){ $('#classList').value = saved; $('#classCount').textContent = `${classList().length} alumno(s) en la lista.`; } }catch(_){}
+
+/* ---------- inicio ---------- */
+addStudent(); renderModel(); renderMatrix(); renderStudents(); renderResults();
+</script>
+<script src="enlace-cuaderno.js"></script>
+</body>
+</html>

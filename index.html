@@ -221,21 +221,21 @@
     </div>
   </div>
 
-  <!-- VISTA 4: CORRECTOR DE SCRATCH (integrado en el cuaderno) -->
-  <div id="vistaScratch" class="contenedor-principal hidden">
+  <!-- VISTA 4: CORRECTORES INTEGRADOS EN EL CUADERNO (Scratch, Presentaciones) -->
+  <div id="vistaCorrector" class="contenedor-principal hidden">
     <header class="header-app">
       <div class="header-titulos">
         <img src="logo.png" alt="" class="logo-app logo-app-header">
-        <h1 id="tituloScratch">Corrector de Scratch</h1>
-        <span class="badge-lomloe">🐱 Scratch</span>
+        <h1 id="tituloCorrector">Corrector</h1>
+        <span id="badgeCorrector" class="badge-lomloe"></span>
       </div>
       <div class="acciones-header">
         <span class="estado-guardado ok">✓ Guardado</span>
         <button onclick="guardarDocumento()">💾 Guardar Archivo</button>
-        <button onclick="volverDeScratch()">⬅️ Volver a la Unidad</button>
+        <button onclick="volverDelCorrector()">⬅️ Volver a la Unidad</button>
       </div>
     </header>
-    <iframe id="marcoScratch" class="marco-corrector" title="Corrector de Scratch"></iframe>
+    <iframe id="marcoCorrector" class="marco-corrector" title="Corrector"></iframe>
   </div>
 
   <!-- MODAL: AGREGAR / EDITAR UD -->
@@ -291,8 +291,9 @@
           <option value="manual">✏️ Manual (escribo yo las notas)</option>
           <option value="genially">🧩 Corrector de Genially</option>
           <option value="scratch">🐱 Corrector de Scratch</option>
+          <option value="presentaciones">📊 Corrector de Presentaciones de Google</option>
         </select>
-        <p class="ayuda-campo">Con un corrector automático, las notas de este apartado llegan solas al cuaderno (Genially necesita la extensión; Scratch funciona dentro de esta web).</p>
+        <p class="ayuda-campo">Con un corrector automático, las notas de este apartado llegan solas al cuaderno (Genially necesita la extensión; Scratch y Presentaciones funcionan dentro de esta web).</p>
       </div>
       <div class="modal-acciones">
         <button class="btn-secundario" onclick="cerrarModalAgregarApartado()">Cancelar</button>
@@ -316,6 +317,9 @@
         </button>
         <button id="btnOpcionScratch" class="btn-menu-opcion btn-menu-genially hidden" onclick="menuAccionCorregirScratch()">
           🐱 Corregir con el corrector de Scratch
+        </button>
+        <button id="btnOpcionPresentaciones" class="btn-menu-opcion btn-menu-genially hidden" onclick="menuAccionCorregirPresentaciones()">
+          📊 Corregir con el corrector de Presentaciones
         </button>
         <button class="btn-menu-opcion" onclick="menuAccionEditarApartado()">
           ✏️ Modificar Nombre / Porcentaje
