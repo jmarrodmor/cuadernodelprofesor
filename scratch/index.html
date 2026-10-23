@@ -30,6 +30,34 @@ header h1{margin:0;font-size:1.45rem;font-weight:600}
 header p{margin:4px 0 0;opacity:.85;font-size:.95rem}
 main{max-width:1180px;margin:0 auto;padding:20px 16px 60px}
 .alumno .archivo{min-width:0!important}
+/* Nombre editable de cada ítem, ítems manuales y capturas */
+.nombre-ap{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+input.in-nombre{font:inherit;font-weight:700;color:var(--texto);border:1px solid transparent;border-radius:5px;padding:3px 6px;background:transparent;min-width:220px;flex:1;max-width:520px}
+input.in-nombre:hover,input.in-nombre:focus{border-color:var(--borde);background:var(--tarjeta)}
+.tit-man{margin:20px 0 4px;font-size:1rem;color:var(--enlace)}
+.mrow{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:8px}
+.mrow input.in-nombre{font-weight:600;border-color:var(--borde);background:var(--tarjeta);max-width:300px}
+.mrow select{font:inherit;padding:3px 6px}
+.mrow button{padding:4px 10px}
+table.notas th.th-man{background:#2e6485}
+table.notas input.manual{border:1px dashed var(--borde)}
+figure.captura{margin:8px 0 10px;max-width:260px}
+figure.captura img{width:100%;display:block;border:1px solid var(--borde);border-radius:6px;cursor:zoom-in;background:#fff}
+figure.captura figcaption{font-size:.8rem;color:var(--suave);margin-top:3px}
+.lb{position:fixed;inset:0;background:rgba(0,0,0,.82);display:flex;align-items:center;justify-content:center;z-index:9;cursor:zoom-out;padding:16px}
+.lb-fotos{display:flex;gap:16px;flex-wrap:wrap;justify-content:center;align-items:flex-start;max-width:96vw}
+.lb figure{margin:0;flex:0 0 auto;width:min(44vw,560px)}
+.lb img{width:100%;border-radius:4px;background:#fff;image-rendering:auto}
+.lb figcaption{color:#fff;font-size:.9rem;margin-top:6px;text-align:center}
+@media (max-width:700px){.lb figure{width:92vw}}
+/* Dentro del cuaderno de evaluación */
+body.en-cuaderno header{display:none}
+body.en-cuaderno main{padding-top:14px}
+.barra-cuaderno{background:var(--ok-fondo);border:1px solid #b7dfc2;border-radius:8px;padding:10px 14px;margin-bottom:16px;font-size:.92rem}
+.alumno .est{min-width:150px;font-size:.88rem;color:var(--suave);text-align:right}
+.alumno .est.final{font-size:1.05rem;font-weight:700}
+.alumno .est.n-alta{color:var(--ok)}.alumno .est.n-media{color:var(--medio)}.alumno .est.n-baja{color:var(--mal)}
+.alumno input[readonly]{background:var(--claro);border-color:transparent;font-weight:600}
 @media (max-width:520px){.tarjeta{padding:14px}.alumno input[type=text]{width:100%}}
 .tarjeta{background:var(--tarjeta);border:1px solid var(--borde);border-radius:10px;padding:18px 20px;margin-bottom:18px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
 .tarjeta h2{margin:0 0 4px;font-size:1.15rem;color:var(--enlace);text-wrap:balance}
@@ -105,36 +133,63 @@ li.info::marker{content:"•  ";color:var(--suave)}
 .pregunta input{flex:1;min-width:0;font:inherit;padding:6px 8px;border:1px solid var(--borde);border-radius:5px;background:var(--tarjeta);color:var(--texto)}
 .criterios .sub{margin-top:3px}
 .pie{color:var(--suave);font-size:.8rem;text-align:center;margin-top:30px}
-/* Dentro del cuaderno de evaluación */
-body.en-cuaderno header{display:none}
-body.en-cuaderno main{padding-top:14px}
-.barra-cuaderno{background:var(--ok-fondo);border:1px solid #b7dfc2;border-radius:8px;padding:10px 14px;margin-bottom:16px;font-size:.92rem}
-.alumno .est{min-width:150px;font-size:.88rem;color:var(--suave);text-align:right}
-.alumno .est.final{font-size:1.05rem;font-weight:700}
-.alumno .est.n-alta{color:var(--ok)}.alumno .est.n-media{color:var(--medio)}.alumno .est.n-baja{color:var(--mal)}
-.alumno input[readonly]{background:var(--claro);border-color:transparent;font-weight:600}
+.donde{font-size:.84rem;color:var(--suave);margin-top:2px}
+details.codigo{margin-top:4px;font-size:.84rem}
+details.codigo summary{cursor:pointer;color:var(--enlace);width:max-content}
+.bloques{font-family:Consolas,"Cascadia Mono",Menlo,monospace;font-size:.8rem;background:var(--zona);border:1px solid var(--borde);border-radius:6px;padding:8px 10px;margin:6px 0 2px;white-space:pre;overflow-x:auto;line-height:1.5}
+.resumen{display:flex;gap:10px;flex-wrap:wrap;margin:6px 0 10px}
+.resumen span{background:var(--claro);border-radius:6px;padding:4px 10px;font-size:.88rem}
+li.medio::marker{content:"◐  ";color:var(--medio)}
+table.notas th .ap{font-weight:700}
+.botones-sel{display:flex;gap:8px;margin:0 0 8px}
+.botones-sel button{padding:4px 10px;font-size:.85rem}
+.veces{display:inline-block;font-size:.75rem;border-radius:10px;padding:1px 8px;margin-left:6px;background:var(--ok-fondo);color:var(--ok)}
+.veces.no{background:var(--pista);color:var(--suave)}
+.bloques b{color:var(--enlace)}
+tr.subtitulo td{padding-top:16px;font-weight:700;color:var(--enlace);border-bottom:2px solid var(--borde)}
+.panel-ia{border:1px solid var(--borde);border-radius:8px;padding:12px 14px;margin:14px 0 4px;background:var(--panel)}
+.panel-ia label.si{font-weight:600;color:var(--enlace);display:flex;gap:8px;align-items:center;cursor:pointer}
+.panel-ia .campos{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:10px}
+.panel-ia input[type=password],.panel-ia input[type=text],.panel-ia select{font:inherit;padding:6px 8px;border:1px solid var(--borde);border-radius:5px;background:var(--tarjeta);color:var(--texto)}
+.panel-ia input[type=password]{width:300px;max-width:100%}
+.panel-ia .nota-ia{font-size:.84rem;color:var(--suave);margin-top:8px}
+.panel-ia a{color:var(--enlace)}
+.fuente{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:6px 0 4px;font-size:.92rem}
+.fuente select{font:inherit;padding:4px 8px}
+.dos{display:block;font-size:.72rem;color:var(--suave);white-space:nowrap;margin-top:1px}
+td.discrepa{background:var(--aviso)}
+.motivo-ia{margin:4px 0 0;padding:6px 10px;border-left:3px solid var(--azul);background:var(--claro);font-size:.86rem;border-radius:0 5px 5px 0}
+ul.comport{list-style:none;margin:6px 0 0;padding:0}
+ul.comport>li{padding:5px 0;border-top:1px dashed var(--linea);font-size:.9rem}
+ul.comport label{cursor:pointer}
+.donde-mini{font-size:.8rem;color:var(--suave)}
+.corresp{font-size:.88rem;color:var(--enlace);margin:0 0 4px}
+details.detalle ul.sub{margin:2px 0 4px;padding-left:18px}
+details.detalle li{margin:2px 0}
 </style>
 <script src="vendor/scratch-storage.min.js"></script>
 <script src="vendor/scratch-render.min.js"></script>
 <script src="vendor/scratch-svg-renderer.js"></script>
 <script src="vendor/scratch-vm.js"></script>
+<script src="analizador.js"></script>
+<script src="motor.js"></script>
 <script src="corrector.js"></script>
 <script src="enlace-cuaderno.js"></script>
 </head>
 <body>
 <header>
   <h1>Corrector de juegos de Scratch</h1>
-  <p>Juega tu modelo, el programa aprende qué hace y comprueba que los juegos de los alumnos consiguen lo mismo.</p>
+  <p>Inventario de los actores de tu juego y de todos los bloques que les afectan, comparado con el juego de cada alumno.</p>
 </header>
 <main>
 <div id="barraCuaderno" class="barra-cuaderno oculto"></div>
 
 <section class="tarjeta" id="paso1">
   <h2><span class="num">1</span>Tu juego modelo</h2>
-  <p class="ayuda">Sube tu juego (.sb3) y pulsa <b>Empezar a grabar</b>. Juega enseñando todo lo que quieres evaluar: usa todas las teclas y el ratón, choca con cada tipo de obstáculo, haz clic o arrastra objetos, responde preguntas (bien y mal), marca puntos… Cuando el juego se detenga, pulsa <b>⚑ Bandera verde</b> para jugar otra vez y enseñar otros finales (perder, ganar). La grabación solo termina cuando pulsas <b>Terminar</b>.</p>
+  <p class="ayuda">Sube tu juego (.sb3). El corrector hace inventario de sus actores (objetos, clones, fondo, variables, listas, preguntas) y reúne para cada uno todos los bloques que le afectan. Ya puedes corregir. <b>Opcional:</b> pulsa <b>Empezar a grabar</b> y juega enseñando lo que quieres evaluar (perder, ganar, coger cosas…); lo que no pase en tu partida quedará desmarcado. Si el juego se para, pulsa <b>⚑ Bandera verde</b>; la grabación termina con <b>Terminar</b>.</p>
   <div class="fila">
     <div class="zona" id="zonaModelo" style="flex:1;min-width:260px"><strong>Arrastra aquí tu .sb3</strong> o haz clic para elegirlo<div id="nombreModelo" class="sub"></div></div>
-    <div class="zona" id="zonaGrab" style="min-width:220px">o <strong>carga una grabación</strong> guardada (.json)</div>
+    <div class="zona" id="zonaGrab" style="min-width:220px">o <strong>carga una partida</strong> guardada (.json)</div>
     <input type="file" id="fModelo" accept=".sb3">
     <input type="file" id="fGrab" accept=".json,application/json">
   </div>
@@ -147,7 +202,7 @@ body.en-cuaderno main{padding-top:14px}
         <button id="bGrabar" disabled>⏺ Empezar a grabar</button>
         <button id="bBandera" class="verde" disabled>⚑ Bandera verde</button>
         <button id="bParar" class="rojo" disabled>⏹ Terminar</button>
-        <button id="bGuardar" class="sec" disabled>💾 Guardar grabación</button>
+        <button id="bGuardar" class="sec" disabled>💾 Guardar partida</button>
       </div>
     </div>
     <div>
@@ -159,15 +214,19 @@ body.en-cuaderno main{padding-top:14px}
 
 <section class="tarjeta oculto" id="paso2">
   <h2><span class="num">2</span>Qué se va a evaluar</h2>
-  <p class="ayuda">De todo lo que el corrector sabe comprobar, estos son los puntos que aparecen en tu juego. Cada uno se ha probado en tu propio modelo. Desmarca lo que no quieras evaluar y elige su importancia.</p>
-  <div id="avisoCrit"></div>
-  <div id="progModelo" class="progreso oculto"></div>
+  <p class="ayuda">Cada apartado es un actor de tu juego con <b>todos los bloques que le afectan</b>, estén en el objeto que estén (por ejemplo, la variable VIDAS baja cuando el jugador toca una roca, aunque eso esté programado en el jugador). En el alumno se busca el actor que hace lo mismo (da igual cómo se llame) y se comparan sus comportamientos. Los objetos iguales (8 monedas, 3 rocas) son un solo apartado. Puedes desmarcar actores o comportamientos concretos y elegir la importancia. «ver bloques» muestra en negrita los bloques de cada comportamiento.</p>
+  <div id="resumenModelo" class="resumen"></div>
+  <div class="botones-sel"><button class="sec" id="bTodos">Marcar todos</button><button class="sec" id="bNinguno">Desmarcar todos</button></div>
   <table class="criterios" id="tablaCriterios"></table>
+  <h3 class="tit-man">Ítems de nota manual</h3>
+  <p class="ayuda">Para lo que el corrector no puede ver en los bloques (apariencia, trabajo observado, originalidad…). La nota la pones tú en la tabla de resultados; cuenta en la nota final como un ítem más, con su importancia, solo si le pones nota.</p>
+  <div id="manuales"></div>
+  <button class="sec" id="bManual">+ Añadir ítem de nota manual</button>
 </section>
 
 <section class="tarjeta oculto" id="paso3">
   <h2><span class="num">3</span>Juegos de los alumnos</h2>
-  <p class="ayuda">Añade un juego por alumno. También puedes arrastrar varios .sb3 a la vez: el nombre se toma del archivo y puedes cambiarlo.</p>
+  <p class="ayuda">Añade un juego por alumno. También puedes arrastrar varios .sb3 a la vez: el nombre se toma del archivo y puedes cambiarlo. Da igual cómo hayan llamado a sus objetos y variables.</p>
   <div id="alumnos"></div>
   <div class="fila" style="margin-top:6px">
     <button class="sec" id="bAnadir">+ Añadir alumno</button>
@@ -176,12 +235,12 @@ body.en-cuaderno main{padding-top:14px}
     <span style="flex:1"></span>
     <button class="grande" id="bCorregir">Corregir</button>
   </div>
-  <div id="progCorr" class="progreso oculto"><div class="fila" style="align-items:flex-start"><div id="miniEsc"></div><div style="flex:1;min-width:200px"><span id="txtCorr"></span><div class="barra"><i id="barraCorr"></i></div></div></div></div>
+  <div id="progCorr" class="progreso oculto"><span id="txtCorr"></span><div class="barra"><i id="barraCorr"></i></div></div>
 </section>
 
 <section class="tarjeta oculto" id="paso4">
   <h2><span class="num">4</span>Resultados</h2>
-  <p class="ayuda">Puedes cambiar cualquier nota haciendo clic en ella: la nota final se recalcula. Debajo tienes el detalle de cada alumno.</p>
+  <p class="ayuda">Cada comportamiento vale 10 si el alumno tiene bloques equivalentes, 0 si no hay nada parecido y una nota intermedia si se parece en parte. Se aceptan técnicas distintas que hacen lo mismo (por ejemplo «mover 10 pasos» o «sumar 10 a x»). No se comprueban colores, posiciones ni números concretos (los alumnos los ponen a ojo), y si tu condición es «tocando A o B o C», basta con que el alumno toque algo. Puedes cambiar cualquier nota haciendo clic en ella: la nota final se recalcula.</p>
   <div class="tabla-scroll"><table class="notas" id="tablaNotas"></table></div>
   <div class="fila" style="margin-top:12px">
     <button class="sec" id="bCSV">Descargar tabla (CSV)</button>

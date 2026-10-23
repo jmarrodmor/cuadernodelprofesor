@@ -1,16 +1,34 @@
-CORRECTOR DE JUEGOS DE SCRATCH
-==============================
-En local: descomprime la carpeta y abre index.html con Chrome o Edge (doble clic).
-En GitHub Pages: sube la carpeta tal cual (index.html, corrector.js y la carpeta vendor) a un repositorio y activa Pages.
+CORRECTOR DE JUEGOS DE SCRATCH (por actores)
+============================================
+En local: descomprime la carpeta y abre index.html con Chrome o Edge (doble clic). No hay que instalar nada.
+En GitHub Pages: sube la carpeta tal cual (index.html, los .js y la carpeta vendor) a un repositorio y activa Pages.
 
-Cómo se usa
-1. Sube tu juego modelo y pulsa «Empezar a grabar». Juega enseñando todo lo que quieres evaluar.
-   Cuando el juego se pare, pulsa «Bandera verde» para jugar otra vez (perder, ganar…).
-   Si el juego hace preguntas, responde en el recuadro que aparece debajo del escenario.
-   La grabación termina al pulsar «Terminar».
-2. El corrector propone lo que ha encontrado en tu juego. Desmarca lo que no quieras y elige la importancia.
-   Puedes guardar la grabación (.json) para usarla otro día sin volver a jugar.
-3. Añade los .sb3 de los alumnos y pulsa «Corregir». Las notas se pueden cambiar a mano.
+Cómo funciona
+1. Sube tu juego modelo (.sb3). El corrector hace inventario de sus ACTORES: objetos (y sus clones), fondo,
+   variables, listas, preguntas y fin del juego. Para cada actor reúne TODOS los bloques que le afectan,
+   estén en el objeto que estén, con el evento y las condiciones que los provocan.
+   Ejemplo: la variable VIDAS «empieza en 3» y «baja 1 si toca una roca y falla la respuesta»,
+   aunque esos bloques estén en la roca y en el jugador.
+   - Los objetos iguales (8 monedas, 3 rocas) son un solo apartado.
+   - Las variables auxiliares (nº1 y nº2 para la pregunta) van con el actor que las usa.
+   - «Al recibir mensaje» se trata como si estuviera donde se envía el mensaje.
+2. Opcional: pulsa «Empezar a grabar» y juega. Lo que no pase en tu partida queda desmarcado.
+   Puedes guardar la partida (.json) para otro día.
+3. Elige qué actores y comportamientos evaluar y su importancia.
+4. Añade los .sb3 de los alumnos y pulsa «Corregir». Sus juegos NO se ejecutan. Para cada actor tuyo se busca
+   el actor del alumno que hace lo mismo (da igual cómo se llame: los objetos por lo que hacen, las variables por
+   su nombre o por cómo empiezan y si suben o bajan) y se comparan sus comportamientos.
+5. Cada comportamiento vale 10 si está, 0 si no hay nada parecido y una nota intermedia si se parece en parte.
+   La nota del actor es la media de sus comportamientos. Puedes cambiar cualquier nota (déjala vacía para
+   volver a la automática). Descarga la tabla en CSV.
+
+Qué tiene en cuenta
+- No se comprueban colores, posiciones, tiempos ni números concretos: los alumnos los ponen a ojo.
+- Una condición «tocando A o tocando B o tocando C» cuenta como una sola.
+- Acepta técnicas equivalentes: «mover 10 pasos» = «sumar 10 a x»; «sumar −1 a VIDAS» = «dar a VIDAS el valor VIDAS − 1»;
+  «al presionar tecla» ≈ «por siempre + si tecla presionada»; «esconder» ≈ efecto fantasma; mensajes; bloques en el
+  escenario o en otro objeto; programas unidos o separados.
+- Los bloques sueltos (sin bloque de evento arriba) no se ejecutan y no cuentan; se avisa en el detalle.
 
 La carpeta vendor contiene el motor oficial de Scratch (scratch-vm, scratch-render, scratch-storage,
 scratch-svg-renderer) de la Scratch Foundation.
