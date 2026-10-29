@@ -93,30 +93,30 @@ const CATALOGO_ASIGNATURAS = {
 
     DESCRIPCIONES_COMPETENCIAS: {
       "1": "1. Buscar, seleccionar y organizar información en entornos digitales con actitud crítica y segura.",
-      "2": "2. Abordar problemas mediante el diseño y construcción de soluciones tecnológicas sostenibles.",
+      "2": "2. Abordar problemas tecnológicos con autonomía y actitud creativa, para diseñar, planificar y desarrollar soluciones.",
       "3": "3. Utilizar herramientas informáticas y de diseño para la creación de contenido digital.",
-      "4": "4. Representar e comunicar ideas técnicas utilizando simbología y normalización adecuada.",
-      "5": "5. Desarrollar un proyecto técnico trabajando de forma cooperativa e inclusiva.",
-      "6": "6. Comprender el funcionamiento de los sistemas tecnológicos y su impacto en la sociedad.",
-      "7": "7. Hacer uso responsable de los recursos tecnológicos promoviendo el desarrollo sostenible."
+      "4": "4. Representar e intercambiar ideas a problemas tecnológicos o digitales, utilizando medios de representación y valorando la utilidad de las herramientas digitales.",
+      "5": "5. Desarrollar algoritmos y aplicaciones informáticas aplicando los principios del pensamiento computacional. Automatizar procesos y aplicarlos en sistemas de control o en robótica.",
+      "6": "6. Comprender el funcionamiento de los dispositivos y aplicaciones del entorno digital de aprendizaje.",
+      "7": "7. Hacer un uso responsable y ético de la tecnología, desarrollo sostenible y el impacto del desarrollo tecnológico en la sociedad y en el entorno."
     },
 
     DESCRIPCIONES_CRITERIOS: {
-      "1.1": "1.1. Buscar y seleccionar información relevante en la red con sentido crítico.",
-      "1.2": "1.2. Organizar y almacenar la información digital de forma segura.",
-      "1.3": "1.3. Aplicar medidas básicas de seguridad y protección de datos.",
-      "2.1": "2.1. Diseñar soluciones tecnológicas creativas a problemas planteados.",
-      "2.2": "2.2. Construir prototipos aplicando normas de seguridad e higiene.",
-      "3.1": "3.1. Elaborar documentos y presentaciones utilizando aplicaciones informáticas.",
-      "4.1": "4.1. Interpretar y realizar bocetos y croquis técnicos utilizando acotación.",
-      "5.1": "5.1. Trabajar en equipo repartiendo tareas con empatía y equidad.",
-      "5.2": "5.2. Planificar las fases de un proyecto técnico respetando tiempos.",
-      "5.3": "5.3. Evaluar el proceso de trabajo en grupo proponiendo mejoras.",
-      "6.1": "6.1. Identificar los componentes principales de un sistema informático o tecnológico.",
-      "6.2": "6.2. Analizar las repercusiones del avance tecnológico en el entorno social y ambiental.",
-      "6.3": "6.3. Valorar la importancia de la ciberseguridad y la identidad digital.",
-      "7.1": "7.1. Evaluar el consumo energético e impacto medioambiental de la tecnología.",
-      "7.2": "7.2. Aplicar criterios de economía circular en la reutilización de materiales."
+      "1.1": "1.1 Definir problemas buscando y contrastando información de manera crítica.",
+      "1.2": "1.2 Comprender y examinar productos tecnológicos de uso habitual utilizando herramientas de simulación.",
+      "1.3": "1.3 Adoptar medidas para la protección de los dispositivos y comprender los riesgos relacionados con el uso de la tecnología",
+      "2.1": "2.1 Diseñar soluciones eficaces y sostenibles a problemas definidos.",
+      "2.2": "2.2 Planificar los materiales y herramientas, así como las tareas necesarias para la construcción de una solución a un problema.",
+      "3.1": "3.1 Fabricar objetos mediante conformación de materiales aplicando los fundamentos de estructuras, mecanismos, electricidad y electrónica.",
+      "4.1": "4.1 Representar y comunicar el proceso de creación de un producto elaborando documentación técnica y gráfica con la ayuda de herramientas digitales.",
+      "5.1": "5.1 Diseñar soluciones a problemas informáticos a través de algoritmos.",
+      "5.2": "5.2 Programar aplicaciones sencillas para distintos dispositivos (ordenadores, dispositivos móviles y otros)",
+      "5.3": "5.3 Automatizar procesos, máquinas y objetos de manera autónoma. Y programación de robots.",
+      "6.1": "6.1 Usar de manera eficiente y segura los dispositivos digitales de uso cotidiano, conociendo los riesgos y adoptando medidas de seguridad.",
+      "6.2": "6.2 Crear contenidos y difundirlos en distintas plataformas digitales.",
+      "6.3": "6.3 Organizar la información de manera estructurada, aplicando técnicas de almacenamiento seguro.",
+      "7.1": "7.1 Reconocer la influencia de la actividad tecnológica en la sociedad y en la sostenibilidad ambiental a lo largo de su historia.",
+      "7.2": "7.2 Identificar las aportaciones de las tecnologías al bienestar y a la disminución del impacto ambiental, haciendo un uso responsable de las mismas."
     },
 
     DESCRIPCIONES_DESCRIPTORES: {
